@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Encoding vs Encryption vs Hashing | CyberTechToolkit</title>
+  <meta name="description" content="Learn the difference between encoding, encryption, and hashing with a hands-on interactive tool.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 30px;
+      width: 950px;
+      max-width: 96%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 15px;
+      font-family: monospace;
+    }
+
+    textarea {
+      height: 90px;
+      resize: vertical;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00ffd5;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 18px;
+      margin-right: 10px;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .results {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .card-title {
+      color: #00ffd5;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .card-subtitle {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    .good {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .warn {
+      color: #f59e0b;
+      font-weight: bold;
+    }
+
+    .bad {
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .comparison {
+      margin-top: 24px;
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #1f2937;
+      padding: 10px;
+      text-align: left;
+      color: #e5e7eb;
+    }
+
+    th {
+      color: #00ffd5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="back">
+    <a href="/">← Back to CyberTechToolkit</a>
+  </div>
+
+  <h1>Encoding vs Encryption vs Hashing</h1>
+
+  <div class="box">
+    <div class="label">Input Text</div>
+    <textarea id="inputText" placeholder="Enter text to compare..."></textarea>
+
+    <div class="label">Encryption Key (for demo encryption)</div>
+    <input type="text" id="keyText" placeholder="Enter a simple key, like: cyberkey">
+
+    <div style="text-align:center;">
+      <button onclick="runComparison()">Run Comparison</button>
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearAll()">Clear</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="results" id="results">
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-value">Comparison results will appear here</div>
+      </div>
+    </div>
+
+    <div class="comparison">
+      <div class="card-title">What Each One Means</div>
+      <table>
+        <tr>
+          <th>Method</th>
+          <th>Reversible?</th>
+          <th>Main Purpose</th>
+        </tr>
+        <tr>
+          <td>Encoding</td>
+          <td class="good">Yes</td>
+          <td>Format data so systems can safely store or transmit it</td>
+        </tr>
+        <tr>
+          <td>Encryption</td>
+          <td class="good">Yes, with the key</td>
+          <td>Protect confidentiality of data</td>
+        </tr>
+        <tr>
+          <td>Hashing</td>
+          <td class="bad">No</td>
+          <td>Create a one-way fingerprint for integrity or verification</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="note">
+      This tool is educational. The encryption example here is a simple reversible demo to help explain the concept. Real-world secure encryption should use proper cryptographic libraries and algorithms such as AES.
+    </div>
+  </div>
+
+  <script>
+    async function sha256(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function encodeBase64(text) {
+      return btoa(unescape(encodeURIComponent(text)));
+    }
+
+    function decodeBase64(text) {
+      return decodeURIComponent(escape(atob(text)));
+    }
+
+    function xorEncrypt(text, key) {
+      if (!key) return "";
+      let output = "";
+      for (let i = 0; i < text.length; i++) {
+        const charCode = text.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+        output += String.fromCharCode(charCode);
+      }
+      return btoa(output);
+    }
+
+    function xorDecrypt(encodedText, key) {
+      if (!key) return "";
+      const text = atob(encodedText);
+      let output = "";
+      for (let i = 0; i < text.length; i++) {
+        const charCode = text.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+        output += String.fromCharCode(charCode);
+      }
+      return output;
+    }
+
+    async function runComparison() {
+      const input = document.getElementById("inputText").value;
+      const key = document.getElementById("keyText").value;
+      const status = document.getElementById("status");
+      const results = document.getElementById("results");
+
+      if (!input) {
+        status.innerText = "Please enter input text first.";
+        results.innerHTML = `
+          <div class="card">
+            <div class="card-title">Results</div>
+            <div class="card-value">Comparison results will appear here</div>
+          </div>
+        `;
+        return;
+      }
+
+      status.innerText = "Running comparison...";
+
+      const base64Encoded = encodeBase64(input);
+      const base64Decoded = decodeBase64(base64Encoded);
+      const hashValue = await sha256(input);
+
+      let encrypted = "Enter a key to see encryption.";
+      let decrypted = "Enter a key to see decryption.";
+
+      if (key) {
+        encrypted = xorEncrypt(input, key);
+        decrypted = xorDecrypt(encrypted, key);
+      }
+
+      results.innerHTML = `
+        <div class="card">
+          <div class="card-title">Encoding</div>
+          <div class="card-subtitle">Base64 Encoded</div>
+          <div class="card-value">${base64Encoded}</div>
+          <div class="card-subtitle" style="margin-top:12px;">Decoded Again</div>
+          <div class="card-value">${base64Decoded}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Encryption</div>
+          <div class="card-subtitle">Encrypted with Demo Key</div>
+          <div class="card-value">${encrypted}</div>
+          <div class="card-subtitle" style="margin-top:12px;">Decrypted with Same Key</div>
+          <div class="card-value">${decrypted}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Hashing</div>
+          <div class="card-subtitle">SHA-256 Hash</div>
+          <div class="card-value">${hashValue}</div>
+          <div class="card-subtitle" style="margin-top:12px;">Can It Be Reversed?</div>
+          <div class="card-value bad">No — hashing is one-way</div>
+        </div>
+      `;
+
+      status.innerText = "Comparison complete.";
+    }
+
+    function loadExample() {
+      document.getElementById("inputText").value = "CyberTechToolkit";
+      document.getElementById("keyText").value = "cyberkey";
+      document.getElementById("status").innerText = "";
+      runComparison();
+    }
+
+    function clearAll() {
+      document.getElementById("inputText").value = "";
+      document.getElementById("keyText").value = "";
+      document.getElementById("status").innerText = "";
+      document.getElementById("results").innerHTML = `
+        <div class="card">
+          <div class="card-title">Results</div>
+          <div class="card-value">Comparison results will appear here</div>
+        </div>
+      `;
+    }
+  </script>
+
+</body>
+</html>
