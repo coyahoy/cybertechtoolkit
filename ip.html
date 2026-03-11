@@ -1,66 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>What Is My IP - CyberTechToolkit</title>
-<style>
-body{
-font-family:Arial;
-background:#0b0f19;
-color:white;
-text-align:center;
-padding:40px;
-}
+  <title>What Is My IP - CyberTechToolkit</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
 
-h1{
-color:#00ffd5;
-}
+    h1 {
+      color: #00ffd5;
+    }
 
-.box{
-background:#111827;
-padding:30px;
-border-radius:10px;
-display:inline-block;
-margin-top:30px;
-}
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
 
-button{
-padding:10px 20px;
-border:none;
-background:#00ffd5;
-color:black;
-font-weight:bold;
-border-radius:6px;
-cursor:pointer;
-}
-</style>
+    .back-link a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      padding: 30px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 30px;
+      min-width: 320px;
+    }
+
+    .label {
+      color: #9ca3af;
+      margin-top: 15px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .value {
+      font-size: 22px;
+      color: #00ffd5;
+      margin-top: 5px;
+      word-break: break-word;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00ffd5;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 25px;
+    }
+  </style>
 </head>
-
 <body>
-<div style="position:absolute;top:20px;left:20px;">
-<a href="/" style="color:#00ffd5;text-decoration:none;font-weight:bold;">
-← Back to CyberTechToolkit
-</a>
-</div>
-<h1>What Is My IP</h1>
 
-<div class="box">
-<p>Your IP Address:</p>
-<h2 id="ip">Loading...</h2>
+  <div class="back-link">
+    <a href="/">← Back to CyberTechToolkit</a>
+  </div>
 
-<button onclick="getIP()">Check IP</button>
-</div>
+  <h1>What Is My IP</h1>
 
-<script>
-function getIP(){
-fetch("https://api.ipify.org?format=json")
-.then(response => response.json())
-.then(data => {
-document.getElementById("ip").innerText = data.ip;
-});
-}
+  <div class="box">
+    <div class="label">IP Address</div>
+    <div class="value" id="ip">Loading...</div>
 
-getIP();
-</script>
+    <div class="label">City</div>
+    <div class="value" id="city">Loading...</div>
+
+    <div class="label">Region</div>
+    <div class="value" id="region">Loading...</div>
+
+    <div class="label">Country</div>
+    <div class="value" id="country">Loading...</div>
+
+    <div class="label">ISP</div>
+    <div class="value" id="isp">Loading...</div>
+
+    <button onclick="getIPInfo()">Refresh</button>
+  </div>
+
+  <script>
+    async function getIPInfo() {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+
+        document.getElementById("ip").innerText = data.ip || "Unavailable";
+        document.getElementById("city").innerText = data.city || "Unavailable";
+        document.getElementById("region").innerText = data.region || "Unavailable";
+        document.getElementById("country").innerText = data.country_name || "Unavailable";
+        document.getElementById("isp").innerText = data.org || "Unavailable";
+      } catch (error) {
+        document.getElementById("ip").innerText = "Error loading data";
+        document.getElementById("city").innerText = "Error loading data";
+        document.getElementById("region").innerText = "Error loading data";
+        document.getElementById("country").innerText = "Error loading data";
+        document.getElementById("isp").innerText = "Error loading data";
+      }
+    }
+
+    getIPInfo();
+  </script>
 
 </body>
 </html>
