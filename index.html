@@ -1,144 +1,169 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CyberTechToolkit</title>
+  <title>CyberTechToolkit – Free Networking & Cybersecurity Tools</title>
+  <meta name="description" content="Free networking, cybersecurity, and developer tools including IP lookup, DNS lookup, password generators, subnet calculators, and more.">
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #0b0f19;
       color: white;
-      text-align: center;
-      padding: 40px;
       margin: 0;
+      padding: 0;
     }
 
-    h1 {
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .hero h1 {
       color: #00ffd5;
-      margin-top: 20px;
-      margin-bottom: 10px;
+      font-size: 42px;
+      margin-bottom: 12px;
     }
 
-    .subtitle {
-      margin-bottom: 40px;
-      color: #d1d5db;
+    .hero p {
+      color: #cbd5e1;
+      font-size: 18px;
+      margin: 0 auto;
+      max-width: 700px;
+      line-height: 1.6;
     }
 
     .section-title {
       color: #00ffd5;
-      margin-top: 40px;
-      margin-bottom: 20px;
       font-size: 24px;
+      margin: 40px 0 20px;
+      text-align: left;
     }
 
     .tools {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
-      max-width: 1100px;
-      margin: 0 auto;
     }
 
     .tool {
       background: #111827;
-      padding: 20px;
-      border-radius: 12px;
-      width: 220px;
-      box-sizing: border-box;
-      transition: transform 0.2s ease;
+      border: 1px solid #1f2937;
+      padding: 22px;
+      border-radius: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
     .tool:hover {
       transform: translateY(-4px);
+      border-color: #00ffd5;
     }
 
     .tool a {
       color: #00ffd5;
       text-decoration: none;
       font-weight: bold;
+      font-size: 18px;
       display: block;
+      margin-bottom: 10px;
     }
 
     .tool-desc {
-      color: #9ca3af;
+      color: #94a3b8;
       font-size: 14px;
-      margin-top: 10px;
-      line-height: 1.4;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #1f2937;
     }
   </style>
 </head>
-  <footer style="margin-top:60px;color:#9ca3af;font-size:14px;">
-  <p>© 2026 CyberTechToolkit</p>
-  <p>Free networking and cybersecurity utilities.</p>
-</footer>
 <body>
+  <div class="container">
 
-  <h1>CyberTechToolkit</h1>
-  <div class="subtitle">Free Networking & Cybersecurity Tools</div>
-
-  <div class="section-title">Networking Tools</div>
-  <div class="tools">
-    <div class="tool">
-      <a href="ip.html">What Is My IP</a>
-      <div class="tool-desc">Check your public IPv4, IPv6, ISP, and location.</div>
+    <div class="hero">
+      <h1>CyberTechToolkit</h1>
+      <p>Free online tools for networking, cybersecurity, and developers. Fast, simple, and built to be useful.</p>
     </div>
 
-    <div class="tool">
-      <a href="dns-lookup.html">DNS Lookup</a>
-      <div class="tool-desc">Look up A, AAAA, MX, NS, and TXT DNS records.</div>
+    <h2 class="section-title">Networking Tools</h2>
+    <div class="tools">
+      <div class="tool">
+        <a href="ip.html">What Is My IP</a>
+        <div class="tool-desc">Check your public IPv4, IPv6, ISP, and location.</div>
+      </div>
+
+      <div class="tool">
+        <a href="dns-lookup.html">DNS Lookup</a>
+        <div class="tool-desc">Look up A, AAAA, MX, NS, and TXT DNS records.</div>
+      </div>
+
+      <div class="tool">
+        <a href="subnet-calculator.html">Subnet Calculator</a>
+        <div class="tool-desc">Calculate subnet masks, ranges, and host counts.</div>
+      </div>
+
+      <div class="tool">
+        <a href="port-checker.html">Port Checker</a>
+        <div class="tool-desc">Test whether a remote port may be open or blocked.</div>
+      </div>
     </div>
 
-    <div class="tool">
-      <a href="subnet-calculator.html">Subnet Calculator</a>
-      <div class="tool-desc">Calculate subnet masks, ranges, and host counts.</div>
+    <h2 class="section-title">Security Tools</h2>
+    <div class="tools">
+      <div class="tool">
+        <a href="password-generator.html">Password Generator</a>
+        <div class="tool-desc">Generate strong random passwords securely.</div>
+      </div>
+
+      <div class="tool">
+        <a href="hash-generator.html">Hash Generator</a>
+        <div class="tool-desc">Generate SHA hashes from text input.</div>
+      </div>
+
+      <div class="tool">
+        <a href="jwt-decoder.html">JWT Decoder</a>
+        <div class="tool-desc">Decode JSON Web Tokens and inspect header and payload.</div>
+      </div>
     </div>
 
-    <div class="tool">
-      <a href="port-checker.html">Port Checker</a>
-      <div class="tool-desc">Test whether a remote port may be open or blocked.</div>
+    <h2 class="section-title">Developer Tools</h2>
+    <div class="tools">
+      <div class="tool">
+        <a href="base64.html">Base64 Encoder / Decoder</a>
+        <div class="tool-desc">Encode and decode Base64 text instantly.</div>
+      </div>
+
+      <div class="tool">
+        <a href="json-formatter.html">JSON Formatter</a>
+        <div class="tool-desc">Format, validate, and minify JSON instantly.</div>
+      </div>
+
+      <div class="tool">
+        <a href="url-encoder.html">URL Encoder / Decoder</a>
+        <div class="tool-desc">Encode and decode URL text and query strings.</div>
+      </div>
+
+      <div class="tool">
+        <a href="case-converter.html">Case Converter</a>
+        <div class="tool-desc">Convert text to uppercase, camelCase, snake_case, and more.</div>
+      </div>
     </div>
+
+    <footer>
+      © 2026 CyberTechToolkit · Free networking and cybersecurity utilities
+    </footer>
+
   </div>
-
-  <div class="section-title">Security Tools</div>
-  <div class="tools">
-    <div class="tool">
-<a href="jwt-decoder.html">JWT Decoder</a>
-<div class="tool-desc">Decode JSON Web Tokens and inspect header and payload.</div>
-</div>
-    
-    <div class="tool">
-      <a href="password-generator.html">Password Generator</a>
-      <div class="tool-desc">Generate strong random passwords securely.</div>
-    </div>
-
-    <div class="tool">
-      <a href="hash-generator.html">Hash Generator</a>
-      <div class="tool-desc">Create SHA hashes from text input.</div>
-    </div>
-  </div>
-
-  <div class="section-title">Developer Tools</div>
-  <div class="tools">
-    <div class="tool">
-  <a href="case-converter.html">Case Converter</a>
-  <div class="tool-desc">Convert text to uppercase, camelCase, snake_case, and more.</div>
-</div>
-    
-    <div class="tool">
-  <a href="url-encoder.html">URL Encoder / Decoder</a>
-  <div class="tool-desc">Encode and decode URL text and query strings.</div>
-</div>
-    
-    <div class="tool">
-      <a href="base64.html">Base64 Encoder</a>
-      <div class="tool-desc">Encode and decode Base64 text instantly.</div>
-    </div>
-
-    <div class="tool">
-      <a href="json-formatter.html">JSON Formatter</a>
-      <div class="tool-desc">Format, validate, and minify JSON instantly.</div>
-    </div>
-  </div>
-
 </body>
 </html>
