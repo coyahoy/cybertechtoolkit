@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Encoding Playground | CyberTechToolkit</title>
-  <meta name="description" content="Convert text between Base64, Hex, Binary, URL encoding, and ASCII values.">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -124,177 +124,226 @@
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back</a>
-  </div>
+<div class="back">
+<a href="/">← Back</a>
+</div>
 
-  <h1>Encoding Playground</h1>
+<h1>Encoding Playground</h1>
 
-  <div class="box">
-    <div class="label">Input Text</div>
-    <textarea
-      id="inputText"
-      placeholder="Enter text here..."
-      oninput="updateEncodings(); inspectCharacter();"
-      onkeyup="inspectCharacter()"
-      onclick="inspectCharacter()"
-    ></textarea>
+<div class="box">
 
-    <div class="controls">
-      <button onclick="loadExample()">Load Example</button>
-      <button onclick="clearAll()">Clear</button>
-    </div>
+<div class="label">Input Text</div>
 
-    <div class="status" id="status">Type in the box to see live conversions.</div>
+<textarea
+id="inputText"
+placeholder="Enter text here..."
+oninput="updateEncodings(); inspectCharacter();"
+onkeyup="inspectCharacter()"
+onclick="inspectCharacter()"
+></textarea>
 
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Base64</div>
-        <div class="result" id="base64Result">—</div>
-        <button onclick="copyResult('base64Result')">Copy</button>
-      </div>
+<div class="controls">
+<button onclick="loadExample()">Load Example</button>
+<button onclick="clearAll()">Clear</button>
+</div>
 
-      <div class="card">
-        <div class="card-title">Hex</div>
-        <div class="result" id="hexResult">—</div>
-        <button onclick="copyResult('hexResult')">Copy</button>
-      </div>
+<div class="status" id="status">Type in the box to see live conversions.</div>
 
-      <div class="card">
-        <div class="card-title">Binary</div>
-        <div class="result" id="binaryResult">—</div>
-        <button onclick="copyResult('binaryResult')">Copy</button>
-      </div>
+<div class="grid">
 
-      <div class="card">
-        <div class="card-title">URL Encoded</div>
-        <div class="result" id="urlResult">—</div>
-        <button onclick="copyResult('urlResult')">Copy</button>
-      </div>
+<div class="card">
+<div class="card-title">Base64</div>
+<div class="result" id="base64Result">—</div>
+<button onclick="copyResult('base64Result')">Copy</button>
+</div>
 
-      <div class="card">
-        <div class="card-title">ASCII Values</div>
-        <div class="result" id="asciiResult">—</div>
-        <button onclick="copyResult('asciiResult')">Copy</button>
-      </div>
+<div class="card">
+<div class="card-title">Hex</div>
+<div class="result" id="hexResult">—</div>
+<button onclick="copyResult('hexResult')">Copy</button>
+</div>
 
-      <div class="card">
-        <div class="card-title">Character Count</div>
-        <div class="result" id="countResult">0</div>
-      </div>
+<div class="card">
+<div class="card-title">Binary</div>
+<div class="result" id="binaryResult">—</div>
+<button onclick="copyResult('binaryResult')">Copy</button>
+</div>
 
-      <div class="card">
-        <div class="card-title">Character Inspector</div>
-        <div class="result" id="charInspector">Move your cursor inside the text box</div>
-      </div>
-    </div>
+<div class="card">
+<div class="card-title">URL Encoded</div>
+<div class="result" id="urlResult">—</div>
+<button onclick="copyResult('urlResult')">Copy</button>
+</div>
 
-    <div class="note">
-      This playground shows multiple encodings at the same time so you can compare how the same input is represented in different formats.
-    </div>
-  </div>
+<div class="card">
+<div class="card-title">ASCII Values</div>
+<div class="result" id="asciiResult">—</div>
+<button onclick="copyResult('asciiResult')">Copy</button>
+</div>
 
-  <script>
-    function safeBase64Encode(text) {
-      return btoa(unescape(encodeURIComponent(text)));
-    }
+<div class="card">
+<div class="card-title">Character Count</div>
+<div class="result" id="countResult">0</div>
+</div>
 
-    function textToHex(text) {
-      return [...text].map(char =>
-        char.charCodeAt(0).toString(16).padStart(2, "0")
-      ).join(" ");
-    }
+<div class="card">
+<div class="card-title">Character Inspector</div>
+<div class="result" id="charInspector">Move your cursor inside the text box</div>
+</div>
 
-    function textToBinary(text) {
-      return [...text].map(char =>
-        char.charCodeAt(0).toString(2).padStart(8, "0")
-      ).join(" ");
-    }
+<div class="card">
+<div class="card-title">Selected Character Byte View</div>
+<div class="result" id="byteView">Move your cursor inside the text box</div>
+</div>
 
-    function textToAscii(text) {
-      return [...text].map(char => char.charCodeAt(0)).join(" ");
-    }
+</div>
 
-    function updateEncodings() {
-      const text = document.getElementById("inputText").value;
-      const status = document.getElementById("status");
+<div class="note">
+This playground shows multiple encodings at the same time so you can compare how the same input is represented in different formats.
+</div>
 
-      if (!text) {
-        document.getElementById("base64Result").innerText = "—";
-        document.getElementById("hexResult").innerText = "—";
-        document.getElementById("binaryResult").innerText = "—";
-        document.getElementById("urlResult").innerText = "—";
-        document.getElementById("asciiResult").innerText = "—";
-        document.getElementById("countResult").innerText = "0";
-        document.getElementById("charInspector").innerText = "Move your cursor inside the text box";
-        status.innerText = "Type in the box to see live conversions.";
-        return;
-      }
+</div>
 
-      try {
-        document.getElementById("base64Result").innerText = safeBase64Encode(text);
-        document.getElementById("hexResult").innerText = textToHex(text);
-        document.getElementById("binaryResult").innerText = textToBinary(text);
-        document.getElementById("urlResult").innerText = encodeURIComponent(text);
-        document.getElementById("asciiResult").innerText = textToAscii(text);
-        document.getElementById("countResult").innerText = text.length.toString();
-        status.innerText = "Live conversions updated.";
-      } catch (error) {
-        status.innerText = "Could not convert the current input.";
-      }
-    }
+<script>
 
-    function inspectCharacter() {
-      const textarea = document.getElementById("inputText");
-      const pos = textarea.selectionStart;
-      const text = textarea.value;
+function safeBase64Encode(text){
+return btoa(unescape(encodeURIComponent(text)));
+}
 
-      if (!text || pos === 0) {
-        document.getElementById("charInspector").innerText = "Move your cursor inside the text box";
-        return;
-      }
+function textToHex(text){
+return [...text].map(char =>
+char.charCodeAt(0).toString(16).padStart(2,"0")
+).join(" ");
+}
 
-      const char = text[pos - 1];
-      const ascii = char.charCodeAt(0);
-      const hex = ascii.toString(16).toUpperCase().padStart(2, "0");
-      const binary = ascii.toString(2).padStart(8, "0");
+function textToBinary(text){
+return [...text].map(char =>
+char.charCodeAt(0).toString(2).padStart(8,"0")
+).join(" ");
+}
 
-      document.getElementById("charInspector").innerText =
+function textToAscii(text){
+return [...text].map(char => char.charCodeAt(0)).join(" ");
+}
+
+function updateEncodings(){
+
+const text=document.getElementById("inputText").value
+const status=document.getElementById("status")
+
+if(!text){
+
+document.getElementById("base64Result").innerText="—"
+document.getElementById("hexResult").innerText="—"
+document.getElementById("binaryResult").innerText="—"
+document.getElementById("urlResult").innerText="—"
+document.getElementById("asciiResult").innerText="—"
+document.getElementById("countResult").innerText="0"
+document.getElementById("charInspector").innerText="Move your cursor inside the text box"
+document.getElementById("byteView").innerText="Move your cursor inside the text box"
+
+status.innerText="Type in the box to see live conversions."
+
+return
+}
+
+try{
+
+document.getElementById("base64Result").innerText=safeBase64Encode(text)
+document.getElementById("hexResult").innerText=textToHex(text)
+document.getElementById("binaryResult").innerText=textToBinary(text)
+document.getElementById("urlResult").innerText=encodeURIComponent(text)
+document.getElementById("asciiResult").innerText=textToAscii(text)
+document.getElementById("countResult").innerText=text.length.toString()
+
+status.innerText="Live conversions updated."
+
+}catch(error){
+
+status.innerText="Could not convert the current input."
+
+}
+
+}
+
+function inspectCharacter(){
+
+const textarea=document.getElementById("inputText")
+const pos=textarea.selectionStart
+const text=textarea.value
+
+if(!text || pos===0){
+
+document.getElementById("charInspector").innerText="Move your cursor inside the text box"
+document.getElementById("byteView").innerText="Move your cursor inside the text box"
+
+return
+}
+
+const char=text[pos-1]
+const ascii=char.charCodeAt(0)
+const hex=ascii.toString(16).toUpperCase().padStart(2,"0")
+const binary=ascii.toString(2).padStart(8,"0")
+
+document.getElementById("charInspector").innerText=
 `Character: ${char}
 ASCII: ${ascii}
 Hex: ${hex}
-Binary: ${binary}`;
-    }
+Binary: ${binary}`
 
-    async function copyResult(id) {
-      const text = document.getElementById(id).innerText;
-      const status = document.getElementById("status");
+document.getElementById("byteView").innerText=
+`Decimal: ${ascii}
+Hex Byte: 0x${hex}
+Binary Byte: ${binary}
+Byte Length: 8 bits`
 
-      if (!text || text === "—") {
-        status.innerText = "Nothing to copy yet.";
-        return;
-      }
+}
 
-      try {
-        await navigator.clipboard.writeText(text);
-        status.innerText = "Copied to clipboard.";
-      } catch {
-        status.innerText = "Could not copy result.";
-      }
-    }
+async function copyResult(id){
 
-    function loadExample() {
-      document.getElementById("inputText").value = "CyberTechToolkit";
-      updateEncodings();
-      inspectCharacter();
-    }
+const text=document.getElementById(id).innerText
+const status=document.getElementById("status")
 
-    function clearAll() {
-      document.getElementById("inputText").value = "";
-      updateEncodings();
-      inspectCharacter();
-    }
-  </script>
+if(!text || text==="—"){
+
+status.innerText="Nothing to copy yet."
+
+return
+}
+
+try{
+
+await navigator.clipboard.writeText(text)
+
+status.innerText="Copied to clipboard."
+
+}catch{
+
+status.innerText="Could not copy result."
+
+}
+
+}
+
+function loadExample(){
+
+document.getElementById("inputText").value="CyberTechToolkit"
+
+updateEncodings()
+inspectCharacter()
+
+}
+
+function clearAll(){
+
+document.getElementById("inputText").value=""
+
+updateEncodings()
+inspectCharacter()
+
+}
+
+</script>
 
 </body>
 </html>
