@@ -132,7 +132,13 @@
 
   <div class="box">
     <div class="label">Input Text</div>
-    <textarea id="inputText" placeholder="Enter text here..." oninput="updateEncodings()"></textarea>
+    <textarea
+      id="inputText"
+      placeholder="Enter text here..."
+      oninput="updateEncodings(); inspectCharacter();"
+      onkeyup="inspectCharacter()"
+      onclick="inspectCharacter()"
+    ></textarea>
 
     <div class="controls">
       <button onclick="loadExample()">Load Example</button>
@@ -176,6 +182,11 @@
         <div class="card-title">Character Count</div>
         <div class="result" id="countResult">0</div>
       </div>
+
+      <div class="card">
+        <div class="card-title">Character Inspector</div>
+        <div class="result" id="charInspector">Move your cursor inside the text box</div>
+      </div>
     </div>
 
     <div class="note">
@@ -215,6 +226,7 @@
         document.getElementById("urlResult").innerText = "—";
         document.getElementById("asciiResult").innerText = "—";
         document.getElementById("countResult").innerText = "0";
+        document.getElementById("charInspector").innerText = "Move your cursor inside the text box";
         status.innerText = "Type in the box to see live conversions.";
         return;
       }
@@ -230,6 +242,28 @@
       } catch (error) {
         status.innerText = "Could not convert the current input.";
       }
+    }
+
+    function inspectCharacter() {
+      const textarea = document.getElementById("inputText");
+      const pos = textarea.selectionStart;
+      const text = textarea.value;
+
+      if (!text || pos === 0) {
+        document.getElementById("charInspector").innerText = "Move your cursor inside the text box";
+        return;
+      }
+
+      const char = text[pos - 1];
+      const ascii = char.charCodeAt(0);
+      const hex = ascii.toString(16).toUpperCase().padStart(2, "0");
+      const binary = ascii.toString(2).padStart(8, "0");
+
+      document.getElementById("charInspector").innerText =
+`Character: ${char}
+ASCII: ${ascii}
+Hex: ${hex}
+Binary: ${binary}`;
     }
 
     async function copyResult(id) {
@@ -252,11 +286,13 @@
     function loadExample() {
       document.getElementById("inputText").value = "CyberTechToolkit";
       updateEncodings();
+      inspectCharacter();
     }
 
     function clearAll() {
       document.getElementById("inputText").value = "";
       updateEncodings();
+      inspectCharacter();
     }
   </script>
 
