@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hash Avalanche Visualizer | CyberTechToolkit</title>
+  <meta name="description" content="Visualize the avalanche effect in hashing by comparing two inputs and their SHA-256 hashes.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 30px;
+      width: 950px;
+      max-width: 96%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 15px;
+      font-family: monospace;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00ffd5;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 18px;
+      margin-right: 10px;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .results {
+      margin-top: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 10px;
+    }
+
+    .card-title {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .hash-output {
+      color: #00ffd5;
+      font-size: 15px;
+      word-break: break-all;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    .diff-visual {
+      font-family: monospace;
+      word-break: break-all;
+      line-height: 1.8;
+      color: #e5e7eb;
+    }
+
+    .same {
+      color: #22c55e;
+    }
+
+    .different {
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    .metric {
+      color: #00ffd5;
+      font-size: 18px;
+      font-family: monospace;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 18px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="back">
+    <a href="/">← Back to CyberTechToolkit</a>
+  </div>
+
+  <h1>Hash Avalanche Visualizer</h1>
+
+  <div class="box">
+    <div class="label">Input 1</div>
+    <input type="text" id="input1" placeholder="Enter first input">
+
+    <div class="label">Input 2</div>
+    <input type="text" id="input2" placeholder="Enter second input">
+
+    <div style="text-align:center;">
+      <button onclick="compareHashes()">Compare Hashes</button>
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearInputs()">Clear</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="results" id="results">
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="hash-output">Comparison results will appear here</div>
+      </div>
+    </div>
+
+    <div class="note">
+      Good cryptographic hash functions have an avalanche effect: a tiny change in the input should produce a dramatically different output. This helps protect integrity and makes hashes harder to predict.
+    </div>
+  </div>
+
+  <script>
+    async function sha256(text) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function compareStrings(a, b) {
+      let sameCount = 0;
+      let diffHtml = "";
+
+      for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        const charA = a[i] || "";
+        const charB = b[i] || "";
+
+        if (charA === charB) {
+          sameCount++;
+          diffHtml += `<span class="same">${charA}</span>`;
+        } else {
+          diffHtml += `<span class="different">${charA || " "}</span>`;
+        }
+      }
+
+      return {
+        sameCount,
+        diffHtml
+      };
+    }
+
+    function countHexDifferences(hash1, hash2) {
+      let diff = 0;
+      for (let i = 0; i < Math.min(hash1.length, hash2.length); i++) {
+        if (hash1[i] !== hash2[i]) diff++;
+      }
+      return diff;
+    }
+
+    async function compareHashes() {
+      const input1 = document.getElementById("input1").value;
+      const input2 = document.getElementById("input2").value;
+      const status = document.getElementById("status");
+      const results = document.getElementById("results");
+
+      if (!input1 || !input2) {
+        status.innerText = "Please enter both inputs.";
+        results.innerHTML = `
+          <div class="card">
+            <div class="card-title">Results</div>
+            <div class="hash-output">Comparison results will appear here</div>
+          </div>
+        `;
+        return;
+      }
+
+      status.innerText = "Calculating hashes...";
+
+      const hash1 = await sha256(input1);
+      const hash2 = await sha256(input2);
+
+      const inputDiff = compareStrings(input1, input2);
+      const hexDiffCount = countHexDifferences(hash1, hash2);
+      const hexDiffPercent = ((hexDiffCount / hash1.length) * 100).toFixed(2);
+
+      results.innerHTML = `
+        <div class="card">
+          <div class="card-title">Input 1 SHA-256</div>
+          <div class="hash-output">${hash1}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Input 2 SHA-256</div>
+          <div class="hash-output">${hash2}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Input Difference</div>
+          <div class="diff-visual">${inputDiff.diffHtml}</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Hash Difference</div>
+          <div class="metric">${hexDiffCount} of ${hash1.length} hex characters changed (${hexDiffPercent}%)</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Why This Matters</div>
+          <div class="hash-output">
+            Even a tiny input change should create a very different hash. That behavior is called the avalanche effect.
+          </div>
+        </div>
+      `;
+
+      status.innerText = "Comparison complete.";
+    }
+
+    function loadExample() {
+      document.getElementById("input1").value = "hello";
+      document.getElementById("input2").value = "hell0";
+      document.getElementById("status").innerText = "";
+      compareHashes();
+    }
+
+    function clearInputs() {
+      document.getElementById("input1").value = "";
+      document.getElementById("input2").value = "";
+      document.getElementById("status").innerText = "";
+      document.getElementById("results").innerHTML = `
+        <div class="card">
+          <div class="card-title">Results</div>
+          <div class="hash-output">Comparison results will appear here</div>
+        </div>
+      `;
+    }
+  </script>
+
+</body>
+</html>
