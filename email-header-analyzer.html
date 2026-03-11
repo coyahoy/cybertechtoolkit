@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Email Header Analyzer | CyberTechToolkit</title>
+  <meta name="description" content="Analyze raw email headers for SPF, DKIM, DMARC, sender path, and routing clues.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 30px;
+      width: 850px;
+      max-width: 95%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 260px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00ffd5;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 18px;
+      margin-right: 10px;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .good { color: #22c55e; }
+    .warn { color: #f59e0b; }
+    .bad { color: #ef4444; }
+    .muted { color: #94a3b8; line-height: 1.5; }
+    code { color: #00ffd5; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div class="back">
+    <a href="/">← Back to CyberTechToolkit</a>
+  </div>
+
+  <h1>Email Header Analyzer</h1>
+
+  <div class="box">
+    <div class="label">Paste Raw Email Headers</div>
+    <textarea id="headersInput" placeholder="Paste full email headers here..."></textarea>
+
+    <div style="text-align:center;">
+      <button onclick="analyzeHeaders()">Analyze</button>
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearHeaders()">Clear</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    function getHeaderValue(raw, name) {
+      const regex = new RegExp("^" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":(.*(?:\\r?\\n[ \\t].*)*)", "im");
+      const match = raw.match(regex);
+      return match ? match[1].replace(/\r?\n[ \t]+/g, " ").trim() : "";
+    }
+
+    function addCard(title, cls, body) {
+      return `
+        <div class="card">
+          <div class="${cls}" style="font-weight:bold; margin-bottom:6px;">${title}</div>
+          <div class="muted">${body}</div>
+        </div>
+      `;
+    }
+
+    function analyzeHeaders() {
+      const raw = document.getElementById("headersInput").value.trim();
+      const status = document.getElementById("status");
+      const results = document.getElementById("results");
+
+      status.innerText = "";
+      results.innerHTML = "";
+
+      if (!raw) {
+        status.innerText = "Please paste email headers first.";
+        return;
+      }
+
+      const from = getHeaderValue(raw, "From");
+      const returnPath = getHeaderValue(raw, "Return-Path");
+      const subject = getHeaderValue(raw, "Subject");
+      const messageId = getHeaderValue(raw, "Message-ID");
+      const receivedSpf = getHeaderValue(raw, "Received-SPF");
+      const authResults = getHeaderValue(raw, "Authentication-Results");
+      const dkimSig = getHeaderValue(raw, "DKIM-Signature");
+
+      let output = "";
+
+      output += addCard("From", "good", from ? `<code>${from}</code>` : "Header not found.");
+      output += addCard("Return-Path", "good", returnPath ? `<code>${returnPath}</code>` : "Header not found.");
+      output += addCard("Subject", "good", subject ? `<code>${subject}</code>` : "Header not found.");
+      output += addCard("Message-ID", "good", messageId ? `<code>${messageId}</code>` : "Header not found.");
+
+      if (receivedSpf) {
+        const spfLower = receivedSpf.toLowerCase();
+        if (spfLower.includes("pass")) {
+          output += addCard("SPF", "good", `SPF appears to pass.<br><code>${receivedSpf}</code>`);
+        } else if (spfLower.includes("fail") || spfLower.includes("softfail")) {
+          output += addCard("SPF", "bad", `SPF indicates a problem.<br><code>${receivedSpf}</code>`);
+        } else {
+          output += addCard("SPF", "warn", `SPF found but result is unclear.<br><code>${receivedSpf}</code>`);
+        }
+      } else {
+        output += addCard("SPF", "warn", "No Received-SPF header found.");
+      }
+
+      if (dkimSig) {
+        output += addCard("DKIM Signature", "good", "DKIM-Signature header is present.");
+      } else {
+        output += addCard("DKIM Signature", "warn", "No DKIM-Signature header found.");
+      }
+
+      if (authResults) {
+        const lower = authResults.toLowerCase();
+        let authSummary = [];
+        authSummary.push(lower.includes("spf=pass") ? "SPF pass" : (lower.includes("spf=fail") ? "SPF fail" : "SPF unknown"));
+        authSummary.push(lower.includes("dkim=pass") ? "DKIM pass" : (lower.includes("dkim=fail") ? "DKIM fail" : "DKIM unknown"));
+        authSummary.push(lower.includes("dmarc=pass") ? "DMARC pass" : (lower.includes("dmarc=fail") ? "DMARC fail" : "DMARC unknown"));
+
+        const bad = authSummary.some(x => x.includes("fail"));
+        output += addCard("Authentication Results", bad ? "bad" : "good", `${authSummary.join(" · ")}<br><br><code>${authResults}</code>`);
+      } else {
+        output += addCard("Authentication Results", "warn", "No Authentication-Results header found.");
+      }
+
+      const receivedMatches = raw.match(/^Received:.*$/gim) || [];
+      output += addCard("Received Hops", "good", `Detected ${receivedMatches.length} Received header(s). This can help trace message routing.`);
+
+      if (from && returnPath && from.toLowerCase() !== returnPath.toLowerCase()) {
+        output += addCard("From vs Return-Path", "warn", "The visible From address and Return-Path do not match exactly. That is not always malicious, but it is worth reviewing.");
+      }
+
+      results.innerHTML = output;
+      status.innerText = "Analysis complete.";
+    }
+
+    function loadExample() {
+      document.getElementById("headersInput").value = `From: Example Sender <alerts@example.com>
+Return-Path: <bounce@example.com>
+Subject: Security Alert
+Message-ID: <12345@example.com>
+Received-SPF: pass (google.com: domain of alerts@example.com designates 192.0.2.10 as permitted sender)
+Authentication-Results: mx.google.com; spf=pass smtp.mailfrom=example.com; dkim=pass header.d=example.com; dmarc=pass
+DKIM-Signature: v=1; a=rsa-sha256; d=example.com; s=mail; bh=abc123;
+Received: from mail.example.com (mail.example.com [192.0.2.10]) by mx.google.com with ESMTPS id abc123;
+Received: by mail.example.com with SMTP id xyz789;`;
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+
+    function clearHeaders() {
+      document.getElementById("headersInput").value = "";
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+  </script>
+</body>
+</html>
