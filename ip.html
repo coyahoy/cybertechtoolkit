@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>What Is My IP - CyberTechToolkit</title>
+<style>
+body{
+font-family:Arial;
+background:#0b0f19;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+h1{
+color:#00ffd5;
+}
+
+.box{
+background:#111827;
+padding:30px;
+border-radius:10px;
+display:inline-block;
+margin-top:30px;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#00ffd5;
+color:black;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>What Is My IP</h1>
+
+<div class="box">
+<p>Your IP Address:</p>
+<h2 id="ip">Loading...</h2>
+
+<button onclick="getIP()">Check IP</button>
+</div>
+
+<script>
+function getIP(){
+fetch("https://api.ipify.org?format=json")
+.then(response => response.json())
+.then(data => {
+document.getElementById("ip").innerText = data.ip;
+});
+}
+
+getIP();
+</script>
+
+</body>
+</html>
