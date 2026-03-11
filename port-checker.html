@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Port Checker - CyberTechToolkit</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0b0f19;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+h1{
+color:#00ffd5;
+}
+
+.back{
+position:absolute;
+top:20px;
+left:20px;
+}
+
+.back a{
+color:#00ffd5;
+text-decoration:none;
+font-weight:bold;
+}
+
+.box{
+background:#111827;
+padding:30px;
+border-radius:10px;
+display:inline-block;
+margin-top:30px;
+width:420px;
+}
+
+input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:none;
+margin-top:10px;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#00ffd5;
+color:black;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+margin-top:15px;
+}
+
+.result{
+margin-top:20px;
+color:#00ffd5;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="back">
+<a href="/">← Back to CyberTechToolkit</a>
+</div>
+
+<h1>Port Checker</h1>
+
+<div class="box">
+
+Enter Host
+
+<input id="host" placeholder="example.com">
+
+Enter Port
+
+<input id="port" placeholder="80">
+
+<button onclick="checkPort()">Check Port</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+async function checkPort(){
+
+const host = document.getElementById("host").value;
+const port = document.getElementById("port").value;
+
+const result = document.getElementById("result");
+
+if(!host || !port){
+result.innerText = "Enter host and port.";
+return;
+}
+
+result.innerText = "Checking...";
+
+try{
+
+await fetch(`https://${host}:${port}`, {mode:"no-cors"});
+
+result.innerText = "Port may be OPEN";
+
+}catch{
+
+result.innerText = "Port may be CLOSED or BLOCKED";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
