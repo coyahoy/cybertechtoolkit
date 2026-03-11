@@ -2,157 +2,263 @@
 <html>
 <head>
   <title>Encoding Playground | CyberTechToolkit</title>
-
+  <meta name="description" content="Convert text between Base64, Hex, Binary, URL encoding, and ASCII values.">
   <style>
     body {
-      font-family: Arial;
-      background:#0b0f19;
-      color:white;
-      padding:40px;
-      text-align:center;
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      padding: 40px;
+      margin: 0;
+      text-align: center;
     }
 
-    h1{
-      color:#00ffd5;
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
     }
 
-    .box{
-      background:#111827;
-      border:1px solid #1f2937;
-      padding:25px;
-      border-radius:10px;
-      width:800px;
-      max-width:95%;
-      margin:auto;
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
     }
 
-    textarea{
-      width:100%;
-      height:120px;
-      border-radius:8px;
-      border:none;
-      padding:12px;
-      font-family:monospace;
-      margin-top:10px;
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
     }
 
-    select{
-      margin-top:15px;
-      padding:10px;
-      border-radius:6px;
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 25px;
+      border-radius: 12px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
     }
 
-    button{
-      margin-top:15px;
-      padding:10px 20px;
-      background:#00ffd5;
-      border:none;
-      border-radius:6px;
-      font-weight:bold;
-      cursor:pointer;
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
     }
 
-    .result{
-      margin-top:20px;
-      background:#0f172a;
-      padding:15px;
-      border-radius:8px;
-      word-break:break-all;
-      font-family:monospace;
-      color:#00ffd5;
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      font-family: monospace;
+      box-sizing: border-box;
+      resize: vertical;
+      font-size: 14px;
     }
 
-    .back{
-      position:absolute;
-      left:20px;
-      top:20px;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
     }
 
-    .back a{
-      color:#00ffd5;
-      text-decoration:none;
-      font-weight:bold;
+    .card {
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+    }
+
+    .card-title {
+      color: #00ffd5;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .result {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: monospace;
+      line-height: 1.6;
+      min-height: 70px;
+      white-space: pre-wrap;
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
     }
   </style>
 </head>
-
 <body>
 
-<div class="back">
-<a href="/">← Back</a>
-</div>
+  <div class="back">
+    <a href="/">← Back</a>
+  </div>
 
-<h1>Encoding Playground</h1>
+  <h1>Encoding Playground</h1>
 
-<div class="box">
+  <div class="box">
+    <div class="label">Input Text</div>
+    <textarea id="inputText" placeholder="Enter text here..." oninput="updateEncodings()"></textarea>
 
-<textarea id="inputText" placeholder="Enter text here"></textarea>
+    <div class="controls">
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearAll()">Clear</button>
+    </div>
 
-<br>
+    <div class="status" id="status">Type in the box to see live conversions.</div>
 
-<select id="encodingType">
-<option value="base64">Base64 Encode</option>
-<option value="base64decode">Base64 Decode</option>
-<option value="hex">Hex Encode</option>
-<option value="binary">Binary Encode</option>
-<option value="url">URL Encode</option>
-<option value="urldecode">URL Decode</option>
-</select>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Base64</div>
+        <div class="result" id="base64Result">—</div>
+        <button onclick="copyResult('base64Result')">Copy</button>
+      </div>
 
-<br>
+      <div class="card">
+        <div class="card-title">Hex</div>
+        <div class="result" id="hexResult">—</div>
+        <button onclick="copyResult('hexResult')">Copy</button>
+      </div>
 
-<button onclick="runEncoding()">Convert</button>
+      <div class="card">
+        <div class="card-title">Binary</div>
+        <div class="result" id="binaryResult">—</div>
+        <button onclick="copyResult('binaryResult')">Copy</button>
+      </div>
 
-<div class="result" id="result">
-Result will appear here
-</div>
+      <div class="card">
+        <div class="card-title">URL Encoded</div>
+        <div class="result" id="urlResult">—</div>
+        <button onclick="copyResult('urlResult')">Copy</button>
+      </div>
 
-</div>
+      <div class="card">
+        <div class="card-title">ASCII Values</div>
+        <div class="result" id="asciiResult">—</div>
+        <button onclick="copyResult('asciiResult')">Copy</button>
+      </div>
 
-<script>
+      <div class="card">
+        <div class="card-title">Character Count</div>
+        <div class="result" id="countResult">0</div>
+      </div>
+    </div>
 
-function runEncoding(){
+    <div class="note">
+      This playground shows multiple encodings at the same time so you can compare how the same input is represented in different formats.
+    </div>
+  </div>
 
-const text=document.getElementById("inputText").value
-const type=document.getElementById("encodingType").value
+  <script>
+    function safeBase64Encode(text) {
+      return btoa(unescape(encodeURIComponent(text)));
+    }
 
-let output=""
+    function textToHex(text) {
+      return [...text].map(char =>
+        char.charCodeAt(0).toString(16).padStart(2, "0")
+      ).join(" ");
+    }
 
-try{
+    function textToBinary(text) {
+      return [...text].map(char =>
+        char.charCodeAt(0).toString(2).padStart(8, "0")
+      ).join(" ");
+    }
 
-if(type==="base64"){
-output=btoa(text)
-}
+    function textToAscii(text) {
+      return [...text].map(char => char.charCodeAt(0)).join(" ");
+    }
 
-else if(type==="base64decode"){
-output=atob(text)
-}
+    function updateEncodings() {
+      const text = document.getElementById("inputText").value;
+      const status = document.getElementById("status");
 
-else if(type==="hex"){
-output=[...text].map(c=>c.charCodeAt(0).toString(16)).join(" ")
-}
+      if (!text) {
+        document.getElementById("base64Result").innerText = "—";
+        document.getElementById("hexResult").innerText = "—";
+        document.getElementById("binaryResult").innerText = "—";
+        document.getElementById("urlResult").innerText = "—";
+        document.getElementById("asciiResult").innerText = "—";
+        document.getElementById("countResult").innerText = "0";
+        status.innerText = "Type in the box to see live conversions.";
+        return;
+      }
 
-else if(type==="binary"){
-output=[...text].map(c=>c.charCodeAt(0).toString(2)).join(" ")
-}
+      try {
+        document.getElementById("base64Result").innerText = safeBase64Encode(text);
+        document.getElementById("hexResult").innerText = textToHex(text);
+        document.getElementById("binaryResult").innerText = textToBinary(text);
+        document.getElementById("urlResult").innerText = encodeURIComponent(text);
+        document.getElementById("asciiResult").innerText = textToAscii(text);
+        document.getElementById("countResult").innerText = text.length.toString();
+        status.innerText = "Live conversions updated.";
+      } catch (error) {
+        status.innerText = "Could not convert the current input.";
+      }
+    }
 
-else if(type==="url"){
-output=encodeURIComponent(text)
-}
+    async function copyResult(id) {
+      const text = document.getElementById(id).innerText;
+      const status = document.getElementById("status");
 
-else if(type==="urldecode"){
-output=decodeURIComponent(text)
-}
+      if (!text || text === "—") {
+        status.innerText = "Nothing to copy yet.";
+        return;
+      }
 
-}catch(e){
-output="Invalid input for selected conversion."
-}
+      try {
+        await navigator.clipboard.writeText(text);
+        status.innerText = "Copied to clipboard.";
+      } catch {
+        status.innerText = "Could not copy result.";
+      }
+    }
 
-document.getElementById("result").innerText=output
+    function loadExample() {
+      document.getElementById("inputText").value = "CyberTechToolkit";
+      updateEncodings();
+    }
 
-}
-
-</script>
+    function clearAll() {
+      document.getElementById("inputText").value = "";
+      updateEncodings();
+    }
+  </script>
 
 </body>
 </html>
