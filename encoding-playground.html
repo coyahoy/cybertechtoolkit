@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Encoding Playground | CyberTechToolkit</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background:#0b0f19;
+      color:white;
+      padding:40px;
+      text-align:center;
+    }
+
+    h1{
+      color:#00ffd5;
+    }
+
+    .box{
+      background:#111827;
+      border:1px solid #1f2937;
+      padding:25px;
+      border-radius:10px;
+      width:800px;
+      max-width:95%;
+      margin:auto;
+    }
+
+    textarea{
+      width:100%;
+      height:120px;
+      border-radius:8px;
+      border:none;
+      padding:12px;
+      font-family:monospace;
+      margin-top:10px;
+    }
+
+    select{
+      margin-top:15px;
+      padding:10px;
+      border-radius:6px;
+    }
+
+    button{
+      margin-top:15px;
+      padding:10px 20px;
+      background:#00ffd5;
+      border:none;
+      border-radius:6px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .result{
+      margin-top:20px;
+      background:#0f172a;
+      padding:15px;
+      border-radius:8px;
+      word-break:break-all;
+      font-family:monospace;
+      color:#00ffd5;
+    }
+
+    .back{
+      position:absolute;
+      left:20px;
+      top:20px;
+    }
+
+    .back a{
+      color:#00ffd5;
+      text-decoration:none;
+      font-weight:bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="back">
+<a href="/">← Back</a>
+</div>
+
+<h1>Encoding Playground</h1>
+
+<div class="box">
+
+<textarea id="inputText" placeholder="Enter text here"></textarea>
+
+<br>
+
+<select id="encodingType">
+<option value="base64">Base64 Encode</option>
+<option value="base64decode">Base64 Decode</option>
+<option value="hex">Hex Encode</option>
+<option value="binary">Binary Encode</option>
+<option value="url">URL Encode</option>
+<option value="urldecode">URL Decode</option>
+</select>
+
+<br>
+
+<button onclick="runEncoding()">Convert</button>
+
+<div class="result" id="result">
+Result will appear here
+</div>
+
+</div>
+
+<script>
+
+function runEncoding(){
+
+const text=document.getElementById("inputText").value
+const type=document.getElementById("encodingType").value
+
+let output=""
+
+try{
+
+if(type==="base64"){
+output=btoa(text)
+}
+
+else if(type==="base64decode"){
+output=atob(text)
+}
+
+else if(type==="hex"){
+output=[...text].map(c=>c.charCodeAt(0).toString(16)).join(" ")
+}
+
+else if(type==="binary"){
+output=[...text].map(c=>c.charCodeAt(0).toString(2)).join(" ")
+}
+
+else if(type==="url"){
+output=encodeURIComponent(text)
+}
+
+else if(type==="urldecode"){
+output=decodeURIComponent(text)
+}
+
+}catch(e){
+output="Invalid input for selected conversion."
+}
+
+document.getElementById("result").innerText=output
+
+}
+
+</script>
+
+</body>
+</html>
