@@ -33,7 +33,7 @@
       border-radius: 10px;
       display: inline-block;
       margin-top: 30px;
-      min-width: 320px;
+      min-width: 340px;
     }
 
     .label {
@@ -60,6 +60,13 @@
       border-radius: 6px;
       cursor: pointer;
       margin-top: 25px;
+      margin-right: 10px;
+    }
+
+    .note {
+      color: #9ca3af;
+      font-size: 13px;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -72,8 +79,11 @@
   <h1>What Is My IP</h1>
 
   <div class="box">
-    <div class="label">IP Address</div>
-    <div class="value" id="ip">Loading...</div>
+    <div class="label">IPv4 Address</div>
+    <div class="value" id="ipv4">Loading...</div>
+
+    <div class="label">IPv6 Address</div>
+    <div class="value" id="ipv6">Loading...</div>
 
     <div class="label">City</div>
     <div class="value" id="city">Loading...</div>
@@ -88,25 +98,84 @@
     <div class="value" id="isp">Loading...</div>
 
     <button onclick="getIPInfo()">Refresh</button>
+    <button onclick="copyBestIP()">Copy IP</button>
+
+    <div class="note">Detected using public IP lookups</div>
   </div>
 
   <script>
-    async function getIPInfo() {
+    async function getIPv4() {
+      try {
+        const response = await fetch("https://api.ipify.org?format=json");
+        const data = await response.json();
+        return data.ip || "Unavailable";
+      } catch {
+        return "Unavailable";
+      }
+    }
+
+    async function getIPv6() {
+      try {
+        const response = await fetch("https://api64.ipify.org?format=json");
+        const data = await response.json();
+        return data.ip || "Unavailable";
+      } catch {
+        return "Unavailable";
+      }
+    }
+
+    async function getLocationInfo() {
       try {
         const response = await fetch("https://ipapi.co/json/");
         const data = await response.json();
+        return {
+          city: data.city || "Unavailable",
+          region: data.region || "Unavailable",
+          country: data.country_name || "Unavailable",
+          isp: data.org || "Unavailable"
+        };
+      } catch {
+        return {
+          city: "Unavailable",
+          region: "Unavailable",
+          country: "Unavailable",
+          isp: "Unavailable"
+        };
+      }
+    }
 
-        document.getElementById("ip").innerText = data.ip || "Unavailable";
-        document.getElementById("city").innerText = data.city || "Unavailable";
-        document.getElementById("region").innerText = data.region || "Unavailable";
-        document.getElementById("country").innerText = data.country_name || "Unavailable";
-        document.getElementById("isp").innerText = data.org || "Unavailable";
-      } catch (error) {
-        document.getElementById("ip").innerText = "Error loading data";
-        document.getElementById("city").innerText = "Error loading data";
-        document.getElementById("region").innerText = "Error loading data";
-        document.getElementById("country").innerText = "Error loading data";
-        document.getElementById("isp").innerText = "Error loading data";
+    async function getIPInfo() {
+      document.getElementById("ipv4").innerText = "Loading...";
+      document.getElementById("ipv6").innerText = "Loading...";
+      document.getElementById("city").innerText = "Loading...";
+      document.getElementById("region").innerText = "Loading...";
+      document.getElementById("country").innerText = "Loading...";
+      document.getElementById("isp").innerText = "Loading...";
+
+      const [ipv4, ipv6, location] = await Promise.all([
+        getIPv4(),
+        getIPv6(),
+        getLocationInfo()
+      ]);
+
+      document.getElementById("ipv4").innerText = ipv4;
+      document.getElementById("ipv6").innerText = ipv6;
+      document.getElementById("city").innerText = location.city;
+      document.getElementById("region").innerText = location.region;
+      document.getElementById("country").innerText = location.country;
+      document.getElementById("isp").innerText = location.isp;
+    }
+
+    async function copyBestIP() {
+      const ipv6 = document.getElementById("ipv6").innerText;
+      const ipv4 = document.getElementById("ipv4").innerText;
+      const bestIP = ipv6 !== "Unavailable" && ipv6 !== "Loading..." ? ipv6 : ipv4;
+
+      try {
+        await navigator.clipboard.writeText(bestIP);
+        alert("IP copied: " + bestIP);
+      } catch {
+        alert("Could not copy IP.");
       }
     }
 
