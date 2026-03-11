@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Security Headers Analyzer | CyberTechToolkit</title>
+  <meta name="description" content="Analyze pasted HTTP response headers for common web security protections.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 30px;
+      width: 800px;
+      max-width: 95%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #00ffd5;
+      color: black;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 18px;
+      margin-right: 10px;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .result-card {
+      background: #0f172a;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .result-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .good {
+      color: #22c55e;
+    }
+
+    .warn {
+      color: #f59e0b;
+    }
+
+    .bad {
+      color: #ef4444;
+    }
+
+    .muted {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    code {
+      color: #00ffd5;
+      font-family: monospace;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="back">
+    <a href="/">← Back to CyberTechToolkit</a>
+  </div>
+
+  <h1>Security Headers Analyzer</h1>
+
+  <div class="box">
+    <div class="label">Paste Raw HTTP Response Headers</div>
+    <textarea id="headersInput" placeholder="Example:
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff"></textarea>
+
+    <div style="text-align:center;">
+      <button onclick="analyzeHeaders()">Analyze Headers</button>
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearHeaders()">Clear</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    function parseHeaders(raw) {
+      const lines = raw.split(/\r?\n/);
+      const headers = {};
+
+      for (const line of lines) {
+        const index = line.indexOf(":");
+        if (index > 0) {
+          const key = line.slice(0, index).trim().toLowerCase();
+          const value = line.slice(index + 1).trim();
+          headers[key] = value;
+        }
+      }
+
+      return headers;
+    }
+
+    function addResult(title, statusClass, message, recommendation) {
+      return `
+        <div class="result-card">
+          <div class="result-title ${statusClass}">${title}</div>
+          <div class="muted">${message}</div>
+          ${recommendation ? `<div class="muted" style="margin-top:8px;"><strong>Recommendation:</strong> ${recommendation}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function analyzeHeaders() {
+      const input = document.getElementById("headersInput").value.trim();
+      const results = document.getElementById("results");
+      const status = document.getElementById("status");
+
+      results.innerHTML = "";
+      status.innerText = "";
+
+      if (!input) {
+        status.innerText = "Please paste HTTP response headers first.";
+        return;
+      }
+
+      const headers = parseHeaders(input);
+      let output = "";
+
+      if (headers["strict-transport-security"]) {
+        output += addResult(
+          "Strict-Transport-Security present",
+          "good",
+          `Found: <code>${headers["strict-transport-security"]}</code>`,
+          "Keep HSTS enabled on HTTPS sites."
+        );
+      } else {
+        output += addResult(
+          "Strict-Transport-Security missing",
+          "bad",
+          "HSTS was not found.",
+          "Add Strict-Transport-Security to help enforce HTTPS."
+        );
+      }
+
+      if (headers["content-security-policy"]) {
+        output += addResult(
+          "Content-Security-Policy present",
+          "good",
+          `Found: <code>${headers["content-security-policy"]}</code>`,
+          "Review CSP policy to ensure it is appropriately restrictive."
+        );
+      } else {
+        output += addResult(
+          "Content-Security-Policy missing",
+          "bad",
+          "CSP was not found.",
+          "Add Content-Security-Policy to reduce XSS and injection risk."
+        );
+      }
+
+      if (headers["x-frame-options"]) {
+        output += addResult(
+          "X-Frame-Options present",
+          "good",
+          `Found: <code>${headers["x-frame-options"]}</code>`,
+          "Use DENY or SAMEORIGIN unless framing is required."
+        );
+      } else {
+        output += addResult(
+          "X-Frame-Options missing",
+          "warn",
+          "X-Frame-Options was not found.",
+          "Add X-Frame-Options to help defend against clickjacking."
+        );
+      }
+
+      if (headers["x-content-type-options"] && headers["x-content-type-options"].toLowerCase() === "nosniff") {
+        output += addResult(
+          "X-Content-Type-Options configured",
+          "good",
+          `Found: <code>${headers["x-content-type-options"]}</code>`,
+          "Keep nosniff enabled."
+        );
+      } else {
+        output += addResult(
+          "X-Content-Type-Options missing or weak",
+          "warn",
+          "Expected nosniff but did not find it.",
+          "Set X-Content-Type-Options: nosniff."
+        );
+      }
+
+      if (headers["referrer-policy"]) {
+        output += addResult(
+          "Referrer-Policy present",
+          "good",
+          `Found: <code>${headers["referrer-policy"]}</code>`,
+          "Review the policy to ensure it matches privacy needs."
+        );
+      } else {
+        output += addResult(
+          "Referrer-Policy missing",
+          "warn",
+          "Referrer-Policy was not found.",
+          "Add Referrer-Policy to control referrer leakage."
+        );
+      }
+
+      if (headers["permissions-policy"]) {
+        output += addResult(
+          "Permissions-Policy present",
+          "good",
+          `Found: <code>${headers["permissions-policy"]}</code>`,
+          "Review enabled browser features and restrict where possible."
+        );
+      } else {
+        output += addResult(
+          "Permissions-Policy missing",
+          "warn",
+          "Permissions-Policy was not found.",
+          "Consider adding Permissions-Policy to restrict browser capabilities."
+        );
+      }
+
+      if (headers["server"]) {
+        output += addResult(
+          "Server header exposed",
+          "warn",
+          `Found: <code>${headers["server"]}</code>`,
+          "Reduce unnecessary server/version disclosure where practical."
+        );
+      } else {
+        output += addResult(
+          "Server header not exposed",
+          "good",
+          "No Server header was detected in the pasted data.",
+          ""
+        );
+      }
+
+      results.innerHTML = output;
+      status.innerText = "Analysis complete.";
+    }
+
+    function loadExample() {
+      document.getElementById("headersInput").value = `HTTP/1.1 200 OK
+Date: Tue, 11 Mar 2026 22:00:00 GMT
+Content-Type: text/html; charset=UTF-8
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Server: nginx`;
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+
+    function clearHeaders() {
+      document.getElementById("headersInput").value = "";
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+  </script>
+
+</body>
+</html>
