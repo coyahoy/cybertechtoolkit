@@ -1,66 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CyberTechToolkit</title>
-<style>
-body {
-font-family: Arial;
-background:#0b0f19;
-color:white;
-text-align:center;
-padding:40px;
-}
+  <title>CyberTechToolkit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 40px;
+      margin: 0;
+    }
 
-h1 {
-color:#00ffd5;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
 
-.tools {
-margin-top:40px;
-}
+    p {
+      margin-bottom: 40px;
+    }
 
-.tool {
-background:#111827;
-padding:20px;
-margin:10px;
-border-radius:10px;
-display:inline-block;
-width:200px;
-}
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-a {
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
-</style>
+    .tool {
+      background: #111827;
+      padding: 20px;
+      border-radius: 12px;
+      width: 220px;
+      box-sizing: border-box;
+      transition: transform 0.2s ease;
+    }
+
+    .tool:hover {
+      transform: translateY(-4px);
+    }
+
+    .tool a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>CyberTechToolkit</h1>
-<p>Free Networking & Cybersecurity Tools</p>
+  <h1>CyberTechToolkit</h1>
+  <p>Free Networking & Cybersecurity Tools</p>
 
-<div class="tools">
+  <div class="tools">
+    <div class="tool">
+      <a href="ip.html">What Is My IP</a>
+    </div>
 
-<div class="tool">
-<a href="ip.html">What Is My IP</a>
-<div class="tool">
-<a href="#">DNS Lookup</a>
-</div>
+    <div class="tool">
+      <a href="#">DNS Lookup</a>
+    </div>
 
-<div class="tool">
-<a href="password-generator.html">Password Generator</a></div>
+    <div class="tool">
+      <a href="password-generator.html">Password Generator</a>
+    </div>
 
-<div class="tool">
-<a href="#">Hash Generator</a>
-</div>
+    <div class="tool">
+      <a href="hash-generator.html">Hash Generator</a>
+    </div>
 
-<div class="tool">
-<a href="#">Base64 Encoder</a>
-</div>
-
-</div>
+    <div class="tool">
+      <a href="#">Base64 Encoder</a>
+    </div>
+  </div>
 
 </body>
 </html>
