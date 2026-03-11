@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSP Analyzer | CyberTechToolkit</title>
+  <meta name="description" content="Analyze Content Security Policy headers for risky directives and weak settings.">
+  <style>
+    body { font-family: Arial, sans-serif; background: #0b0f19; color: white; text-align: center; padding: 40px; margin: 0; }
+    h1 { color: #00ffd5; margin-top: 20px; }
+    .back { position: absolute; top: 20px; left: 20px; }
+    .back a { color: #00ffd5; text-decoration: none; font-weight: bold; }
+    .box { background: #111827; border: 1px solid #1f2937; padding: 30px; border-radius: 12px; display: inline-block; margin-top: 30px; width: 800px; max-width: 95%; box-sizing: border-box; text-align: left; }
+    .label { color: #9ca3af; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; margin-top: 18px; }
+    textarea { width: 100%; height: 180px; border-radius: 8px; border: none; padding: 12px; box-sizing: border-box; font-size: 14px; resize: vertical; font-family: monospace; }
+    button { padding: 10px 20px; border: none; background: #00ffd5; color: black; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 18px; margin-right: 10px; }
+    .status { margin-top: 16px; color: #9ca3af; text-align: center; }
+    .results { margin-top: 20px; }
+    .card { background: #0f172a; padding: 14px; border-radius: 10px; margin-bottom: 12px; }
+    .good { color: #22c55e; }
+    .warn { color: #f59e0b; }
+    .bad { color: #ef4444; }
+    .muted { color: #94a3b8; line-height: 1.5; }
+    code { color: #00ffd5; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <div class="back"><a href="/">← Back to CyberTechToolkit</a></div>
+  <h1>CSP Analyzer</h1>
+
+  <div class="box">
+    <div class="label">Paste Content-Security-Policy Header Value</div>
+    <textarea id="cspInput" placeholder="default-src 'self'; script-src 'self' https://cdn.example.com; object-src 'none'; frame-ancestors 'none';"></textarea>
+
+    <div style="text-align:center;">
+      <button onclick="analyzeCSP()">Analyze CSP</button>
+      <button onclick="loadExample()">Load Example</button>
+      <button onclick="clearCSP()">Clear</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    function addCard(title, cls, body) {
+      return `<div class="card"><div class="${cls}" style="font-weight:bold;margin-bottom:6px;">${title}</div><div class="muted">${body}</div></div>`;
+    }
+
+    function hasDirective(csp, name) {
+      return new RegExp("(^|;)\\s*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s", "i").test(csp);
+    }
+
+    function getDirectiveValue(csp, name) {
+      const match = csp.match(new RegExp("(^|;)\\s*" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s+([^;]+)", "i"));
+      return match ? match[2].trim() : "";
+    }
+
+    function analyzeCSP() {
+      const csp = document.getElementById("cspInput").value.trim();
+      const results = document.getElementById("results");
+      const status = document.getElementById("status");
+
+      results.innerHTML = "";
+      status.innerText = "";
+
+      if (!csp) {
+        status.innerText = "Please paste a CSP first.";
+        return;
+      }
+
+      let output = "";
+
+      if (csp.includes("'unsafe-inline'")) {
+        output += addCard("unsafe-inline detected", "bad", "Inline script/style execution is allowed. This weakens XSS protection.");
+      } else {
+        output += addCard("No unsafe-inline found", "good", "Inline execution is not explicitly allowed.");
+      }
+
+      if (csp.includes("'unsafe-eval'")) {
+        output += addCard("unsafe-eval detected", "bad", "Eval-like execution is allowed. This is generally risky.");
+      } else {
+        output += addCard("No unsafe-eval found", "good", "Eval-like execution is not explicitly allowed.");
+      }
+
+      if (hasDirective(csp, "default-src")) {
+        output += addCard("default-src present", "good", `Found: <code>${getDirectiveValue(csp, "default-src")}</code>`);
+      } else {
+        output += addCard("default-src missing", "warn", "A base default-src directive is not present.");
+      }
+
+      if (hasDirective(csp, "object-src")) {
+        const value = getDirectiveValue(csp, "object-src");
+        if (value.includes("'none'")) {
+          output += addCard("object-src locked down", "good", `Found: <code>${value}</code>`);
+        } else {
+          output += addCard("object-src present but permissive", "warn", `Found: <code>${value}</code>`);
+        }
+      } else {
+        output += addCard("object-src missing", "warn", "Consider setting object-src 'none'.");
+      }
+
+      if (hasDirective(csp, "frame-ancestors")) {
+        output += addCard("frame-ancestors present", "good", `Found: <code>${getDirectiveValue(csp, "frame-ancestors")}</code>`);
+      } else {
+        output += addCard("frame-ancestors missing", "warn", "Consider frame-ancestors to help control framing / clickjacking exposure.");
+      }
+
+      if (hasDirective(csp, "script-src")) {
+        output += addCard("script-src present", "good", `Found: <code>${getDirectiveValue(csp, "script-src")}</code>`);
+      } else {
+        output += addCard("script-src missing", "warn", "No explicit script-src directive found.");
+      }
+
+      results.innerHTML = output;
+      status.innerText = "Analysis complete.";
+    }
+
+    function loadExample() {
+      document.getElementById("cspInput").value = "default-src 'self'; script-src 'self' https://cdn.example.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self';";
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+
+    function clearCSP() {
+      document.getElementById("cspInput").value = "";
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("status").innerText = "";
+    }
+  </script>
+</body>
+</html>
