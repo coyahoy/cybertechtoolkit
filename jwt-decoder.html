@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JWT Decoder - CyberTechToolkit</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0b0f19;
+color:white;
+text-align:center;
+padding:40px;
+margin:0;
+}
+
+h1{
+color:#00ffd5;
+}
+
+.back{
+position:absolute;
+top:20px;
+left:20px;
+}
+
+.back a{
+color:#00ffd5;
+text-decoration:none;
+font-weight:bold;
+}
+
+.box{
+background:#111827;
+padding:30px;
+border-radius:12px;
+display:inline-block;
+margin-top:30px;
+width:700px;
+max-width:94%;
+text-align:left;
+}
+
+.label{
+color:#9ca3af;
+font-size:14px;
+margin-top:15px;
+margin-bottom:6px;
+}
+
+textarea{
+width:100%;
+height:120px;
+border:none;
+border-radius:8px;
+padding:10px;
+font-family:monospace;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#00ffd5;
+color:black;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+margin-top:15px;
+}
+
+.output{
+background:#0f172a;
+margin-top:20px;
+padding:15px;
+border-radius:8px;
+}
+
+pre{
+color:#00ffd5;
+white-space:pre-wrap;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="back">
+<a href="/">← Back to CyberTechToolkit</a>
+</div>
+
+<h1>JWT Decoder</h1>
+
+<div class="box">
+
+<div class="label">Paste JWT</div>
+<textarea id="jwtInput"></textarea>
+
+<button onclick="decodeJWT()">Decode</button>
+
+<div class="output">
+
+<div class="label">Header</div>
+<pre id="headerOutput"></pre>
+
+<div class="label">Payload</div>
+<pre id="payloadOutput"></pre>
+
+</div>
+
+</div>
+
+<script>
+
+function decodeJWT(){
+
+const jwt = document.getElementById("jwtInput").value;
+
+try{
+
+const parts = jwt.split(".");
+
+const header = JSON.parse(atob(parts[0]));
+const payload = JSON.parse(atob(parts[1]));
+
+document.getElementById("headerOutput").textContent =
+JSON.stringify(header,null,2);
+
+document.getElementById("payloadOutput").textContent =
+JSON.stringify(payload,null,2);
+
+}catch{
+
+document.getElementById("headerOutput").textContent =
+"Invalid JWT";
+
+document.getElementById("payloadOutput").textContent =
+"";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
