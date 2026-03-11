@@ -15,10 +15,19 @@
     h1 {
       color: #00ffd5;
       margin-top: 20px;
+      margin-bottom: 10px;
     }
 
-    p {
+    .subtitle {
       margin-bottom: 40px;
+      color: #d1d5db;
+    }
+
+    .section-title {
+      color: #00ffd5;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      font-size: 24px;
     }
 
     .tools {
@@ -49,40 +58,61 @@
       font-weight: bold;
       display: block;
     }
+
+    .tool-desc {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
 
   <h1>CyberTechToolkit</h1>
-  <p>Free Networking & Cybersecurity Tools</p>
+  <div class="subtitle">Free Networking & Cybersecurity Tools</div>
 
+  <div class="section-title">Networking Tools</div>
   <div class="tools">
     <div class="tool">
-<a href="port-checker.html">Port Checker</a>
-</div>
-    
-    <div class="tool">
       <a href="ip.html">What Is My IP</a>
+      <div class="tool-desc">Check your public IPv4, IPv6, ISP, and location.</div>
     </div>
 
     <div class="tool">
       <a href="dns-lookup.html">DNS Lookup</a>
-    </div>
-
-    <div class="tool">
-      <a href="password-generator.html">Password Generator</a>
-    </div>
-
-    <div class="tool">
-      <a href="hash-generator.html">Hash Generator</a>
-    </div>
-
-    <div class="tool">
-      <a href="base64.html">Base64 Encoder</a>
+      <div class="tool-desc">Look up A, AAAA, MX, NS, and TXT DNS records.</div>
     </div>
 
     <div class="tool">
       <a href="subnet-calculator.html">Subnet Calculator</a>
+      <div class="tool-desc">Calculate subnet masks, ranges, and host counts.</div>
+    </div>
+
+    <div class="tool">
+      <a href="port-checker.html">Port Checker</a>
+      <div class="tool-desc">Test whether a remote port may be open or blocked.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Security Tools</div>
+  <div class="tools">
+    <div class="tool">
+      <a href="password-generator.html">Password Generator</a>
+      <div class="tool-desc">Generate strong random passwords securely.</div>
+    </div>
+
+    <div class="tool">
+      <a href="hash-generator.html">Hash Generator</a>
+      <div class="tool-desc">Create SHA-256 hashes from text input.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Developer Tools</div>
+  <div class="tools">
+    <div class="tool">
+      <a href="base64.html">Base64 Encoder</a>
+      <div class="tool-desc">Encode and decode Base64 text instantly.</div>
     </div>
   </div>
 
