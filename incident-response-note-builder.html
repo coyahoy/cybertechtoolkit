@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Incident Response Note Builder | CyberTechToolkit</title>
+  <meta name="description" content="Create structured incident response notes for cybersecurity events, investigations, and documentation.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      padding: 40px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 25px;
+      border-radius: 12px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .output-box {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 10px;
+      margin-top: 24px;
+    }
+
+    .output-title {
+      color: #00ffd5;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #e5e7eb;
+      line-height: 1.7;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>Incident Response Note Builder</h1>
+
+<div class="box">
+
+  <div class="grid">
+    <div>
+      <div class="label">Incident Title</div>
+      <input type="text" id="incidentTitle" placeholder="Example: Suspicious Login Activity">
+    </div>
+
+    <div>
+      <div class="label">Severity</div>
+      <select id="severity">
+        <option value="Low">Low</option>
+        <option value="Medium" selected>Medium</option>
+        <option value="High">High</option>
+        <option value="Critical">Critical</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="label">Date / Time Detected</div>
+      <input type="text" id="dateDetected" placeholder="Example: March 11, 2026 8:45 PM">
+    </div>
+
+    <div>
+      <div class="label">Affected System / Asset</div>
+      <input type="text" id="affectedSystem" placeholder="Example: Employee Email Account / Web Server / Workstation 14">
+    </div>
+  </div>
+
+  <div class="label">Summary of Incident</div>
+  <textarea id="summary" placeholder="Briefly describe what happened."></textarea>
+
+  <div class="label">Indicators / Evidence</div>
+  <textarea id="evidence" placeholder="Example: suspicious IPs, log entries, phishing message details, alerts, hashes, domains, filenames."></textarea>
+
+  <div class="label">Actions Taken</div>
+  <textarea id="actionsTaken" placeholder="Describe what actions were taken to contain or investigate the issue."></textarea>
+
+  <div class="label">Impact Assessment</div>
+  <textarea id="impact" placeholder="Describe the business or technical impact."></textarea>
+
+  <div class="label">Next Steps / Recommendations</div>
+  <textarea id="nextSteps" placeholder="Document the next steps, remediation, or follow-up recommendations."></textarea>
+
+  <div class="controls">
+    <button onclick="buildNote()">Build Note</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="copyNote()">Copy Note</button>
+    <button onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="status" id="status">Fill out the fields and build a structured incident note.</div>
+
+  <div class="output-box">
+    <div class="output-title">Generated Incident Response Note</div>
+    <pre id="output">Your incident response note will appear here.</pre>
+  </div>
+
+  <div class="note">
+    This tool helps create structured incident documentation for investigations, lab exercises, and response workflows. Always review notes for accuracy before sharing them with management, legal teams, or clients.
+  </div>
+
+</div>
+
+<script>
+  function valueOrPlaceholder(value, placeholder) {
+    return value.trim() ? value.trim() : placeholder;
+  }
+
+  function buildNote() {
+    const incidentTitle = valueOrPlaceholder(
+      document.getElementById("incidentTitle").value,
+      "Not provided"
+    );
+    const severity = document.getElementById("severity").value;
+    const dateDetected = valueOrPlaceholder(
+      document.getElementById("dateDetected").value,
+      "Not provided"
+    );
+    const affectedSystem = valueOrPlaceholder(
+      document.getElementById("affectedSystem").value,
+      "Not provided"
+    );
+    const summary = valueOrPlaceholder(
+      document.getElementById("summary").value,
+      "No summary provided."
+    );
+    const evidence = valueOrPlaceholder(
+      document.getElementById("evidence").value,
+      "No indicators or evidence documented."
+    );
+    const actionsTaken = valueOrPlaceholder(
+      document.getElementById("actionsTaken").value,
+      "No actions documented."
+    );
+    const impact = valueOrPlaceholder(
+      document.getElementById("impact").value,
+      "Impact not yet determined."
+    );
+    const nextSteps = valueOrPlaceholder(
+      document.getElementById("nextSteps").value,
+      "No next steps documented."
+    );
+
+    const note = `INCIDENT RESPONSE NOTE
+
+Incident Title: ${incidentTitle}
+Severity: ${severity}
+Date/Time Detected: ${dateDetected}
+Affected System/Asset: ${affectedSystem}
+
+1. Summary
+${summary}
+
+2. Indicators / Evidence
+${evidence}
+
+3. Actions Taken
+${actionsTaken}
+
+4. Impact Assessment
+${impact}
+
+5. Next Steps / Recommendations
+${nextSteps}`;
+
+    document.getElementById("output").innerText = note;
+    document.getElementById("status").innerText = "Incident response note generated.";
+  }
+
+  function loadExample() {
+    document.getElementById("incidentTitle").value = "Suspicious Login Activity";
+    document.getElementById("severity").value = "High";
+    document.getElementById("dateDetected").value = "March 11, 2026 8:45 PM";
+    document.getElementById("affectedSystem").value = "Employee Microsoft 365 Account";
+    document.getElementById("summary").value = "Multiple failed login attempts followed by a successful login from an unfamiliar location were detected on an employee account.";
+    document.getElementById("evidence").value = "Security alert from identity platform, login from unrecognized IP address, repeated failed login attempts, and new mailbox rule creation.";
+    document.getElementById("actionsTaken").value = "Disabled the account temporarily, forced password reset, reviewed sign-in logs, removed suspicious mailbox rules, and enabled additional monitoring.";
+    document.getElementById("impact").value = "Potential unauthorized access to email data. No confirmed data exfiltration at this time.";
+    document.getElementById("nextSteps").value = "Continue log review, confirm whether any sensitive emails were accessed, enforce MFA review, and document lessons learned.";
+    buildNote();
+  }
+
+  async function copyNote() {
+    const text = document.getElementById("output").innerText;
+    const status = document.getElementById("status");
+
+    if (!text || text === "Your incident response note will appear here.") {
+      status.innerText = "Nothing to copy yet.";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      status.innerText = "Incident response note copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy the note.";
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("incidentTitle").value = "";
+    document.getElementById("severity").value = "Medium";
+    document.getElementById("dateDetected").value = "";
+    document.getElementById("affectedSystem").value = "";
+    document.getElementById("summary").value = "";
+    document.getElementById("evidence").value = "";
+    document.getElementById("actionsTaken").value = "";
+    document.getElementById("impact").value = "";
+    document.getElementById("nextSteps").value = "";
+    document.getElementById("output").innerText = "Your incident response note will appear here.";
+    document.getElementById("status").innerText = "Cleared.";
+  }
+</script>
+
+</body>
+</html>
