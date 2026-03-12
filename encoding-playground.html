@@ -120,6 +120,41 @@
       margin-top: 20px;
       font-size: 14px;
     }
+
+    .bit-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .bit {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-weight: bold;
+      color: #0b0f19;
+    }
+
+    .bit-one {
+      background: #00ffd5;
+    }
+
+    .bit-zero {
+      background: #334155;
+      color: #e5e7eb;
+    }
+
+    .bit-label {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -196,6 +231,13 @@ onclick="inspectCharacter()"
 <div class="result" id="byteView">Move your cursor inside the text box</div>
 </div>
 
+<div class="card">
+<div class="card-title">Binary Visualization</div>
+<div class="result" id="bitVisualText">Move your cursor inside the text box</div>
+<div class="bit-bar" id="bitBar"></div>
+<div class="bit-label" id="bitLabel"></div>
+</div>
+
 </div>
 
 <div class="note">
@@ -241,6 +283,9 @@ document.getElementById("asciiResult").innerText="—"
 document.getElementById("countResult").innerText="0"
 document.getElementById("charInspector").innerText="Move your cursor inside the text box"
 document.getElementById("byteView").innerText="Move your cursor inside the text box"
+document.getElementById("bitVisualText").innerText="Move your cursor inside the text box"
+document.getElementById("bitBar").innerHTML=""
+document.getElementById("bitLabel").innerText=""
 
 status.innerText="Type in the box to see live conversions."
 
@@ -276,6 +321,9 @@ if(!text || pos===0){
 
 document.getElementById("charInspector").innerText="Move your cursor inside the text box"
 document.getElementById("byteView").innerText="Move your cursor inside the text box"
+document.getElementById("bitVisualText").innerText="Move your cursor inside the text box"
+document.getElementById("bitBar").innerHTML=""
+document.getElementById("bitLabel").innerText=""
 
 return
 }
@@ -296,6 +344,22 @@ document.getElementById("byteView").innerText=
 Hex Byte: 0x${hex}
 Binary Byte: ${binary}
 Byte Length: 8 bits`
+
+document.getElementById("bitVisualText").innerText=
+`Character "${char}" shown as individual bits`
+
+const bitBar=document.getElementById("bitBar")
+bitBar.innerHTML=""
+
+for(let i=0;i<binary.length;i++){
+const bit=document.createElement("div")
+bit.className=`bit ${binary[i]==="1" ? "bit-one" : "bit-zero"}`
+bit.innerText=binary[i]
+bitBar.appendChild(bit)
+}
+
+document.getElementById("bitLabel").innerText=
+"Each block represents one bit in the selected character's 8-bit binary form."
 
 }
 
