@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Log Field Extractor | CyberTechToolkit</title>
+  <meta name="description" content="Parse and normalize common web access log lines into structured fields for analysis and troubleshooting.">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      padding: 40px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+    }
+
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 25px;
+      border-radius: 12px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    textarea, select {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-family: monospace;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .card-title {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      color: #00ffd5;
+      word-break: break-word;
+      font-family: monospace;
+      line-height: 1.6;
+      min-height: 24px;
+    }
+
+    .output-box {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 22px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #e5e7eb;
+      line-height: 1.6;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>Log Field Extractor</h1>
+
+<div class="box">
+
+  <div class="label">Log Format</div>
+  <select id="formatSelect">
+    <option value="apache_combined">Apache / Nginx Combined Access Log</option>
+  </select>
+
+  <div class="label">Paste Log Line</div>
+  <textarea id="logInput" placeholder='127.0.0.1 - - [11/Mar/2026:22:15:03 +0000] "GET /index.html HTTP/1.1" 200 1543 "https://example.com" "Mozilla/5.0"'></textarea>
+
+  <div class="controls">
+    <button onclick="parseLog()">Parse Log</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="copyJson()">Copy JSON</button>
+    <button onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="status" id="status">Paste a supported log line and extract structured fields.</div>
+
+  <div class="grid" id="fieldGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="card-value">Parsed fields will appear here</div>
+    </div>
+  </div>
+
+  <div class="output-box">
+    <div class="label">Normalized JSON Output</div>
+    <pre id="jsonOutput">Structured JSON will appear here.</pre>
+  </div>
+
+  <div class="note">
+    This tool currently supports common Apache/Nginx combined access log lines. It is useful for log review, troubleshooting, traffic analysis, and security investigation workflows.
+  </div>
+
+</div>
+
+<script>
+  let lastParsedObject = null;
+
+  function escapeHtml(text) {
+    return String(text)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  }
+
+  function parseApacheCombined(line) {
+    const regex = /^(\S+) (\S+) (\S+) \[([^\]]+)\] "([A-Z]+)\s+([^"]*?)\s+(HTTP\/[0-9.]+)" (\d{3}) (\S+) "([^"]*)" "([^"]*)"$/;
+    const match = line.match(regex);
+
+    if (!match) {
+      return null;
+    }
+
+    const [
+      _full,
+      clientIp,
+      ident,
+      authUser,
+      timestamp,
+      method,
+      path,
+      protocol,
+      statusCode,
+      responseSize,
+      referrer,
+      userAgent
+    ] = match;
+
+    return {
+      client_ip: clientIp,
+      ident: ident === "-" ? null : ident,
+      auth_user: authUser === "-" ? null : authUser,
+      timestamp: timestamp,
+      request_method: method,
+      request_path: path,
+      protocol: protocol,
+      status_code: Number(statusCode),
+      response_size: responseSize === "-" ? null : Number(responseSize),
+      referrer: referrer === "-" ? null : referrer,
+      user_agent: userAgent === "-" ? null : userAgent
+    };
+  }
+
+  function buildFieldGrid(obj) {
+    const entries = Object.entries(obj);
+    return entries.map(([key, value]) => {
+      return `
+        <div class="card">
+          <div class="card-title">${escapeHtml(key.replaceAll("_", " "))}</div>
+          <div class="card-value">${escapeHtml(value === null ? "null" : String(value))}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function parseLog() {
+    const format = document.getElementById("formatSelect").value;
+    const line = document.getElementById("logInput").value.trim();
+    const status = document.getElementById("status");
+    const fieldGrid = document.getElementById("fieldGrid");
+    const jsonOutput = document.getElementById("jsonOutput");
+
+    lastParsedObject = null;
+
+    if (!line) {
+      status.innerText = "Please paste a log line first.";
+      fieldGrid.innerHTML = `
+        <div class="card">
+          <div class="card-title">Results</div>
+          <div class="card-value">Parsed fields will appear here</div>
+        </div>
+      `;
+      jsonOutput.innerText = "Structured JSON will appear here.";
+      return;
+    }
+
+    let parsed = null;
+
+    if (format === "apache_combined") {
+      parsed = parseApacheCombined(line);
+    }
+
+    if (!parsed) {
+      status.innerText = "Could not parse this log line with the selected format.";
+      fieldGrid.innerHTML = `
+        <div class="card">
+          <div class="card-title">Parse Error</div>
+          <div class="card-value">The log line did not match the expected format.</div>
+        </div>
+      `;
+      jsonOutput.innerText = "Structured JSON will appear here.";
+      return;
+    }
+
+    lastParsedObject = parsed;
+    fieldGrid.innerHTML = buildFieldGrid(parsed);
+    jsonOutput.innerText = JSON.stringify(parsed, null, 2);
+    status.innerText = "Log parsed successfully.";
+  }
+
+  function loadExample() {
+    document.getElementById("logInput").value =
+`192.168.1.25 - - [11/Mar/2026:22:15:03 +0000] "GET /login.php HTTP/1.1" 200 1543 "https://example.com" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"`;
+    document.getElementById("status").innerText = "Example loaded.";
+    parseLog();
+  }
+
+  async function copyJson() {
+    const status = document.getElementById("status");
+
+    if (!lastParsedObject) {
+      status.innerText = "Nothing parsed yet.";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(lastParsedObject, null, 2));
+      status.innerText = "Normalized JSON copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy JSON.";
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("logInput").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("fieldGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-value">Parsed fields will appear here</div>
+      </div>
+    `;
+    document.getElementById("jsonOutput").innerText = "Structured JSON will appear here.";
+    lastParsedObject = null;
+  }
+</script>
+
+</body>
+</html>
