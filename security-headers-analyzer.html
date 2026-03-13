@@ -2,265 +2,356 @@
 <html>
 <head>
   <title>Security Headers Analyzer | CyberTechToolkit</title>
-  <meta name="description" content="Analyze pasted HTTP response headers for common web security protections.">
+  <meta name="description" content="Analyze pasted HTTP response headers for missing or weak web security protections.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1100px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .results {
+      margin-top: 22px;
+    }
+
+    .result-card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    .result-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .good {
+      color: #22c55e;
+    }
+
+    .warn {
+      color: #f59e0b;
+    }
+
+    .bad {
+      color: #ef4444;
+    }
+
+    .muted {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      color: #00ffd5;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
-  </div>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
 
-  <h1>Security Headers Analyzer</h1>
+<h1>Security Headers Analyzer</h1>
 
-  <div class="box">
-    <div class="label">Paste Raw HTTP Response Headers</div>
-    <textarea id="headersInput" placeholder="Example:
+<div class="box">
+  <div class="label">Paste Raw HTTP Response Headers</div>
+  <textarea id="headersInput" placeholder="Example:
 HTTP/1.1 200 OK
 Content-Type: text/html; charset=UTF-8
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff"></textarea>
 
-    <div style="text-align:center;">
-      <button onclick="analyzeHeaders()">Analyze Headers</button>
-      <button onclick="loadExample()">Load Example</button>
-      <button onclick="clearHeaders()">Clear</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <div class="results" id="results"></div>
+  <div class="controls">
+    <button onclick="analyzeHeaders()">Analyze Headers</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="clearHeaders()">Clear</button>
   </div>
 
-  <script>
-    function parseHeaders(raw) {
-      const lines = raw.split(/\r?\n/);
-      const headers = {};
+  <div class="status" id="status">Paste raw response headers to review common security protections.</div>
 
-      for (const line of lines) {
-        const index = line.indexOf(":");
-        if (index > 0) {
-          const key = line.slice(0, index).trim().toLowerCase();
-          const value = line.slice(index + 1).trim();
-          headers[key] = value;
-        }
+  <div class="results" id="results"></div>
+
+  <div class="note">
+    This tool checks for common web security headers and highlights missing or weak protections. Always review findings in the context of your application architecture and deployment setup.
+  </div>
+</div>
+
+<script>
+  function parseHeaders(raw) {
+    const lines = raw.split(/\r?\n/);
+    const headers = {};
+
+    for (const line of lines) {
+      const index = line.indexOf(":");
+      if (index > 0) {
+        const key = line.slice(0, index).trim().toLowerCase();
+        const value = line.slice(index + 1).trim();
+        headers[key] = value;
       }
-
-      return headers;
     }
 
-    function addResult(title, statusClass, message, recommendation) {
-      return `
-        <div class="result-card">
-          <div class="result-title ${statusClass}">${title}</div>
-          <div class="muted">${message}</div>
-          ${recommendation ? `<div class="muted" style="margin-top:8px;"><strong>Recommendation:</strong> ${recommendation}</div>` : ""}
-        </div>
-      `;
+    return headers;
+  }
+
+  function addResult(title, statusClass, message, recommendation) {
+    return `
+      <div class="result-card">
+        <div class="result-title ${statusClass}">${title}</div>
+        <div class="muted">${message}</div>
+        ${recommendation ? `<div class="muted" style="margin-top:10px;"><strong>Recommendation:</strong> ${recommendation}</div>` : ""}
+      </div>
+    `;
+  }
+
+  function analyzeHeaders() {
+    const input = document.getElementById("headersInput").value.trim();
+    const results = document.getElementById("results");
+    const status = document.getElementById("status");
+
+    results.innerHTML = "";
+    status.innerText = "";
+
+    if (!input) {
+      status.innerText = "Please paste HTTP response headers first.";
+      return;
     }
 
-    function analyzeHeaders() {
-      const input = document.getElementById("headersInput").value.trim();
-      const results = document.getElementById("results");
-      const status = document.getElementById("status");
+    const headers = parseHeaders(input);
+    let output = "";
 
-      results.innerHTML = "";
-      status.innerText = "";
-
-      if (!input) {
-        status.innerText = "Please paste HTTP response headers first.";
-        return;
-      }
-
-      const headers = parseHeaders(input);
-      let output = "";
-
-      if (headers["strict-transport-security"]) {
-        output += addResult(
-          "Strict-Transport-Security present",
-          "good",
-          `Found: <code>${headers["strict-transport-security"]}</code>`,
-          "Keep HSTS enabled on HTTPS sites."
-        );
-      } else {
-        output += addResult(
-          "Strict-Transport-Security missing",
-          "bad",
-          "HSTS was not found.",
-          "Add Strict-Transport-Security to help enforce HTTPS."
-        );
-      }
-
-      if (headers["content-security-policy"]) {
-        output += addResult(
-          "Content-Security-Policy present",
-          "good",
-          `Found: <code>${headers["content-security-policy"]}</code>`,
-          "Review CSP policy to ensure it is appropriately restrictive."
-        );
-      } else {
-        output += addResult(
-          "Content-Security-Policy missing",
-          "bad",
-          "CSP was not found.",
-          "Add Content-Security-Policy to reduce XSS and injection risk."
-        );
-      }
-
-      if (headers["x-frame-options"]) {
-        output += addResult(
-          "X-Frame-Options present",
-          "good",
-          `Found: <code>${headers["x-frame-options"]}</code>`,
-          "Use DENY or SAMEORIGIN unless framing is required."
-        );
-      } else {
-        output += addResult(
-          "X-Frame-Options missing",
-          "warn",
-          "X-Frame-Options was not found.",
-          "Add X-Frame-Options to help defend against clickjacking."
-        );
-      }
-
-      if (headers["x-content-type-options"] && headers["x-content-type-options"].toLowerCase() === "nosniff") {
-        output += addResult(
-          "X-Content-Type-Options configured",
-          "good",
-          `Found: <code>${headers["x-content-type-options"]}</code>`,
-          "Keep nosniff enabled."
-        );
-      } else {
-        output += addResult(
-          "X-Content-Type-Options missing or weak",
-          "warn",
-          "Expected nosniff but did not find it.",
-          "Set X-Content-Type-Options: nosniff."
-        );
-      }
-
-      if (headers["referrer-policy"]) {
-        output += addResult(
-          "Referrer-Policy present",
-          "good",
-          `Found: <code>${headers["referrer-policy"]}</code>`,
-          "Review the policy to ensure it matches privacy needs."
-        );
-      } else {
-        output += addResult(
-          "Referrer-Policy missing",
-          "warn",
-          "Referrer-Policy was not found.",
-          "Add Referrer-Policy to control referrer leakage."
-        );
-      }
-
-      if (headers["permissions-policy"]) {
-        output += addResult(
-          "Permissions-Policy present",
-          "good",
-          `Found: <code>${headers["permissions-policy"]}</code>`,
-          "Review enabled browser features and restrict where possible."
-        );
-      } else {
-        output += addResult(
-          "Permissions-Policy missing",
-          "warn",
-          "Permissions-Policy was not found.",
-          "Consider adding Permissions-Policy to restrict browser capabilities."
-        );
-      }
-
-      if (headers["server"]) {
-        output += addResult(
-          "Server header exposed",
-          "warn",
-          `Found: <code>${headers["server"]}</code>`,
-          "Reduce unnecessary server/version disclosure where practical."
-        );
-      } else {
-        output += addResult(
-          "Server header not exposed",
-          "good",
-          "No Server header was detected in the pasted data.",
-          ""
-        );
-      }
-
-      results.innerHTML = output;
-      status.innerText = "Analysis complete.";
+    if (headers["strict-transport-security"]) {
+      output += addResult(
+        "Strict-Transport-Security present",
+        "good",
+        `Found: <code>${headers["strict-transport-security"]}</code>`,
+        "Keep HSTS enabled on HTTPS sites."
+      );
+    } else {
+      output += addResult(
+        "Strict-Transport-Security missing",
+        "bad",
+        "HSTS was not found.",
+        "Add Strict-Transport-Security to help enforce HTTPS."
+      );
     }
 
-    function loadExample() {
-      document.getElementById("headersInput").value = `HTTP/1.1 200 OK
+    if (headers["content-security-policy"]) {
+      output += addResult(
+        "Content-Security-Policy present",
+        "good",
+        `Found: <code>${headers["content-security-policy"]}</code>`,
+        "Review the policy to ensure it is appropriately restrictive."
+      );
+    } else {
+      output += addResult(
+        "Content-Security-Policy missing",
+        "bad",
+        "CSP was not found.",
+        "Add Content-Security-Policy to reduce XSS and injection risk."
+      );
+    }
+
+    if (headers["x-frame-options"]) {
+      output += addResult(
+        "X-Frame-Options present",
+        "good",
+        `Found: <code>${headers["x-frame-options"]}</code>`,
+        "Use DENY or SAMEORIGIN unless framing is required."
+      );
+    } else {
+      output += addResult(
+        "X-Frame-Options missing",
+        "warn",
+        "X-Frame-Options was not found.",
+        "Add X-Frame-Options to help defend against clickjacking."
+      );
+    }
+
+    if (headers["x-content-type-options"] && headers["x-content-type-options"].toLowerCase() === "nosniff") {
+      output += addResult(
+        "X-Content-Type-Options configured",
+        "good",
+        `Found: <code>${headers["x-content-type-options"]}</code>`,
+        "Keep nosniff enabled."
+      );
+    } else {
+      output += addResult(
+        "X-Content-Type-Options missing or weak",
+        "warn",
+        "Expected nosniff but did not find it.",
+        "Set X-Content-Type-Options: nosniff."
+      );
+    }
+
+    if (headers["referrer-policy"]) {
+      output += addResult(
+        "Referrer-Policy present",
+        "good",
+        `Found: <code>${headers["referrer-policy"]}</code>`,
+        "Review the policy to ensure it matches your privacy needs."
+      );
+    } else {
+      output += addResult(
+        "Referrer-Policy missing",
+        "warn",
+        "Referrer-Policy was not found.",
+        "Add Referrer-Policy to control referrer leakage."
+      );
+    }
+
+    if (headers["permissions-policy"]) {
+      output += addResult(
+        "Permissions-Policy present",
+        "good",
+        `Found: <code>${headers["permissions-policy"]}</code>`,
+        "Review enabled browser features and restrict where possible."
+      );
+    } else {
+      output += addResult(
+        "Permissions-Policy missing",
+        "warn",
+        "Permissions-Policy was not found.",
+        "Consider adding Permissions-Policy to restrict browser capabilities."
+      );
+    }
+
+    if (headers["server"]) {
+      output += addResult(
+        "Server header exposed",
+        "warn",
+        `Found: <code>${headers["server"]}</code>`,
+        "Reduce unnecessary server or version disclosure where practical."
+      );
+    } else {
+      output += addResult(
+        "Server header not exposed",
+        "good",
+        "No Server header was detected in the pasted data.",
+        ""
+      );
+    }
+
+    results.innerHTML = output;
+    status.innerText = "Analysis complete.";
+  }
+
+  function loadExample() {
+    document.getElementById("headersInput").value = `HTTP/1.1 200 OK
 Date: Tue, 11 Mar 2026 22:00:00 GMT
 Content-Type: text/html; charset=UTF-8
 Strict-Transport-Security: max-age=31536000; includeSubDomains
@@ -268,16 +359,16 @@ X-Frame-Options: SAMEORIGIN
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Server: nginx`;
-      document.getElementById("results").innerHTML = "";
-      document.getElementById("status").innerText = "";
-    }
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("status").innerText = "Example loaded.";
+  }
 
-    function clearHeaders() {
-      document.getElementById("headersInput").value = "";
-      document.getElementById("results").innerHTML = "";
-      document.getElementById("status").innerText = "";
-    }
-  </script>
+  function clearHeaders() {
+    document.getElementById("headersInput").value = "";
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("status").innerText = "Cleared.";
+  }
+</script>
 
 </body>
 </html>
