@@ -1,207 +1,273 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>DNS Lookup | CyberTechToolkit</title>
-<meta name="description" content="Lookup DNS records including A, AAAA, MX, NS and TXT records.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNS Lookup | CyberTechToolkit</title>
+  <meta name="description" content="Lookup A, AAAA, MX, TXT, and NS DNS records for a domain.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-<style>
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-padding:40px 20px;
-margin:0;
-text-align:center;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-margin-bottom:20px;
-font-size:34px;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:16px;
-width:900px;
-max-width:96%;
-margin:auto;
-text-align:left;
-box-shadow:0 14px 30px rgba(0,0,0,0.24);
-}
+    input {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.label{
-color:#9ca3af;
-font-size:13px;
-text-transform:uppercase;
-letter-spacing:1px;
-margin-top:18px;
-margin-bottom:8px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-box-sizing:border-box;
-font-size:14px;
-background:#f8fafc;
-color:#0f172a;
-}
+    button:hover {
+      background: #00e5c0;
+    }
 
-button{
-margin-top:14px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-margin-right:10px;
-color:#08111f;
-}
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
 
-.controls{
-text-align:center;
-margin-top:20px;
-}
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
 
-.status{
-color:#9ca3af;
-margin-top:14px;
-text-align:center;
-font-size:14px;
-}
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 120px;
+    }
 
-.results{
-margin-top:22px;
-background:#0f172a;
-border:1px solid #1f2937;
-padding:16px;
-border-radius:12px;
-}
+    .card-title {
+      color: #00ffd5;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
 
-pre{
-color:#e5e7eb;
-white-space:pre-wrap;
-word-break:break-word;
-font-family:Consolas, Monaco, monospace;
-font-size:14px;
-}
+    .record {
+      color: #e5e7eb;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+      margin-bottom: 6px;
+    }
 
-</style>
+    .empty {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="back">
-<a href="/">← Back</a>
+  <a href="/">← Back</a>
 </div>
 
 <h1>DNS Lookup</h1>
 
 <div class="box">
 
-<div class="label">Domain</div>
-<input id="domain" placeholder="example.com">
+  <div class="label">Domain</div>
+  <input id="domain" placeholder="example.com">
 
-<div class="label">Record Type</div>
-<select id="type">
-<option value="A">A</option>
-<option value="AAAA">AAAA</option>
-<option value="MX">MX</option>
-<option value="TXT">TXT</option>
-<option value="NS">NS</option>
-</select>
+  <div class="controls">
+    <button onclick="lookup()">Lookup</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="clearResults()">Clear</button>
+  </div>
 
-<div class="controls">
-<button onclick="lookup()">Lookup</button>
-<button onclick="loadExample()">Example</button>
-<button onclick="clearResults()">Clear</button>
-</div>
+  <div class="status" id="status">Enter a domain to view common DNS record types.</div>
 
-<div class="status" id="status">Enter a domain and select a DNS record type.</div>
+  <div class="results-grid" id="resultsGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="empty">DNS records will appear here.</div>
+    </div>
+  </div>
 
-<div class="results">
-<pre id="output">Results will appear here.</pre>
-</div>
+  <div class="note">
+    This tool checks common DNS record types including A, AAAA, MX, TXT, and NS. Results are fetched directly in the browser.
+  </div>
 
 </div>
 
 <script>
+  async function fetchRecord(domain, type) {
+    const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.Answer || [];
+  }
 
-async function lookup(){
+  function buildCard(title, records) {
+    if (!records.length) {
+      return `
+        <div class="card">
+          <div class="card-title">${title}</div>
+          <div class="empty">No records found.</div>
+        </div>
+      `;
+    }
 
-const domain=document.getElementById("domain").value.trim();
-const type=document.getElementById("type").value;
-const status=document.getElementById("status");
-const output=document.getElementById("output");
+    const lines = records.map(record => `<div class="record">${record.data}</div>`).join("");
+    return `
+      <div class="card">
+        <div class="card-title">${title}</div>
+        ${lines}
+      </div>
+    `;
+  }
 
-if(!domain){
-status.innerText="Enter a domain.";
-return;
-}
+  async function lookup() {
+    const domain = document.getElementById("domain").value.trim();
+    const status = document.getElementById("status");
+    const resultsGrid = document.getElementById("resultsGrid");
 
-try{
+    if (!domain) {
+      status.innerText = "Please enter a domain.";
+      return;
+    }
 
-const url=`https://dns.google/resolve?name=${domain}&type=${type}`;
-const res=await fetch(url);
-const data=await res.json();
+    status.innerText = "Looking up DNS records...";
+    resultsGrid.innerHTML = "";
 
-if(!data.Answer){
-output.innerText="No records found.";
-return;
-}
+    try {
+      const [aRecords, aaaaRecords, mxRecords, txtRecords, nsRecords] = await Promise.all([
+        fetchRecord(domain, "A"),
+        fetchRecord(domain, "AAAA"),
+        fetchRecord(domain, "MX"),
+        fetchRecord(domain, "TXT"),
+        fetchRecord(domain, "NS")
+      ]);
 
-let text="";
-data.Answer.forEach(r=>{
-text+=`${r.data}\n`;
-});
+      resultsGrid.innerHTML =
+        buildCard("A Records", aRecords) +
+        buildCard("AAAA Records", aaaaRecords) +
+        buildCard("MX Records", mxRecords) +
+        buildCard("TXT Records", txtRecords) +
+        buildCard("NS Records", nsRecords);
 
-output.innerText=text;
-status.innerText="Lookup complete.";
+      status.innerText = "DNS lookup complete.";
+    } catch (error) {
+      resultsGrid.innerHTML = `
+        <div class="card">
+          <div class="card-title">Lookup Error</div>
+          <div class="empty">Could not fetch DNS records.</div>
+        </div>
+      `;
+      status.innerText = "Lookup failed.";
+    }
+  }
 
-}catch{
-status.innerText="Lookup failed.";
-}
+  function loadExample() {
+    document.getElementById("domain").value = "google.com";
+    document.getElementById("status").innerText = "Example loaded.";
+  }
 
-}
-
-function loadExample(){
-document.getElementById("domain").value="google.com";
-document.getElementById("type").value="A";
-}
-
-function clearResults(){
-document.getElementById("domain").value="";
-document.getElementById("output").innerText="Results will appear here.";
-document.getElementById("status").innerText="Cleared.";
-}
-
+  function clearResults() {
+    document.getElementById("domain").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("resultsGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="empty">DNS records will appear here.</div>
+      </div>
+    `;
+  }
 </script>
 
 </body>
