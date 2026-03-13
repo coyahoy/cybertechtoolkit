@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CSP Analyzer | CyberTechToolkit</title>
-<meta name="description" content="Analyze Content Security Policy headers to detect risky directives and weak security configurations.">
+<title>DNS Lookup | CyberTechToolkit</title>
+<meta name="description" content="Lookup DNS records including A, AAAA, MX, NS and TXT records.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -42,11 +42,10 @@ background:rgba(12,20,35,0.9);
 border:1px solid rgba(53,74,102,0.7);
 padding:25px;
 border-radius:16px;
-width:1100px;
+width:900px;
 max-width:96%;
 margin:auto;
 text-align:left;
-box-sizing:border-box;
 box-shadow:0 14px 30px rgba(0,0,0,0.24);
 }
 
@@ -59,16 +58,13 @@ margin-top:18px;
 margin-bottom:8px;
 }
 
-textarea{
+input,select{
 width:100%;
-min-height:180px;
 border-radius:8px;
 border:none;
 padding:12px;
 box-sizing:border-box;
 font-size:14px;
-resize:vertical;
-font-family:monospace;
 background:#f8fafc;
 color:#0f172a;
 }
@@ -103,48 +99,18 @@ font-size:14px;
 
 .results{
 margin-top:22px;
-}
-
-.card{
 background:#0f172a;
 border:1px solid #1f2937;
 padding:16px;
 border-radius:12px;
-margin-bottom:14px;
 }
 
-.good{color:#22c55e;}
-.warn{color:#f59e0b;}
-.bad{color:#ef4444;}
-
-.card-title{
-font-weight:bold;
-margin-bottom:8px;
-font-size:16px;
-}
-
-.muted{
-color:#94a3b8;
-line-height:1.6;
-font-size:14px;
-}
-
-code{
-color:#00ffd5;
+pre{
+color:#e5e7eb;
+white-space:pre-wrap;
 word-break:break-word;
 font-family:Consolas, Monaco, monospace;
-}
-
-.note{
-color:#94a3b8;
-line-height:1.6;
-margin-top:20px;
 font-size:14px;
-}
-
-@media (max-width:700px){
-h1{font-size:28px;}
-.box{padding:18px;}
 }
 
 </style>
@@ -156,163 +122,84 @@ h1{font-size:28px;}
 <a href="/">← Back</a>
 </div>
 
-<h1>CSP Analyzer</h1>
+<h1>DNS Lookup</h1>
 
 <div class="box">
 
-<div class="label">Paste Content Security Policy</div>
+<div class="label">Domain</div>
+<input id="domain" placeholder="example.com">
 
-<textarea id="cspInput" placeholder="Example:
-default-src 'self';
-script-src 'self' https://cdn.example.com;
-object-src 'none';
-frame-ancestors 'none';"></textarea>
+<div class="label">Record Type</div>
+<select id="type">
+<option value="A">A</option>
+<option value="AAAA">AAAA</option>
+<option value="MX">MX</option>
+<option value="TXT">TXT</option>
+<option value="NS">NS</option>
+</select>
 
 <div class="controls">
-<button onclick="analyzeCSP()">Analyze CSP</button>
-<button onclick="loadExample()">Load Example</button>
-<button onclick="clearCSP()">Clear</button>
+<button onclick="lookup()">Lookup</button>
+<button onclick="loadExample()">Example</button>
+<button onclick="clearResults()">Clear</button>
 </div>
 
-<div class="status" id="status">Paste a Content Security Policy header to inspect directives and security posture.</div>
+<div class="status" id="status">Enter a domain and select a DNS record type.</div>
 
-<div class="results" id="results"></div>
-
-<div class="note">
-This analyzer highlights risky CSP directives such as <code>unsafe-inline</code>, <code>unsafe-eval</code>, missing <code>object-src</code>, or overly permissive policies.
+<div class="results">
+<pre id="output">Results will appear here.</pre>
 </div>
 
 </div>
 
 <script>
 
-function addCard(title,cls,text){
-return `
-<div class="card">
-<div class="card-title ${cls}">${title}</div>
-<div class="muted">${text}</div>
-</div>
-`;
-}
+async function lookup(){
 
-function analyzeCSP(){
-
-const raw=document.getElementById("cspInput").value.trim();
-const results=document.getElementById("results");
+const domain=document.getElementById("domain").value.trim();
+const type=document.getElementById("type").value;
 const status=document.getElementById("status");
+const output=document.getElementById("output");
 
-results.innerHTML="";
-status.innerText="";
-
-if(!raw){
-status.innerText="Please paste a CSP header first.";
+if(!domain){
+status.innerText="Enter a domain.";
 return;
 }
 
-const lower=raw.toLowerCase();
-let output="";
+try{
 
-if(lower.includes("unsafe-inline")){
-output+=addCard(
-"unsafe-inline detected",
-"bad",
-"CSP allows inline scripts. This weakens XSS protection."
-);
-}else{
-output+=addCard(
-"No unsafe-inline",
-"good",
-"Inline scripts are not explicitly allowed."
-);
+const url=`https://dns.google/resolve?name=${domain}&type=${type}`;
+const res=await fetch(url);
+const data=await res.json();
+
+if(!data.Answer){
+output.innerText="No records found.";
+return;
 }
 
-if(lower.includes("unsafe-eval")){
-output+=addCard(
-"unsafe-eval detected",
-"bad",
-"unsafe-eval allows dynamic code execution which can weaken security."
-);
-}else{
-output+=addCard(
-"No unsafe-eval",
-"good",
-"unsafe-eval is not present."
-);
-}
+let text="";
+data.Answer.forEach(r=>{
+text+=`${r.data}\n`;
+});
 
-if(lower.includes("object-src")){
-output+=addCard(
-"object-src directive present",
-"good",
-"object-src directive found."
-);
-}else{
-output+=addCard(
-"object-src missing",
-"warn",
-"Consider adding object-src 'none' to prevent plugin-based attacks."
-);
-}
+output.innerText=text;
+status.innerText="Lookup complete.";
 
-if(lower.includes("*")){
-output+=addCard(
-"Wildcard detected",
-"warn",
-"A wildcard source allows resources from any domain which may weaken CSP protections."
-);
+}catch{
+status.innerText="Lookup failed.";
 }
-
-if(lower.includes("frame-ancestors")){
-output+=addCard(
-"frame-ancestors directive present",
-"good",
-"Helps protect against clickjacking."
-);
-}else{
-output+=addCard(
-"frame-ancestors missing",
-"warn",
-"Consider setting frame-ancestors 'none' or 'self'."
-);
-}
-
-if(lower.includes("default-src")){
-output+=addCard(
-"default-src directive present",
-"good",
-"default-src directive is configured."
-);
-}else{
-output+=addCard(
-"default-src missing",
-"warn",
-"default-src helps define baseline CSP restrictions."
-);
-}
-
-results.innerHTML=output;
-status.innerText="Analysis complete.";
 
 }
 
 function loadExample(){
-
-document.getElementById("cspInput").value=`default-src 'self';
-script-src 'self' https://cdn.example.com;
-object-src 'none';
-frame-ancestors 'none';`;
-
-document.getElementById("results").innerHTML="";
-document.getElementById("status").innerText="Example loaded.";
-
+document.getElementById("domain").value="google.com";
+document.getElementById("type").value="A";
 }
 
-function clearCSP(){
-
-document.getElementById("cspInput").value="";
-document.getElementById("results").innerHTML="";
+function clearResults(){
+document.getElementById("domain").value="";
+document.getElementById("output").innerText="Results will appear here.";
 document.getElementById("status").innerText="Cleared.";
-
 }
 
 </script>
