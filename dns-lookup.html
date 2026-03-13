@@ -1,61 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DNS Lookup - CyberTechToolkit</title>
-  <style>
-    body{
+<title>CSP Analyzer | CyberTechToolkit</title>
+<meta name="description" content="Analyze Content Security Policy headers to detect risky directives and weak security configurations.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
 font-family:Arial,sans-serif;
 background:
 radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
 linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
 color:#e5eefc;
+padding:40px 20px;
 margin:0;
-padding:40px;
 text-align:center;
 }
 
 h1{
 color:#00ffd5;
 margin-top:20px;
-}
-
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
-
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
-
-textarea{
-font-family:monospace;
-resize:vertical;
-}
-
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#00e5c0;
+margin-bottom:20px;
+font-size:34px;
 }
 
 .back{
@@ -69,87 +36,286 @@ color:#00ffd5;
 text-decoration:none;
 font-weight:bold;
 }
-  </style>
+
+.box{
+background:rgba(12,20,35,0.9);
+border:1px solid rgba(53,74,102,0.7);
+padding:25px;
+border-radius:16px;
+width:1100px;
+max-width:96%;
+margin:auto;
+text-align:left;
+box-sizing:border-box;
+box-shadow:0 14px 30px rgba(0,0,0,0.24);
+}
+
+.label{
+color:#9ca3af;
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:1px;
+margin-top:18px;
+margin-bottom:8px;
+}
+
+textarea{
+width:100%;
+min-height:180px;
+border-radius:8px;
+border:none;
+padding:12px;
+box-sizing:border-box;
+font-size:14px;
+resize:vertical;
+font-family:monospace;
+background:#f8fafc;
+color:#0f172a;
+}
+
+button{
+margin-top:14px;
+padding:10px 16px;
+background:#00ffd5;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+margin-right:10px;
+color:#08111f;
+}
+
+button:hover{
+background:#00e5c0;
+}
+
+.controls{
+text-align:center;
+margin-top:20px;
+}
+
+.status{
+color:#9ca3af;
+margin-top:14px;
+text-align:center;
+font-size:14px;
+}
+
+.results{
+margin-top:22px;
+}
+
+.card{
+background:#0f172a;
+border:1px solid #1f2937;
+padding:16px;
+border-radius:12px;
+margin-bottom:14px;
+}
+
+.good{color:#22c55e;}
+.warn{color:#f59e0b;}
+.bad{color:#ef4444;}
+
+.card-title{
+font-weight:bold;
+margin-bottom:8px;
+font-size:16px;
+}
+
+.muted{
+color:#94a3b8;
+line-height:1.6;
+font-size:14px;
+}
+
+code{
+color:#00ffd5;
+word-break:break-word;
+font-family:Consolas, Monaco, monospace;
+}
+
+.note{
+color:#94a3b8;
+line-height:1.6;
+margin-top:20px;
+font-size:14px;
+}
+
+@media (max-width:700px){
+h1{font-size:28px;}
+.box{padding:18px;}
+}
+
+</style>
 </head>
+
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
-  </div>
+<div class="back">
+<a href="/">← Back</a>
+</div>
 
-  <h1>DNS Lookup</h1>
+<h1>CSP Analyzer</h1>
 
-  <div class="box">
-    <p>Enter a domain name</p>
-    <input type="text" id="domain" placeholder="example.com" />
-    <button onclick="lookupDNS()">Lookup DNS</button>
+<div class="box">
 
-    <div class="status" id="status"></div>
-    <div class="results" id="results"></div>
-  </div>
+<div class="label">Paste Content Security Policy</div>
 
-  <script>
-    async function fetchRecord(domain, type) {
-      try {
-        const response = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`);
-        const data = await response.json();
-        return data.Answer || [];
-      } catch {
-        return [];
-      }
-    }
+<textarea id="cspInput" placeholder="Example:
+default-src 'self';
+script-src 'self' https://cdn.example.com;
+object-src 'none';
+frame-ancestors 'none';"></textarea>
 
-    function renderSection(title, records) {
-      if (!records.length) {
-        return `
-          <div class="section">
-            <h3>${title}</h3>
-            <div class="record">No records found</div>
-          </div>
-        `;
-      }
+<div class="controls">
+<button onclick="analyzeCSP()">Analyze CSP</button>
+<button onclick="loadExample()">Load Example</button>
+<button onclick="clearCSP()">Clear</button>
+</div>
 
-      const items = records.map(record => `<div class="record">${record.data}</div>`).join("");
-      return `
-        <div class="section">
-          <h3>${title}</h3>
-          ${items}
-        </div>
-      `;
-    }
+<div class="status" id="status">Paste a Content Security Policy header to inspect directives and security posture.</div>
 
-    async function lookupDNS() {
-      const domain = document.getElementById("domain").value.trim();
-      const status = document.getElementById("status");
-      const results = document.getElementById("results");
+<div class="results" id="results"></div>
 
-      if (!domain) {
-        status.innerText = "Please enter a domain name.";
-        results.innerHTML = "";
-        return;
-      }
+<div class="note">
+This analyzer highlights risky CSP directives such as <code>unsafe-inline</code>, <code>unsafe-eval</code>, missing <code>object-src</code>, or overly permissive policies.
+</div>
 
-      status.innerText = "Looking up DNS records...";
-      results.innerHTML = "";
+</div>
 
-      const [aRecords, aaaaRecords, mxRecords, nsRecords, txtRecords] = await Promise.all([
-        fetchRecord(domain, "A"),
-        fetchRecord(domain, "AAAA"),
-        fetchRecord(domain, "MX"),
-        fetchRecord(domain, "NS"),
-        fetchRecord(domain, "TXT")
-      ]);
+<script>
 
-      results.innerHTML =
-        renderSection("A Records", aRecords) +
-        renderSection("AAAA Records", aaaaRecords) +
-        renderSection("MX Records", mxRecords) +
-        renderSection("NS Records", nsRecords) +
-        renderSection("TXT Records", txtRecords);
+function addCard(title,cls,text){
+return `
+<div class="card">
+<div class="card-title ${cls}">${title}</div>
+<div class="muted">${text}</div>
+</div>
+`;
+}
 
-      status.innerText = "Lookup complete.";
-    }
-  </script>
+function analyzeCSP(){
+
+const raw=document.getElementById("cspInput").value.trim();
+const results=document.getElementById("results");
+const status=document.getElementById("status");
+
+results.innerHTML="";
+status.innerText="";
+
+if(!raw){
+status.innerText="Please paste a CSP header first.";
+return;
+}
+
+const lower=raw.toLowerCase();
+let output="";
+
+if(lower.includes("unsafe-inline")){
+output+=addCard(
+"unsafe-inline detected",
+"bad",
+"CSP allows inline scripts. This weakens XSS protection."
+);
+}else{
+output+=addCard(
+"No unsafe-inline",
+"good",
+"Inline scripts are not explicitly allowed."
+);
+}
+
+if(lower.includes("unsafe-eval")){
+output+=addCard(
+"unsafe-eval detected",
+"bad",
+"unsafe-eval allows dynamic code execution which can weaken security."
+);
+}else{
+output+=addCard(
+"No unsafe-eval",
+"good",
+"unsafe-eval is not present."
+);
+}
+
+if(lower.includes("object-src")){
+output+=addCard(
+"object-src directive present",
+"good",
+"object-src directive found."
+);
+}else{
+output+=addCard(
+"object-src missing",
+"warn",
+"Consider adding object-src 'none' to prevent plugin-based attacks."
+);
+}
+
+if(lower.includes("*")){
+output+=addCard(
+"Wildcard detected",
+"warn",
+"A wildcard source allows resources from any domain which may weaken CSP protections."
+);
+}
+
+if(lower.includes("frame-ancestors")){
+output+=addCard(
+"frame-ancestors directive present",
+"good",
+"Helps protect against clickjacking."
+);
+}else{
+output+=addCard(
+"frame-ancestors missing",
+"warn",
+"Consider setting frame-ancestors 'none' or 'self'."
+);
+}
+
+if(lower.includes("default-src")){
+output+=addCard(
+"default-src directive present",
+"good",
+"default-src directive is configured."
+);
+}else{
+output+=addCard(
+"default-src missing",
+"warn",
+"default-src helps define baseline CSP restrictions."
+);
+}
+
+results.innerHTML=output;
+status.innerText="Analysis complete.";
+
+}
+
+function loadExample(){
+
+document.getElementById("cspInput").value=`default-src 'self';
+script-src 'self' https://cdn.example.com;
+object-src 'none';
+frame-ancestors 'none';`;
+
+document.getElementById("results").innerHTML="";
+document.getElementById("status").innerText="Example loaded.";
+
+}
+
+function clearCSP(){
+
+document.getElementById("cspInput").value="";
+document.getElementById("results").innerHTML="";
+document.getElementById("status").innerText="Cleared.";
+
+}
+
+</script>
 
 </body>
 </html>
