@@ -2,172 +2,331 @@
 <html>
 <head>
   <title>JWT Inspector | CyberTechToolkit</title>
-  <meta name="description" content="Decode and inspect JWT header and payload claims such as exp, iat, nbf, alg, and typ.">
+  <meta name="description" content="Decode and inspect JWT header and payload claims such as exp, iat, nbf, iss, aud, and alg.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-   body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1100px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      min-height: 120px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .output {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+      min-height: 220px;
+    }
+
+    .output-title {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    pre {
+      color: #e5e7eb;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      line-height: 1.6;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+    }
+
+    .checks-box {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+      margin-top: 18px;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="back"><a href="/">← Back to CyberTechToolkit</a></div>
-  <h1>JWT Inspector</h1>
 
-  <div class="box">
-    <div class="label">Paste JWT</div>
-    <textarea id="jwtInput"></textarea>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
 
+<h1>JWT Inspector</h1>
+
+<div class="box">
+
+  <div class="label">Paste JWT</div>
+  <textarea id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+
+  <div class="controls">
     <button onclick="decodeJWT()">Inspect JWT</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="copyPayload()">Copy Payload</button>
+    <button onclick="clearAll()">Clear</button>
+  </div>
 
-    <div class="status" id="status"></div>
+  <div class="status" id="status">Paste a JWT to decode and inspect its claims.</div>
+
+  <div class="grid">
+    <div class="output">
+      <div class="output-title">Header</div>
+      <pre id="headerOutput">Decoded header will appear here.</pre>
+    </div>
 
     <div class="output">
-      <div class="label">Header</div>
-      <pre id="headerOutput"></pre>
-
-      <div class="label">Payload</div>
-      <pre id="payloadOutput"></pre>
-
-      <div class="label">Checks</div>
-      <pre id="checksOutput"></pre>
+      <div class="output-title">Payload</div>
+      <pre id="payloadOutput">Decoded payload will appear here.</pre>
     </div>
   </div>
 
-  <script>
-    function base64UrlDecode(str) {
-      str = str.replace(/-/g, "+").replace(/_/g, "/");
-      while (str.length % 4) str += "=";
-      return atob(str);
-    }
+  <div class="checks-box">
+    <div class="output-title">Checks</div>
+    <pre id="checksOutput">Inspection checks will appear here.</pre>
+  </div>
 
-    function formatUnix(ts) {
-      if (!ts) return "Not present";
-      const date = new Date(ts * 1000);
-      return date.toISOString() + " UTC";
-    }
+  <div class="note">
+    This tool decodes the JWT header and payload in your browser and highlights useful claim information such as expiration, issue time, not-before time, issuer, and algorithm. It does not verify the signature.
+  </div>
 
-    function decodeJWT() {
-      const jwt = document.getElementById("jwtInput").value.trim();
-      const status = document.getElementById("status");
+</div>
 
-      try {
-        const parts = jwt.split(".");
-        if (parts.length < 2) throw new Error("Invalid JWT format");
+<script>
+  function base64UrlDecode(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    return atob(str);
+  }
 
-        const header = JSON.parse(base64UrlDecode(parts[0]));
-        const payload = JSON.parse(base64UrlDecode(parts[1]));
+  function formatUnix(ts) {
+    if (!ts) return "Not present";
+    const date = new Date(ts * 1000);
+    return date.toISOString() + " UTC";
+  }
 
-        document.getElementById("headerOutput").textContent = JSON.stringify(header, null, 2);
-        document.getElementById("payloadOutput").textContent = JSON.stringify(payload, null, 2);
+  function decodeJWT() {
+    const jwt = document.getElementById("jwtInput").value.trim();
+    const status = document.getElementById("status");
 
-        const now = Math.floor(Date.now() / 1000);
-        let checks = [];
+    try {
+      const parts = jwt.split(".");
+      if (parts.length < 2) throw new Error("Invalid JWT format");
 
-        if (header.alg) {
-          checks.push("Algorithm: " + header.alg);
-          if (header.alg.toLowerCase() === "none") {
-            checks.push("Warning: alg=none is insecure.");
-          }
-        } else {
-          checks.push("Algorithm not present.");
+      const header = JSON.parse(base64UrlDecode(parts[0]));
+      const payload = JSON.parse(base64UrlDecode(parts[1]));
+
+      document.getElementById("headerOutput").textContent = JSON.stringify(header, null, 2);
+      document.getElementById("payloadOutput").textContent = JSON.stringify(payload, null, 2);
+
+      const now = Math.floor(Date.now() / 1000);
+      let checks = [];
+
+      if (header.alg) {
+        checks.push("Algorithm: " + header.alg);
+        if (String(header.alg).toLowerCase() === "none") {
+          checks.push("Warning: alg=none is insecure.");
         }
-
-        if (payload.exp) {
-          checks.push("exp: " + formatUnix(payload.exp));
-          checks.push(payload.exp < now ? "Status: Token appears expired." : "Status: Token not expired.");
-        } else {
-          checks.push("exp: Not present.");
-        }
-
-        if (payload.nbf) {
-          checks.push("nbf: " + formatUnix(payload.nbf));
-          if (payload.nbf > now) checks.push("Status: Token is not valid yet.");
-        } else {
-          checks.push("nbf: Not present.");
-        }
-
-        if (payload.iat) {
-          checks.push("iat: " + formatUnix(payload.iat));
-        } else {
-          checks.push("iat: Not present.");
-        }
-
-        if (payload.iss) checks.push("iss: " + payload.iss);
-        if (payload.sub) checks.push("sub: " + payload.sub);
-        if (payload.aud) checks.push("aud: " + JSON.stringify(payload.aud));
-
-        document.getElementById("checksOutput").textContent = checks.join("\n");
-        status.innerText = "JWT inspection complete.";
-      } catch {
-        document.getElementById("headerOutput").textContent = "Invalid JWT";
-        document.getElementById("payloadOutput").textContent = "";
-        document.getElementById("checksOutput").textContent = "";
-        status.innerText = "Could not decode JWT.";
+      } else {
+        checks.push("Algorithm not present.");
       }
+
+      if (header.typ) {
+        checks.push("Type: " + header.typ);
+      }
+
+      if (payload.exp) {
+        checks.push("exp: " + formatUnix(payload.exp));
+        checks.push(payload.exp < now ? "Status: Token appears expired." : "Status: Token not expired.");
+      } else {
+        checks.push("exp: Not present.");
+      }
+
+      if (payload.nbf) {
+        checks.push("nbf: " + formatUnix(payload.nbf));
+        if (payload.nbf > now) checks.push("Status: Token is not valid yet.");
+      } else {
+        checks.push("nbf: Not present.");
+      }
+
+      if (payload.iat) {
+        checks.push("iat: " + formatUnix(payload.iat));
+      } else {
+        checks.push("iat: Not present.");
+      }
+
+      if (payload.iss) checks.push("iss: " + payload.iss);
+      if (payload.sub) checks.push("sub: " + payload.sub);
+      if (payload.aud) checks.push("aud: " + JSON.stringify(payload.aud));
+      if (payload.jti) checks.push("jti: " + payload.jti);
+
+      document.getElementById("checksOutput").textContent = checks.join("\n");
+      status.innerText = "JWT inspection complete.";
+    } catch {
+      document.getElementById("headerOutput").textContent = "Invalid JWT";
+      document.getElementById("payloadOutput").textContent = "";
+      document.getElementById("checksOutput").textContent = "";
+      status.innerText = "Could not decode JWT.";
     }
-  </script>
+  }
+
+  function loadExample() {
+    const exampleHeader = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const examplePayload = btoa(JSON.stringify({
+      sub: "1234567890",
+      name: "Coy Jones",
+      iat: 1710000000,
+      exp: 1910000000,
+      iss: "CyberTechToolkit"
+    }))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+    document.getElementById("jwtInput").value = exampleHeader + "." + examplePayload + ".signature";
+    document.getElementById("status").innerText = "Example loaded.";
+    decodeJWT();
+  }
+
+  async function copyPayload() {
+    const payload = document.getElementById("payloadOutput").innerText;
+    const status = document.getElementById("status");
+
+    if (!payload || payload === "Decoded payload will appear here." || payload === "") {
+      status.innerText = "Nothing to copy yet.";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(payload);
+      status.innerText = "Payload copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy payload.";
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("jwtInput").value = "";
+    document.getElementById("headerOutput").textContent = "Decoded header will appear here.";
+    document.getElementById("payloadOutput").textContent = "Decoded payload will appear here.";
+    document.getElementById("checksOutput").textContent = "Inspection checks will appear here.";
+    document.getElementById("status").innerText = "Cleared.";
+  }
+</script>
+
 </body>
 </html>
