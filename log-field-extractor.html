@@ -3,73 +3,171 @@
 <head>
   <title>Log Field Extractor | CyberTechToolkit</title>
   <meta name="description" content="Parse and normalize common web access log lines into structured fields for analysis and troubleshooting.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-   body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1100px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea,
+    select {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
+
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 120px;
+    }
+
+    .card-title {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      color: #00ffd5;
+      word-break: break-word;
+      font-family: monospace;
+      line-height: 1.6;
+      min-height: 24px;
+    }
+
+    .output-box {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+      margin-top: 22px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #e5e7eb;
+      line-height: 1.6;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -112,7 +210,7 @@ font-weight:bold;
   </div>
 
   <div class="note">
-    This tool currently supports common Apache/Nginx combined access log lines. It is useful for log review, troubleshooting, traffic analysis, and security investigation workflows.
+    This tool currently supports common Apache and Nginx combined access log lines. It is useful for log review, troubleshooting, traffic analysis, and security investigation workflows.
   </div>
 
 </div>
