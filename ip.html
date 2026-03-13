@@ -1,229 +1,281 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>IP Information | CyberTechToolkit</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IP Information | CyberTechToolkit</title>
+  <meta name="description" content="View your public IPv4, IPv6, location, and ISP information.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
+      color:#e5eefc;
+      padding:40px 20px;
+      margin:0;
+      text-align:center;
+    }
 
-body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-padding:40px 20px;
-margin:0;
-text-align:center;
-}
+    h1{
+      color:#00ffd5;
+      margin-top:20px;
+      margin-bottom:20px;
+      font-size:34px;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-margin-bottom:20px;
-font-size:34px;
-}
+    .back{
+      position:absolute;
+      left:20px;
+      top:20px;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    .back a{
+      color:#00ffd5;
+      text-decoration:none;
+      font-weight:bold;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    .box{
+      background:rgba(12,20,35,0.9);
+      border:1px solid rgba(53,74,102,0.7);
+      padding:25px;
+      border-radius:16px;
+      width:1000px;
+      max-width:96%;
+      margin:auto;
+      text-align:left;
+      box-shadow:0 14px 30px rgba(0,0,0,0.24);
+      box-sizing:border-box;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:16px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-box-shadow:0 14px 30px rgba(0,0,0,0.24);
-}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin-top:22px;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:16px;
-margin-top:22px;
-}
+    .card{
+      background:#0f172a;
+      border:1px solid #1f2937;
+      padding:16px;
+      border-radius:12px;
+      min-height:110px;
+    }
 
-.card{
-background:#0f172a;
-border:1px solid #1f2937;
-padding:16px;
-border-radius:12px;
-}
+    .card-title{
+      color:#9ca3af;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:8px;
+    }
 
-.card-title{
-color:#9ca3af;
-font-size:12px;
-text-transform:uppercase;
-letter-spacing:1px;
-margin-bottom:8px;
-}
+    .card-value{
+      color:#00ffd5;
+      font-family:Consolas,monospace;
+      word-break:break-word;
+      line-height:1.6;
+    }
 
-.card-value{
-color:#00ffd5;
-font-family:Consolas,monospace;
-word-break:break-word;
-}
+    .controls{
+      text-align:center;
+      margin-top:10px;
+    }
 
-.controls{
-text-align:center;
-margin-top:10px;
-}
+    button{
+      margin-top:14px;
+      padding:10px 16px;
+      background:#00ffd5;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-right:10px;
+      color:#08111f;
+    }
 
-button{
-margin-top:14px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-margin-right:10px;
-color:#08111f;
-}
+    button:hover{
+      background:#00e5c0;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    .status{
+      color:#9ca3af;
+      margin-top:14px;
+      text-align:center;
+      font-size:14px;
+    }
 
-.status{
-color:#9ca3af;
-margin-top:14px;
-text-align:center;
-}
+    .note{
+      color:#94a3b8;
+      margin-top:20px;
+      font-size:14px;
+      line-height:1.6;
+    }
 
-.note{
-color:#94a3b8;
-margin-top:20px;
-font-size:14px;
-line-height:1.6;
-}
-
-</style>
+    @media (max-width:700px){
+      h1{font-size:28px;}
+      .box{padding:18px;}
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="back">
-<a href="/">← Back</a>
+  <a href="/">← Back</a>
 </div>
 
 <h1>IP Information</h1>
 
 <div class="box">
 
-<div class="controls">
-<button onclick="loadInfo()">Refresh</button>
-<button onclick="copyIP()">Copy IPv4</button>
-</div>
+  <div class="controls">
+    <button onclick="loadInfo()">Refresh</button>
+    <button onclick="copyIPv4()">Copy IPv4</button>
+    <button onclick="copyIPv6()">Copy IPv6</button>
+  </div>
 
-<div class="status" id="status">Loading IP information...</div>
+  <div class="status" id="status">Loading IP information...</div>
 
-<div class="grid">
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">IPv4 Address</div>
+      <div class="card-value" id="ipv4">Loading...</div>
+    </div>
 
-<div class="card">
-<div class="card-title">IPv4 Address</div>
-<div class="card-value" id="ipv4">Loading...</div>
-</div>
+    <div class="card">
+      <div class="card-title">IPv6 Address</div>
+      <div class="card-value" id="ipv6">Loading...</div>
+    </div>
 
-<div class="card">
-<div class="card-title">IPv6 Address</div>
-<div class="card-value" id="ipv6">Loading...</div>
-</div>
+    <div class="card">
+      <div class="card-title">City</div>
+      <div class="card-value" id="city">Loading...</div>
+    </div>
 
-<div class="card">
-<div class="card-title">City</div>
-<div class="card-value" id="city">Loading...</div>
-</div>
+    <div class="card">
+      <div class="card-title">Region</div>
+      <div class="card-value" id="region">Loading...</div>
+    </div>
 
-<div class="card">
-<div class="card-title">Region</div>
-<div class="card-value" id="region">Loading...</div>
-</div>
+    <div class="card">
+      <div class="card-title">Country</div>
+      <div class="card-value" id="country">Loading...</div>
+    </div>
 
-<div class="card">
-<div class="card-title">Country</div>
-<div class="card-value" id="country">Loading...</div>
-</div>
+    <div class="card">
+      <div class="card-title">ISP / Organization</div>
+      <div class="card-value" id="isp">Loading...</div>
+    </div>
+  </div>
 
-<div class="card">
-<div class="card-title">ISP</div>
-<div class="card-value" id="isp">Loading...</div>
-</div>
-
-</div>
-
-<div class="note">
-This tool detects your public IPv4 and IPv6 addresses along with general geolocation data. If IPv6 is not available on your network it may appear as unavailable.
-</div>
+  <div class="note">
+    This tool attempts to detect your public IPv4 and IPv6 addresses and general geolocation information. IPv6 may appear unavailable if your connection or ISP does not support it.
+  </div>
 
 </div>
 
 <script>
+  function setDefaultValues() {
+    document.getElementById("ipv4").innerText = "Unavailable";
+    document.getElementById("ipv6").innerText = "Unavailable";
+    document.getElementById("city").innerText = "Unavailable";
+    document.getElementById("region").innerText = "Unavailable";
+    document.getElementById("country").innerText = "Unavailable";
+    document.getElementById("isp").innerText = "Unavailable";
+  }
 
-async function loadInfo(){
+  async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Request failed");
+    }
+    return await response.json();
+  }
 
-const status=document.getElementById("status");
+  async function loadInfo() {
+    const status = document.getElementById("status");
+    status.innerText = "Loading IP information...";
+    setDefaultValues();
 
-status.innerText="Loading IP information...";
+    let ipv4Value = null;
 
-try{
+    const results = await Promise.allSettled([
+      fetchJson("https://api.ipify.org?format=json"),
+      fetchJson("https://api64.ipify.org?format=json"),
+      fetchJson("https://ipapi.co/json/")
+    ]);
 
-const data=await fetch("https://ipapi.co/json/").then(r=>r.json());
+    const ipv4Result = results[0];
+    const ipv6Result = results[1];
+    const geoResult = results[2];
 
-document.getElementById("ipv4").innerText=data.ip || "Unavailable";
-document.getElementById("city").innerText=data.city || "Unavailable";
-document.getElementById("region").innerText=data.region || "Unavailable";
-document.getElementById("country").innerText=data.country_name || "Unavailable";
-document.getElementById("isp").innerText=data.org || "Unavailable";
+    if (ipv4Result.status === "fulfilled" && ipv4Result.value.ip) {
+      ipv4Value = ipv4Result.value.ip;
+      document.getElementById("ipv4").innerText = ipv4Value;
+    }
 
-}catch{
+    if (ipv6Result.status === "fulfilled" && ipv6Result.value.ip) {
+      const maybeIPv6 = ipv6Result.value.ip;
+      if (maybeIPv6.includes(":")) {
+        document.getElementById("ipv6").innerText = maybeIPv6;
+      } else {
+        document.getElementById("ipv6").innerText = "Unavailable";
+      }
+    }
 
-status.innerText="Failed to load IPv4 data";
+    if (geoResult.status === "fulfilled") {
+      const data = geoResult.value;
+      document.getElementById("city").innerText = data.city || "Unavailable";
+      document.getElementById("region").innerText = data.region || "Unavailable";
+      document.getElementById("country").innerText = data.country_name || "Unavailable";
+      document.getElementById("isp").innerText = data.org || "Unavailable";
 
-}
+      if (!ipv4Value && data.ip && !String(data.ip).includes(":")) {
+        document.getElementById("ipv4").innerText = data.ip;
+      }
+    }
 
-try{
+    status.innerText = "IP information loaded.";
+  }
 
-const ipv6=await fetch("https://api64.ipify.org?format=json").then(r=>r.json());
-document.getElementById("ipv6").innerText=ipv6.ip;
+  async function copyIPv4() {
+    const ip = document.getElementById("ipv4").innerText;
+    const status = document.getElementById("status");
 
-}catch{
+    if (!ip || ip === "Unavailable" || ip === "Loading...") {
+      status.innerText = "No valid IPv4 address to copy.";
+      return;
+    }
 
-document.getElementById("ipv6").innerText="Unavailable";
+    try {
+      await navigator.clipboard.writeText(ip);
+      status.innerText = "IPv4 copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy IPv4.";
+    }
+  }
 
-}
+  async function copyIPv6() {
+    const ip = document.getElementById("ipv6").innerText;
+    const status = document.getElementById("status");
 
-status.innerText="IP information loaded.";
+    if (!ip || ip === "Unavailable" || ip === "Loading...") {
+      status.innerText = "No valid IPv6 address to copy.";
+      return;
+    }
 
-}
+    try {
+      await navigator.clipboard.writeText(ip);
+      status.innerText = "IPv6 copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy IPv6.";
+    }
+  }
 
-async function copyIP(){
-
-const ip=document.getElementById("ipv4").innerText;
-
-try{
-await navigator.clipboard.writeText(ip);
-document.getElementById("status").innerText="IPv4 copied.";
-}catch{
-document.getElementById("status").innerText="Copy failed.";
-}
-
-}
-
-loadInfo();
-
+  loadInfo();
 </script>
 
 </body>
