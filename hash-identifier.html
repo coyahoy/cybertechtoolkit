@@ -1,62 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hash Identifier | CyberTechToolkit</title>
-  <meta name="description" content="Identify common hash types such as MD5, SHA-1, SHA-256, SHA-512, bcrypt, and more.">
-  <style>
-    body{
+<title>Hash Identifier | CyberTechToolkit</title>
+<meta name="description" content="Identify common hash types such as MD5, SHA1, SHA256, SHA512 and others based on hash length and structure.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
 font-family:Arial,sans-serif;
 background:
 radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
 linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
 color:#e5eefc;
+padding:40px 20px;
 margin:0;
-padding:40px;
 text-align:center;
 }
 
 h1{
 color:#00ffd5;
 margin-top:20px;
-}
-
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
-
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
-
-textarea{
-font-family:monospace;
-resize:vertical;
-}
-
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#00e5c0;
+margin-bottom:20px;
+font-size:34px;
 }
 
 .back{
@@ -70,118 +36,186 @@ color:#00ffd5;
 text-decoration:none;
 font-weight:bold;
 }
-  </style>
+
+.box{
+background:rgba(12,20,35,0.9);
+border:1px solid rgba(53,74,102,0.7);
+padding:25px;
+border-radius:16px;
+width:900px;
+max-width:96%;
+margin:auto;
+text-align:left;
+box-shadow:0 14px 30px rgba(0,0,0,0.24);
+}
+
+.label{
+color:#9ca3af;
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:1px;
+margin-bottom:8px;
+}
+
+textarea{
+width:100%;
+min-height:120px;
+border-radius:8px;
+border:none;
+padding:12px;
+box-sizing:border-box;
+font-size:14px;
+resize:vertical;
+font-family:monospace;
+background:#f8fafc;
+color:#0f172a;
+}
+
+button{
+margin-top:14px;
+padding:10px 16px;
+background:#00ffd5;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+margin-right:10px;
+color:#08111f;
+}
+
+button:hover{
+background:#00e5c0;
+}
+
+.controls{
+text-align:center;
+margin-top:20px;
+}
+
+.status{
+color:#9ca3af;
+margin-top:14px;
+text-align:center;
+}
+
+.results{
+margin-top:22px;
+background:#0f172a;
+border:1px solid #1f2937;
+padding:18px;
+border-radius:12px;
+}
+
+.result{
+font-family:Consolas,monospace;
+margin-bottom:10px;
+}
+
+.good{
+color:#22c55e;
+}
+
+.note{
+color:#94a3b8;
+margin-top:18px;
+font-size:14px;
+line-height:1.6;
+}
+
+</style>
 </head>
+
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
-  </div>
+<div class="back">
+<a href="/">← Back</a>
+</div>
 
-  <h1>Hash Identifier</h1>
+<h1>Hash Identifier</h1>
 
-  <div class="box">
-    <div class="label">Paste Hash</div>
-    <textarea id="hashInput" placeholder="Paste a hash here..."></textarea>
+<div class="box">
 
-    <div style="text-align:center;">
-      <button onclick="identifyHash()">Identify Hash</button>
-      <button onclick="clearHash()">Clear</button>
-    </div>
+<div class="label">Paste Hash</div>
 
-    <div class="status" id="status"></div>
+<textarea id="hashInput" placeholder="Enter a hash here..."></textarea>
 
-    <div class="output">
-      <div class="label">Possible Hash Types</div>
-      <div id="hashOutput" class="guess">Results will appear here</div>
-    </div>
+<div class="controls">
+<button onclick="identify()">Identify Hash</button>
+<button onclick="example()">Example</button>
+<button onclick="clearHash()">Clear</button>
+</div>
 
-    <div class="note">
-      This tool makes a best guess based on hash length and format. Some hash types can share the same length, so results may include multiple possibilities.
-    </div>
-  </div>
+<div class="status" id="status">Enter a hash to identify possible algorithms.</div>
 
-  <script>
-    function identifyHash() {
-      const input = document.getElementById("hashInput").value.trim();
-      const output = document.getElementById("hashOutput");
-      const status = document.getElementById("status");
+<div class="results" id="results">
+Possible hash types will appear here.
+</div>
 
-      if (!input) {
-        output.innerHTML = "Results will appear here";
-        status.innerText = "Please paste a hash first.";
-        return;
-      }
+<div class="note">
+This tool identifies possible hash types based on length and formatting. Some hashes share the same length, so results may include multiple possible algorithms.
+</div>
 
-      const results = [];
-      const lower = input.toLowerCase();
+</div>
 
-      if (/^\$2[aby]?\$\d{2}\$[./A-Za-z0-9]{53}$/.test(input)) {
-        results.push("bcrypt");
-      }
+<script>
 
-      if (/^\$argon2(id|i|d)\$/.test(input)) {
-        results.push("Argon2");
-      }
+function identify(){
 
-      if (/^[a-f0-9]{32}$/.test(lower)) {
-        results.push("MD5");
-        results.push("NTLM");
-      }
+const hash=document.getElementById("hashInput").value.trim();
+const results=document.getElementById("results");
+const status=document.getElementById("status");
 
-      if (/^[a-f0-9]{40}$/.test(lower)) {
-        results.push("SHA-1");
-      }
+if(!hash){
+status.innerText="Enter a hash.";
+return;
+}
 
-      if (/^[a-f0-9]{56}$/.test(lower)) {
-        results.push("SHA-224");
-      }
+const len=hash.length;
 
-      if (/^[a-f0-9]{64}$/.test(lower)) {
-        results.push("SHA-256");
-      }
+let types=[];
 
-      if (/^[a-f0-9]{96}$/.test(lower)) {
-        results.push("SHA-384");
-      }
+if(len===32) types.push("MD5");
+if(len===40) types.push("SHA-1");
+if(len===64) types.push("SHA-256");
+if(len===96) types.push("SHA-384");
+if(len===128) types.push("SHA-512");
 
-      if (/^[a-f0-9]{128}$/.test(lower)) {
-        results.push("SHA-512");
-      }
+if(len===16) types.push("MySQL Hash");
 
-      if (/^[A-Fa-f0-9]{16}$/.test(input)) {
-        results.push("MySQL323 or other 16-char hex hash");
-      }
+if(types.length===0){
+results.innerHTML="Unknown or uncommon hash type.";
+}else{
 
-      if (/^\*[A-F0-9]{40}$/.test(input)) {
-        results.push("MySQL5");
-      }
+let output="";
 
-      if (/^[a-f0-9]{16}$/.test(lower)) {
-        results.push("Possible truncated hash / CRC / 64-bit hex value");
-      }
+types.forEach(t=>{
+output+=`<div class="result good">${t}</div>`;
+});
 
-      if (/^[A-Za-z0-9+/=]+$/.test(input) && input.length > 20 && !results.length) {
-        results.push("Possibly Base64-encoded hash or token");
-      }
+results.innerHTML=output;
 
-      if (!results.length) {
-        output.innerHTML = "Unknown or unsupported hash format.";
-        status.innerText = "No common match found.";
-        return;
-      }
+}
 
-      const uniqueResults = [...new Set(results)];
-      output.innerHTML = uniqueResults.map(type => `<div class="guess">${type}</div>`).join("");
-      status.innerText = "Hash identification complete.";
-    }
+status.innerText="Hash analysis complete.";
 
-    function clearHash() {
-      document.getElementById("hashInput").value = "";
-      document.getElementById("hashOutput").innerHTML = "Results will appear here";
-      document.getElementById("status").innerText = "";
-    }
-  </script>
+}
+
+function example(){
+
+document.getElementById("hashInput").value="5d41402abc4b2a76b9719d911017c592";
+document.getElementById("status").innerText="Example loaded.";
+
+}
+
+function clearHash(){
+
+document.getElementById("hashInput").value="";
+document.getElementById("results").innerText="Possible hash types will appear here.";
+document.getElementById("status").innerText="Cleared.";
+
+}
+
+</script>
 
 </body>
 </html>
