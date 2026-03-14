@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Firewall Rule Builder | CyberTechToolkit</title>
+<meta name="description" content="Build and analyze firewall rules for security planning and network configuration.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:
+radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
+color:#e5eefc;
+padding:40px 20px;
+margin:0;
+text-align:center;
+}
+
+h1{
+color:#00ffd5;
+margin-top:20px;
+margin-bottom:20px;
+font-size:34px;
+}
+
+.back{
+position:absolute;
+left:20px;
+top:20px;
+}
+
+.back a{
+color:#00ffd5;
+text-decoration:none;
+font-weight:bold;
+}
+
+.box{
+background:rgba(12,20,35,0.9);
+border:1px solid rgba(53,74,102,0.7);
+padding:25px;
+border-radius:16px;
+width:1000px;
+max-width:96%;
+margin:auto;
+text-align:left;
+box-shadow:0 14px 30px rgba(0,0,0,0.24);
+}
+
+.label{
+color:#9ca3af;
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:1px;
+margin-bottom:6px;
+margin-top:14px;
+}
+
+input, select{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:none;
+background:#f8fafc;
+color:#0f172a;
+font-family:monospace;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+button{
+margin-top:16px;
+padding:10px 16px;
+background:#00ffd5;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+margin-right:10px;
+color:#08111f;
+}
+
+button:hover{
+background:#00e5c0;
+}
+
+.status{
+margin-top:16px;
+color:#9ca3af;
+text-align:center;
+}
+
+.result{
+margin-top:20px;
+background:#0f172a;
+border:1px solid #1f2937;
+padding:18px;
+border-radius:12px;
+font-family:monospace;
+font-size:15px;
+line-height:1.6;
+}
+
+.note{
+margin-top:14px;
+color:#94a3b8;
+font-size:14px;
+line-height:1.6;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="back">
+<a href="/">← Back</a>
+</div>
+
+<h1>Firewall Rule Builder</h1>
+
+<div class="box">
+
+<div class="grid">
+
+<div>
+<div class="label">Action</div>
+<select id="action">
+<option value="ALLOW">Allow</option>
+<option value="DENY">Deny</option>
+</select>
+</div>
+
+<div>
+<div class="label">Protocol</div>
+<select id="protocol">
+<option value="TCP">TCP</option>
+<option value="UDP">UDP</option>
+<option value="ICMP">ICMP</option>
+<option value="ANY">ANY</option>
+</select>
+</div>
+
+<div>
+<div class="label">Source IP</div>
+<input id="source" placeholder="any or 192.168.1.0/24">
+</div>
+
+<div>
+<div class="label">Source Port</div>
+<input id="sourceport" placeholder="any">
+</div>
+
+<div>
+<div class="label">Destination IP</div>
+<input id="dest" placeholder="10.0.0.5">
+</div>
+
+<div>
+<div class="label">Destination Port</div>
+<input id="destport" placeholder="443">
+</div>
+
+</div>
+
+<button onclick="buildRule()">Generate Rule</button>
+<button onclick="loadExample()">Load Example</button>
+<button onclick="clearRule()">Clear</button>
+
+<div class="status" id="status">
+Fill in rule fields to generate a firewall rule.
+</div>
+
+<div class="result" id="result">
+Generated firewall rule will appear here.
+</div>
+
+<div class="note">
+This tool helps build human-readable firewall rules for planning network security policies. Always review rules carefully before implementing them on production systems.
+</div>
+
+</div>
+
+<script>
+
+function buildRule(){
+
+const action=document.getElementById("action").value
+const protocol=document.getElementById("protocol").value
+const source=document.getElementById("source").value||"ANY"
+const sourceport=document.getElementById("sourceport").value||"ANY"
+const dest=document.getElementById("dest").value||"ANY"
+const destport=document.getElementById("destport").value||"ANY"
+
+const rule=`${action} ${protocol} FROM ${source}:${sourceport} TO ${dest}:${destport}`
+
+let note=""
+
+if(destport=="22") note="⚠ SSH detected. Consider restricting source IP ranges."
+if(destport=="3389") note="⚠ RDP detected. Avoid exposing directly to the internet."
+if(destport=="445") note="⚠ SMB detected. Common target for lateral movement."
+if(source.toLowerCase()=="any" && action=="ALLOW") note="⚠ Allowing ANY source can be risky."
+
+document.getElementById("result").innerHTML=rule+"<br><br>"+note
+document.getElementById("status").innerText="Firewall rule generated."
+
+}
+
+function loadExample(){
+
+document.getElementById("action").value="DENY"
+document.getElementById("protocol").value="TCP"
+document.getElementById("source").value="ANY"
+document.getElementById("sourceport").value="ANY"
+document.getElementById("dest").value="10.0.0.5"
+document.getElementById("destport").value="3389"
+
+buildRule()
+
+}
+
+function clearRule(){
+
+document.getElementById("source").value=""
+document.getElementById("sourceport").value=""
+document.getElementById("dest").value=""
+document.getElementById("destport").value=""
+document.getElementById("result").innerText="Generated firewall rule will appear here."
+document.getElementById("status").innerText="Cleared."
+
+}
+
+</script>
+
+</body>
+</html>
