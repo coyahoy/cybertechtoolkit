@@ -1,199 +1,363 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Attack Surface Analyzer | CyberTechToolkit</title>
-<meta name="description" content="Understand what attackers might look for when analyzing a domain's attack surface.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attack Surface Analyzer | CyberTechToolkit</title>
+  <meta name="description" content="Analyze a domain's passive attack surface using DNS-based indicators and security observations.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
+      color:#e5eefc;
+      padding:40px 20px;
+      margin:0;
+      text-align:center;
+    }
 
-<style>
+    h1{
+      color:#00ffd5;
+      margin-top:20px;
+      margin-bottom:20px;
+      font-size:34px;
+    }
 
-body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-padding:40px 20px;
-margin:0;
-text-align:center;
-}
+    .back{
+      position:absolute;
+      left:20px;
+      top:20px;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-margin-bottom:20px;
-font-size:34px;
-}
+    .back a{
+      color:#00ffd5;
+      text-decoration:none;
+      font-weight:bold;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    .box{
+      background:rgba(12,20,35,0.9);
+      border:1px solid rgba(53,74,102,0.7);
+      padding:25px;
+      border-radius:16px;
+      width:1000px;
+      max-width:96%;
+      margin:auto;
+      text-align:left;
+      box-shadow:0 14px 30px rgba(0,0,0,0.24);
+      box-sizing:border-box;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    .label{
+      color:#9ca3af;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:8px;
+      margin-top:14px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:16px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-box-shadow:0 14px 30px rgba(0,0,0,0.24);
-}
+    input{
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:none;
+      background:#f8fafc;
+      color:#0f172a;
+      font-family:monospace;
+      box-sizing:border-box;
+    }
 
-.label{
-color:#9ca3af;
-font-size:13px;
-text-transform:uppercase;
-letter-spacing:1px;
-margin-bottom:8px;
-margin-top:14px;
-}
+    button{
+      margin-top:16px;
+      padding:10px 16px;
+      background:#00ffd5;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-right:10px;
+      color:#08111f;
+    }
 
-input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:none;
-background:#f8fafc;
-color:#0f172a;
-font-family:monospace;
-}
+    button:hover{
+      background:#00e5c0;
+    }
 
-button{
-margin-top:16px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-margin-right:10px;
-color:#08111f;
-}
+    .status{
+      margin-top:16px;
+      color:#9ca3af;
+      text-align:center;
+      font-size:14px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:16px;
+      margin-top:22px;
+    }
 
-.status{
-margin-top:16px;
-color:#9ca3af;
-text-align:center;
-}
+    .card{
+      background:#0f172a;
+      border:1px solid #1f2937;
+      padding:16px;
+      border-radius:12px;
+      min-height:140px;
+    }
 
-.result{
-margin-top:20px;
-background:#0f172a;
-border:1px solid #1f2937;
-padding:18px;
-border-radius:12px;
-line-height:1.7;
-}
+    .card-title{
+      color:#00ffd5;
+      font-weight:bold;
+      margin-bottom:10px;
+      font-size:16px;
+    }
 
-.section-title{
-color:#00ffd5;
-margin-top:10px;
-font-weight:bold;
-}
+    .card-body{
+      color:#e5eefc;
+      line-height:1.7;
+      font-size:14px;
+    }
 
-.note{
-margin-top:14px;
-color:#94a3b8;
-font-size:14px;
-line-height:1.6;
-}
+    .muted{
+      color:#94a3b8;
+    }
 
-</style>
+    .good{ color:#22c55e; }
+    .warn{ color:#f59e0b; }
+    .bad{ color:#ef4444; }
+
+    code{
+      color:#00ffd5;
+      font-family:Consolas,monospace;
+      word-break:break-word;
+    }
+
+    .note{
+      margin-top:14px;
+      color:#94a3b8;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    ul{
+      margin:8px 0 0 18px;
+      padding:0;
+    }
+
+    li{
+      margin-bottom:6px;
+    }
+
+    @media (max-width:700px){
+      h1{font-size:28px;}
+      .box{padding:18px;}
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="back">
-<a href="/">← Back</a>
+  <a href="/">← Back</a>
 </div>
 
 <h1>Attack Surface Analyzer</h1>
 
 <div class="box">
 
-<div class="label">Domain</div>
-<input id="domain" placeholder="example.com">
+  <div class="label">Domain</div>
+  <input id="domain" placeholder="example.com">
 
-<button onclick="analyze()">Analyze Attack Surface</button>
-<button onclick="example()">Load Example</button>
+  <button onclick="analyze()">Analyze Attack Surface</button>
+  <button onclick="example()">Load Example</button>
+  <button onclick="clearResults()">Clear</button>
 
-<div class="status" id="status">
-Enter a domain to simulate an attack surface analysis.
-</div>
+  <div class="status" id="status">
+    Enter a domain to run a passive DNS-based attack surface review.
+  </div>
 
-<div class="result" id="result">
-Attack surface results will appear here.
-</div>
+  <div class="grid" id="resultsGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="card-body muted">Attack surface results will appear here.</div>
+    </div>
+  </div>
 
-<div class="note">
-This tool explains common reconnaissance steps attackers perform when analyzing a target domain.
-</div>
+  <div class="note">
+    This version uses passive DNS observations only. It does not scan ports or probe services directly, but it gives a more realistic domain-specific overview than a static explainer.
+  </div>
 
 </div>
 
 <script>
+  async function dnsLookup(domain, type) {
+    const url = `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.Answer || [];
+  }
 
-function analyze(){
+  function normalizeDomain(input) {
+    return input.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  }
 
-const domain=document.getElementById("domain").value
+  function buildCard(title, body) {
+    return `
+      <div class="card">
+        <div class="card-title">${title}</div>
+        <div class="card-body">${body}</div>
+      </div>
+    `;
+  }
 
-if(!domain){
-document.getElementById("status").innerText="Enter a domain."
-return
-}
+  function uniqueData(records) {
+    return [...new Set(records.map(r => r.data))];
+  }
 
-let output=""
+  function makeSubdomainGuesses(domain, hasMx) {
+    const guesses = ["www", "api", "admin", "dev", "staging", "mail", "vpn"];
+    if (!hasMx) {
+      return guesses.filter(x => x !== "mail").map(x => `${x}.${domain}`);
+    }
+    return guesses.map(x => `${x}.${domain}`);
+  }
 
-output+="<div class='section-title'>Possible Reconnaissance Areas</div><br>"
+  async function analyze() {
+    const raw = document.getElementById("domain").value;
+    const domain = normalizeDomain(raw);
+    const status = document.getElementById("status");
+    const resultsGrid = document.getElementById("resultsGrid");
 
-output+="• Subdomains (dev."+domain+", api."+domain+", mail."+domain+")<br>"
-output+="• Public login portals<br>"
-output+="• Misconfigured cloud storage<br>"
-output+="• Exposed API endpoints<br>"
-output+="• Old or forgotten web applications<br><br>"
+    if (!domain) {
+      status.innerText = "Enter a domain.";
+      return;
+    }
 
-output+="<div class='section-title'>Common Ports Attackers Scan</div><br>"
+    status.innerText = "Analyzing passive DNS indicators...";
+    resultsGrid.innerHTML = "";
 
-output+="• 80 / 443 – Web servers<br>"
-output+="• 22 – SSH<br>"
-output+="• 3389 – Remote Desktop<br>"
-output+="• 21 – FTP<br>"
-output+="• 25 – Mail servers<br><br>"
+    try {
+      const [aRecords, aaaaRecords, mxRecords, txtRecords, nsRecords, dmarcTxt] = await Promise.all([
+        dnsLookup(domain, "A"),
+        dnsLookup(domain, "AAAA"),
+        dnsLookup(domain, "MX"),
+        dnsLookup(domain, "TXT"),
+        dnsLookup(domain, "NS"),
+        dnsLookup(`_dmarc.${domain}`, "TXT")
+      ]);
 
-output+="<div class='section-title'>Things Security Teams Should Monitor</div><br>"
+      const aList = uniqueData(aRecords);
+      const aaaaList = uniqueData(aaaaRecords);
+      const mxList = uniqueData(mxRecords);
+      const txtList = uniqueData(txtRecords);
+      const nsList = uniqueData(nsRecords);
+      const dmarcList = uniqueData(dmarcTxt);
 
-output+="• Unpatched software<br>"
-output+="• Default credentials<br>"
-output+="• Exposed admin panels<br>"
-output+="• Public test environments<br>"
-output+="• Unused open ports<br>"
+      const hasWeb = aList.length > 0 || aaaaList.length > 0;
+      const hasMx = mxList.length > 0;
+      const hasSpf = txtList.some(x => x.toLowerCase().includes("v=spf1"));
+      const hasDmarc = dmarcList.some(x => x.toLowerCase().includes("v=dmarc1"));
 
-document.getElementById("result").innerHTML=output
-document.getElementById("status").innerText="Attack surface overview generated."
+      let exposureFindings = [];
+      if (hasWeb) exposureFindings.push(`<span class="good">Web presence detected</span> via A/AAAA records.`);
+      else exposureFindings.push(`<span class="warn">No obvious web host records detected</span>.`);
+      if (hasMx) exposureFindings.push(`<span class="warn">Email infrastructure exposed</span> via MX records.`);
+      else exposureFindings.push(`<span class="muted">No MX records detected.</span>`);
+      if (nsList.length) exposureFindings.push(`Nameservers visible: <code>${nsList.slice(0,3).join("</code>, <code>")}</code>`);
+      if (hasSpf) exposureFindings.push(`<span class="good">SPF record present</span>.`);
+      else if (hasMx) exposureFindings.push(`<span class="bad">No SPF record found</span> even though mail appears enabled.`);
+      if (hasDmarc) exposureFindings.push(`<span class="good">DMARC record present</span>.`);
+      else if (hasMx) exposureFindings.push(`<span class="warn">No DMARC record found</span> for a mail-enabled domain.`);
 
-}
+      const likelyFocus = [];
+      if (hasWeb) {
+        likelyFocus.push("Public web applications and forgotten subdomains");
+        likelyFocus.push("Admin panels, staging apps, and exposed API endpoints");
+      }
+      if (hasMx) {
+        likelyFocus.push("Mail security posture, spoofing controls, and phishing surface");
+      }
+      if (txtList.length) {
+        likelyFocus.push("TXT records for security controls, verification tokens, and provider leakage");
+      }
+      if (!likelyFocus.length) {
+        likelyFocus.push("Basic DNS hygiene and domain configuration review");
+      }
 
-function example(){
+      const guesses = makeSubdomainGuesses(domain, hasMx);
 
-document.getElementById("domain").value="example.com"
-analyze()
+      const defensiveNotes = [];
+      if (hasMx && !hasSpf) defensiveNotes.push("Publish an SPF policy to reduce spoofing risk.");
+      if (hasMx && !hasDmarc) defensiveNotes.push("Add DMARC reporting and enforcement.");
+      if (hasWeb) defensiveNotes.push("Review exposed subdomains and disable unused hosts.");
+      if (nsList.length > 2) defensiveNotes.push("Confirm all delegated nameservers are intended and current.");
+      if (!defensiveNotes.length) defensiveNotes.push("No immediate passive DNS issues stood out from this limited check.");
 
-}
+      resultsGrid.innerHTML =
+        buildCard(
+          "Observed DNS Footprint",
+          `
+            <ul>
+              <li>A records: <code>${aList.length ? aList.join("</code>, <code>") : "none"}</code></li>
+              <li>AAAA records: <code>${aaaaList.length ? aaaaList.join("</code>, <code>") : "none"}</code></li>
+              <li>MX records: <code>${mxList.length ? mxList.join("</code>, <code>") : "none"}</code></li>
+              <li>TXT records: <code>${txtList.length ? txtList.slice(0,3).join("</code>, <code>") : "none"}</code></li>
+              <li>NS records: <code>${nsList.length ? nsList.join("</code>, <code>") : "none"}</code></li>
+            </ul>
+          `
+        ) +
+        buildCard(
+          "Likely Exposure Areas",
+          `<ul>${exposureFindings.map(x => `<li>${x}</li>`).join("")}</ul>`
+        ) +
+        buildCard(
+          "What a Recon Analyst Would Check Next",
+          `<ul>${likelyFocus.map(x => `<li>${x}</li>`).join("")}</ul>`
+        ) +
+        buildCard(
+          "Common Subdomains Worth Reviewing",
+          `<ul>${guesses.map(x => `<li><code>${x}</code></li>`).join("")}</ul>`
+        ) +
+        buildCard(
+          "Email Security Signals",
+          `
+            <ul>
+              <li>SPF: ${hasSpf ? "<span class='good'>present</span>" : "<span class='bad'>not found</span>"}</li>
+              <li>DMARC: ${hasDmarc ? "<span class='good'>present</span>" : "<span class='warn'>not found</span>"}</li>
+              <li>Mail exposure: ${hasMx ? "<span class='warn'>MX records detected</span>" : "<span class='muted'>none observed</span>"}</li>
+            </ul>
+          `
+        ) +
+        buildCard(
+          "Defensive Recommendations",
+          `<ul>${defensiveNotes.map(x => `<li>${x}</li>`).join("")}</ul>`
+        );
 
+      status.innerText = "Attack surface overview generated.";
+    } catch (e) {
+      resultsGrid.innerHTML = buildCard(
+        "Analysis Error",
+        "<span class='bad'>Could not retrieve DNS data for that domain.</span>"
+      );
+      status.innerText = "Analysis failed.";
+    }
+  }
+
+  function example() {
+    document.getElementById("domain").value = "example.com";
+    analyze();
+  }
+
+  function clearResults() {
+    document.getElementById("domain").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("resultsGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-body muted">Attack surface results will appear here.</div>
+      </div>
+    `;
+  }
 </script>
 
 </body>
