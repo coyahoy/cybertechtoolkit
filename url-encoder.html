@@ -1,160 +1,252 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>URL Encoder / Decoder - CyberTechToolkit</title>
+  <title>URL Encoder / Decoder | CyberTechToolkit</title>
+  <meta name="description" content="Encode and decode URL text and query strings instantly in your browser.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-   body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .result-box {
+      margin-top: 22px;
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+    }
+
+    .result-label {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .result {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      min-height: 24px;
+    }
+
+    .note {
+      color: #94a3b8;
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>URL Encoder / Decoder</h1>
+
+<div class="box">
+
+  <div class="label">Input</div>
+  <textarea id="inputText" placeholder="Enter text or URL-encoded content here..."></textarea>
+
+  <div class="controls">
+    <button onclick="encodeUrl()">Encode</button>
+    <button onclick="decodeUrl()">Decode</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="copyOutput()">Copy Output</button>
+    <button onclick="clearAll()">Clear</button>
   </div>
 
-  <h1>URL Encoder / Decoder</h1>
+  <div class="status" id="status">Enter text to URL encode or decode.</div>
 
-  <div class="box">
-    <div class="label">Input</div>
-    <textarea id="urlInput" placeholder="Enter text or a URL here"></textarea>
-
-    <div style="text-align:center;">
-      <button onclick="encodeURL()">Encode</button>
-      <button onclick="decodeURL()">Decode</button>
-      <button onclick="copyOutput()">Copy Output</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <div class="output">
-      <div class="label">Output</div>
-      <pre id="urlOutput">Encoded or decoded text will appear here</pre>
-    </div>
+  <div class="result-box">
+    <div class="result-label">Output</div>
+    <div class="result" id="output">Your result will appear here.</div>
   </div>
 
-  <script>
-    function encodeURL() {
-      const input = document.getElementById("urlInput").value;
-      const output = document.getElementById("urlOutput");
-      const status = document.getElementById("status");
+  <div class="note">
+    This tool is useful for safely encoding query string parameters, URLs, and other text that may contain reserved or special characters.
+  </div>
 
-      if (!input.trim()) {
-        status.innerText = "Please enter text first.";
-        output.innerText = "Encoded or decoded text will appear here";
-        return;
-      }
+</div>
 
-      try {
-        output.innerText = encodeURIComponent(input);
-        status.innerText = "Text encoded successfully.";
-      } catch (error) {
-        output.innerText = "Could not encode input.";
-        status.innerText = "Encoding failed.";
-      }
+<script>
+  function encodeUrl() {
+    const input = document.getElementById("inputText").value;
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+
+    if (!input) {
+      output.innerText = "Please enter some text.";
+      status.innerText = "No input provided.";
+      return;
     }
 
-    function decodeURL() {
-      const input = document.getElementById("urlInput").value;
-      const output = document.getElementById("urlOutput");
-      const status = document.getElementById("status");
+    try {
+      output.innerText = encodeURIComponent(input);
+      status.innerText = "Text encoded successfully.";
+    } catch {
+      output.innerText = "Could not encode input.";
+      status.innerText = "Encoding failed.";
+    }
+  }
 
-      if (!input.trim()) {
-        status.innerText = "Please enter text first.";
-        output.innerText = "Encoded or decoded text will appear here";
-        return;
-      }
+  function decodeUrl() {
+    const input = document.getElementById("inputText").value.trim();
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
 
-      try {
-        output.innerText = decodeURIComponent(input);
-        status.innerText = "Text decoded successfully.";
-      } catch (error) {
-        output.innerText = "Invalid encoded URL text.";
-        status.innerText = "Decoding failed. Check the input.";
-      }
+    if (!input) {
+      output.innerText = "Please enter encoded text.";
+      status.innerText = "No input provided.";
+      return;
     }
 
-    async function copyOutput() {
-      const output = document.getElementById("urlOutput").innerText;
-      const status = document.getElementById("status");
-
-      if (!output || output === "Encoded or decoded text will appear here" || output === "Invalid encoded URL text.") {
-        status.innerText = "Nothing valid to copy yet.";
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(output);
-        status.innerText = "Output copied to clipboard.";
-      } catch (error) {
-        status.innerText = "Could not copy output.";
-      }
+    try {
+      output.innerText = decodeURIComponent(input);
+      status.innerText = "Text decoded successfully.";
+    } catch {
+      output.innerText = "Invalid encoded input.";
+      status.innerText = "Decoding failed.";
     }
-  </script>
+  }
+
+  function loadExample() {
+    document.getElementById("inputText").value = "Coy Jones & CyberTechToolkit";
+    document.getElementById("output").innerText = "Your result will appear here.";
+    document.getElementById("status").innerText = "Example loaded.";
+  }
+
+  async function copyOutput() {
+    const output = document.getElementById("output").innerText;
+    const status = document.getElementById("status");
+
+    if (!output || output === "Your result will appear here." || output === "Please enter some text." || output === "Please enter encoded text." || output === "Invalid encoded input." || output === "Could not encode input.") {
+      status.innerText = "Nothing valid to copy yet.";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(output);
+      status.innerText = "Output copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy output.";
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("inputText").value = "";
+    document.getElementById("output").innerText = "Your result will appear here.";
+    document.getElementById("status").innerText = "Cleared.";
+  }
+</script>
 
 </body>
 </html>
