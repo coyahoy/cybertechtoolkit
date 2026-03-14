@@ -1,162 +1,294 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>JSON Formatter - CyberTechToolkit</title>
+  <title>JSON Formatter | CyberTechToolkit</title>
+  <meta name="description" content="Format, validate, and minify JSON instantly in your browser.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-  body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .result-box {
+      margin-top: 22px;
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+    }
+
+    .result-label {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .result {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      min-height: 24px;
+    }
+
+    .good {
+      color: #22c55e;
+    }
+
+    .bad {
+      color: #ef4444;
+    }
+
+    .note {
+      color: #94a3b8;
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>JSON Formatter</h1>
+
+<div class="box">
+
+  <div class="label">Input JSON</div>
+  <textarea id="inputJson" placeholder='{"name":"Coy","role":"analyst","active":true}'></textarea>
+
+  <div class="controls">
+    <button onclick="formatJson()">Format</button>
+    <button onclick="minifyJson()">Minify</button>
+    <button onclick="validateJson()">Validate</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="copyOutput()">Copy Output</button>
+    <button onclick="clearAll()">Clear</button>
   </div>
 
-  <h1>JSON Formatter</h1>
+  <div class="status" id="status">Paste JSON to format, minify, or validate it.</div>
 
-  <div class="box">
-    <div class="label">Paste JSON</div>
-    <textarea id="jsonInput" placeholder='{"name":"Coy","role":"Cybersecurity Student"}'></textarea>
-
-    <div style="text-align:center;">
-      <button onclick="formatJSON()">Format JSON</button>
-      <button onclick="minifyJSON()">Minify JSON</button>
-      <button onclick="copyOutput()">Copy Output</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <div class="output">
-      <div class="label">Output</div>
-      <pre id="jsonOutput">Formatted JSON will appear here</pre>
-    </div>
+  <div class="result-box">
+    <div class="result-label">Output</div>
+    <div class="result" id="output">Your JSON result will appear here.</div>
   </div>
 
-  <script>
-    function formatJSON() {
-      const input = document.getElementById("jsonInput").value.trim();
-      const output = document.getElementById("jsonOutput");
-      const status = document.getElementById("status");
+  <div class="note">
+    This tool parses JSON directly in your browser and helps with readability, validation, and compact output for debugging or development work.
+  </div>
 
-      if (!input) {
-        status.innerText = "Please paste JSON first.";
-        output.innerText = "Formatted JSON will appear here";
-        return;
-      }
+</div>
 
-      try {
-        const parsed = JSON.parse(input);
-        output.innerText = JSON.stringify(parsed, null, 2);
-        status.innerText = "JSON formatted successfully.";
-      } catch (error) {
-        output.innerText = "Invalid JSON.";
-        status.innerText = "Could not parse JSON. Check for missing quotes, commas, or brackets.";
-      }
+<script>
+  function getInput() {
+    return document.getElementById("inputJson").value.trim();
+  }
+
+  function setOutput(text) {
+    document.getElementById("output").textContent = text;
+  }
+
+  function setStatus(text) {
+    document.getElementById("status").innerText = text;
+  }
+
+  function formatJson() {
+    const input = getInput();
+
+    if (!input) {
+      setOutput("Please enter JSON first.");
+      setStatus("No input provided.");
+      return;
     }
 
-    function minifyJSON() {
-      const input = document.getElementById("jsonInput").value.trim();
-      const output = document.getElementById("jsonOutput");
-      const status = document.getElementById("status");
+    try {
+      const parsed = JSON.parse(input);
+      setOutput(JSON.stringify(parsed, null, 2));
+      setStatus("JSON formatted successfully.");
+    } catch (error) {
+      setOutput("Invalid JSON.");
+      setStatus("Formatting failed.");
+    }
+  }
 
-      if (!input) {
-        status.innerText = "Please paste JSON first.";
-        output.innerText = "Formatted JSON will appear here";
-        return;
-      }
+  function minifyJson() {
+    const input = getInput();
 
-      try {
-        const parsed = JSON.parse(input);
-        output.innerText = JSON.stringify(parsed);
-        status.innerText = "JSON minified successfully.";
-      } catch (error) {
-        output.innerText = "Invalid JSON.";
-        status.innerText = "Could not parse JSON. Check for missing quotes, commas, or brackets.";
-      }
+    if (!input) {
+      setOutput("Please enter JSON first.");
+      setStatus("No input provided.");
+      return;
     }
 
-    async function copyOutput() {
-      const output = document.getElementById("jsonOutput").innerText;
-      const status = document.getElementById("status");
-
-      if (!output || output === "Formatted JSON will appear here" || output === "Invalid JSON.") {
-        status.innerText = "Nothing valid to copy yet.";
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(output);
-        status.innerText = "Output copied to clipboard.";
-      } catch (error) {
-        status.innerText = "Could not copy output.";
-      }
+    try {
+      const parsed = JSON.parse(input);
+      setOutput(JSON.stringify(parsed));
+      setStatus("JSON minified successfully.");
+    } catch (error) {
+      setOutput("Invalid JSON.");
+      setStatus("Minify failed.");
     }
-  </script>
+  }
+
+  function validateJson() {
+    const input = getInput();
+
+    if (!input) {
+      setOutput("Please enter JSON first.");
+      setStatus("No input provided.");
+      return;
+    }
+
+    try {
+      JSON.parse(input);
+      setOutput("Valid JSON.");
+      setStatus("Validation complete.");
+    } catch (error) {
+      setOutput("Invalid JSON.\n\n" + error.message);
+      setStatus("Validation failed.");
+    }
+  }
+
+  function loadExample() {
+    document.getElementById("inputJson").value = `{
+  "name": "Coy",
+  "role": "Cybersecurity Student",
+  "tools": ["DNS Lookup", "JWT Inspector", "Encoding Playground"],
+  "active": true
+}`;
+    setOutput("Your JSON result will appear here.");
+    setStatus("Example loaded.");
+  }
+
+  async function copyOutput() {
+    const output = document.getElementById("output").innerText;
+
+    if (!output || output === "Your JSON result will appear here." || output === "Please enter JSON first.") {
+      setStatus("Nothing valid to copy yet.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(output);
+      setStatus("Output copied to clipboard.");
+    } catch {
+      setStatus("Could not copy output.");
+    }
+  }
+
+  function clearAll() {
+    document.getElementById("inputJson").value = "";
+    setOutput("Your JSON result will appear here.");
+    setStatus("Cleared.");
+  }
+</script>
 
 </body>
 </html>
