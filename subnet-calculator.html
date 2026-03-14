@@ -1,211 +1,299 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Subnet Calculator - CyberTechToolkit</title>
+  <title>Subnet Calculator | CyberTechToolkit</title>
+  <meta name="description" content="Calculate network address, broadcast address, host range, and usable hosts from an IPv4 address and CIDR.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    input {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      background: #f8fafc;
+      color: #0f172a;
+      font-family: monospace;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    .grid-inputs {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
+
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 120px;
+    }
+
+    .card-title {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      color: #00ffd5;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .note {
+      color: #94a3b8;
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      .grid-inputs {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>Subnet Calculator</h1>
+
+<div class="box">
+
+  <div class="grid-inputs">
+    <div>
+      <div class="label">IPv4 Address</div>
+      <input id="ipInput" placeholder="192.168.1.10">
+    </div>
+
+    <div>
+      <div class="label">CIDR Prefix</div>
+      <input id="cidrInput" placeholder="24">
+    </div>
   </div>
 
-  <h1>Subnet Calculator</h1>
-
-  <div class="box">
-    <div class="input-group">
-      <label for="ip">IP Address</label>
-      <input type="text" id="ip" placeholder="192.168.1.10">
-    </div>
-
-    <div class="input-group">
-      <label for="cidr">CIDR Prefix</label>
-      <input type="number" id="cidr" placeholder="24" min="0" max="32">
-    </div>
-
-    <div style="text-align:center;">
-      <button onclick="calculateSubnet()">Calculate</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <div class="results" id="results"></div>
+  <div class="controls">
+    <button onclick="calculateSubnet()">Calculate</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="clearAll()">Clear</button>
   </div>
 
-  <script>
-    function ipToInt(ip) {
-      const parts = ip.split(".").map(Number);
-      if (parts.length !== 4 || parts.some(part => isNaN(part) || part < 0 || part > 255)) {
-        return null;
-      }
-      return ((parts[0] << 24) >>> 0) + ((parts[1] << 16) >>> 0) + ((parts[2] << 8) >>> 0) + (parts[3] >>> 0);
+  <div class="status" id="status">Enter an IPv4 address and CIDR prefix to calculate subnet details.</div>
+
+  <div class="results-grid" id="resultsGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="card-value">Subnet results will appear here.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    This tool calculates common IPv4 subnet details including network address, broadcast address, usable host range, subnet mask, and usable host count.
+  </div>
+
+</div>
+
+<script>
+  function ipToInt(ip) {
+    const parts = ip.split(".").map(Number);
+    if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+      return null;
+    }
+    return ((parts[0] << 24) >>> 0) + ((parts[1] << 16) >>> 0) + ((parts[2] << 8) >>> 0) + (parts[3] >>> 0);
+  }
+
+  function intToIp(int) {
+    return [
+      (int >>> 24) & 255,
+      (int >>> 16) & 255,
+      (int >>> 8) & 255,
+      int & 255
+    ].join(".");
+  }
+
+  function prefixToMask(prefix) {
+    if (prefix < 0 || prefix > 32) return null;
+    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+    return mask;
+  }
+
+  function buildCard(title, value) {
+    return `
+      <div class="card">
+        <div class="card-title">${title}</div>
+        <div class="card-value">${value}</div>
+      </div>
+    `;
+  }
+
+  function calculateSubnet() {
+    const ip = document.getElementById("ipInput").value.trim();
+    const cidr = parseInt(document.getElementById("cidrInput").value.trim(), 10);
+    const status = document.getElementById("status");
+    const resultsGrid = document.getElementById("resultsGrid");
+
+    const ipInt = ipToInt(ip);
+    if (ipInt === null) {
+      status.innerText = "Invalid IPv4 address.";
+      return;
     }
 
-    function intToIp(int) {
-      return [
-        (int >>> 24) & 255,
-        (int >>> 16) & 255,
-        (int >>> 8) & 255,
-        int & 255
-      ].join(".");
+    if (isNaN(cidr) || cidr < 0 || cidr > 32) {
+      status.innerText = "CIDR must be between 0 and 32.";
+      return;
     }
 
-    function cidrToMask(cidr) {
-      let mask = cidr === 0 ? 0 : (0xffffffff << (32 - cidr)) >>> 0;
-      return intToIp(mask);
-    }
+    const maskInt = prefixToMask(cidr);
+    const networkInt = ipInt & maskInt;
+    const broadcastInt = networkInt | (~maskInt >>> 0);
 
-    function calculateSubnet() {
-      const ipInput = document.getElementById("ip").value.trim();
-      const cidr = parseInt(document.getElementById("cidr").value, 10);
-      const status = document.getElementById("status");
-      const results = document.getElementById("results");
+    const firstHost = cidr >= 31 ? networkInt : networkInt + 1;
+    const lastHost = cidr >= 31 ? broadcastInt : broadcastInt - 1;
 
-      results.innerHTML = "";
-      status.innerText = "";
+    let usableHosts;
+    if (cidr === 32) usableHosts = 1;
+    else if (cidr === 31) usableHosts = 2;
+    else usableHosts = Math.max(0, Math.pow(2, 32 - cidr) - 2);
 
-      const ipInt = ipToInt(ipInput);
+    resultsGrid.innerHTML =
+      buildCard("Network Address", intToIp(networkInt)) +
+      buildCard("Broadcast Address", intToIp(broadcastInt)) +
+      buildCard("Subnet Mask", intToIp(maskInt)) +
+      buildCard("CIDR", "/" + cidr) +
+      buildCard("First Host", intToIp(firstHost)) +
+      buildCard("Last Host", intToIp(lastHost)) +
+      buildCard("Usable Hosts", usableHosts.toString()) +
+      buildCard("Address Range", intToIp(networkInt) + " - " + intToIp(broadcastInt));
 
-      if (ipInt === null) {
-        status.innerText = "Please enter a valid IPv4 address.";
-        return;
-      }
+    status.innerText = "Subnet calculation complete.";
+  }
 
-      if (isNaN(cidr) || cidr < 0 || cidr > 32) {
-        status.innerText = "Please enter a valid CIDR prefix between 0 and 32.";
-        return;
-      }
+  function loadExample() {
+    document.getElementById("ipInput").value = "192.168.1.10";
+    document.getElementById("cidrInput").value = "24";
+    document.getElementById("status").innerText = "Example loaded.";
+    calculateSubnet();
+  }
 
-      const maskInt = cidr === 0 ? 0 : (0xffffffff << (32 - cidr)) >>> 0;
-      const networkInt = ipInt & maskInt;
-      const broadcastInt = networkInt | (~maskInt >>> 0);
-
-      let totalHosts = Math.pow(2, 32 - cidr);
-      let usableHosts;
-      let firstHost = "N/A";
-      let lastHost = "N/A";
-
-      if (cidr === 32) {
-        usableHosts = 1;
-        firstHost = intToIp(networkInt);
-        lastHost = intToIp(networkInt);
-      } else if (cidr === 31) {
-        usableHosts = 2;
-        firstHost = intToIp(networkInt);
-        lastHost = intToIp(broadcastInt);
-      } else {
-        usableHosts = totalHosts - 2;
-        firstHost = intToIp(networkInt + 1);
-        lastHost = intToIp(broadcastInt - 1);
-      }
-
-      results.innerHTML = `
-        <div class="result-row">
-          <div class="result-label">Subnet Mask</div>
-          <div class="result-value">${cidrToMask(cidr)}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">Network Address</div>
-          <div class="result-value">${intToIp(networkInt)}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">Broadcast Address</div>
-          <div class="result-value">${intToIp(broadcastInt)}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">Total Addresses</div>
-          <div class="result-value">${totalHosts}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">Usable Hosts</div>
-          <div class="result-value">${usableHosts}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">First Usable Host</div>
-          <div class="result-value">${firstHost}</div>
-        </div>
-
-        <div class="result-row">
-          <div class="result-label">Last Usable Host</div>
-          <div class="result-value">${lastHost}</div>
-        </div>
-      `;
-
-      status.innerText = "Calculation complete.";
-    }
-  </script>
+  function clearAll() {
+    document.getElementById("ipInput").value = "";
+    document.getElementById("cidrInput").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("resultsGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-value">Subnet results will appear here.</div>
+      </div>
+    `;
+  }
+</script>
 
 </body>
 </html>
