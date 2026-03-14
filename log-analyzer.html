@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Log Analyzer | CyberTechToolkit</title>
+  <meta name="description" content="Analyze web log lines for suspicious activity, repeated IPs, error codes, and admin probing patterns.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
+
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1100px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
+
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 140px;
+    }
+
+    .card-title {
+      color: #00ffd5;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .card-body {
+      color: #e5eefc;
+      line-height: 1.7;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .good { color: #22c55e; }
+    .warn { color: #f59e0b; }
+    .bad { color: #ef4444; }
+    .muted { color: #94a3b8; }
+
+    code {
+      color: #00ffd5;
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-word;
+    }
+
+    .note {
+      margin-top: 14px;
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>Log Analyzer</h1>
+
+<div class="box">
+
+  <div class="label">Paste Log Lines</div>
+  <textarea id="logInput" placeholder='Example:
+192.168.1.10 GET /admin 401
+192.168.1.10 GET /login 200
+185.220.101.32 GET /wp-admin 404
+203.0.113.50 POST /api/login 403'></textarea>
+
+  <div class="controls">
+    <button onclick="analyzeLogs()">Analyze Logs</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="clearLogs()">Clear</button>
+  </div>
+
+  <div class="status" id="status">Paste simplified log lines to detect suspicious patterns.</div>
+
+  <div class="results-grid" id="resultsGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="card-body muted">Log analysis results will appear here.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    This analyzer looks for repeated IP activity, suspicious admin probing, login targeting, and unusual volumes of 4xx/5xx responses. It is designed for quick triage, not full SIEM replacement.
+  </div>
+
+</div>
+
+<script>
+  function buildCard(title, body) {
+    return `
+      <div class="card">
+        <div class="card-title">${title}</div>
+        <div class="card-body">${body}</div>
+      </div>
+    `;
+  }
+
+  function parseLine(line) {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length < 4) return null;
+
+    const ip = parts[0];
+    const method = parts[1];
+    const path = parts[2];
+    const status = parts[3];
+
+    return { ip, method, path, status };
+  }
+
+  function analyzeLogs() {
+    const raw = document.getElementById("logInput").value.trim();
+    const statusEl = document.getElementById("status");
+    const resultsGrid = document.getElementById("resultsGrid");
+
+    if (!raw) {
+      statusEl.innerText = "Please paste log lines first.";
+      return;
+    }
+
+    const lines = raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    const parsed = lines.map(parseLine).filter(Boolean);
+
+    if (!parsed.length) {
+      resultsGrid.innerHTML = buildCard("Parse Error", "<span class='bad'>Could not parse any log lines.</span>");
+      statusEl.innerText = "Analysis failed.";
+      return;
+    }
+
+    const ipCounts = {};
+    const suspiciousPaths = [];
+    const loginPaths = [];
+    let count4xx = 0;
+    let count5xx = 0;
+
+    const interestingKeywords = [
+      "/admin",
+      "/wp-admin",
+      "/login",
+      "/phpmyadmin",
+      "/dashboard",
+      "/config",
+      "/.env",
+      "/api/login"
+    ];
+
+    parsed.forEach(entry => {
+      ipCounts[entry.ip] = (ipCounts[entry.ip] || 0) + 1;
+
+      const pathLower = entry.path.toLowerCase();
+
+      if (interestingKeywords.some(k => pathLower.includes(k))) {
+        suspiciousPaths.push(`${entry.ip} → ${entry.method} ${entry.path} ${entry.status}`);
+      }
+
+      if (pathLower.includes("login")) {
+        loginPaths.push(`${entry.ip} → ${entry.method} ${entry.path} ${entry.status}`);
+      }
+
+      if (/^4\d\d$/.test(entry.status)) count4xx++;
+      if (/^5\d\d$/.test(entry.status)) count5xx++;
+    });
+
+    const repeatedIps = Object.entries(ipCounts)
+      .filter(([_, count]) => count >= 2)
+      .sort((a, b) => b[1] - a[1]);
+
+    const findings = [];
+
+    if (repeatedIps.length) findings.push("<span class='warn'>Repeated IP activity detected</span>");
+    if (suspiciousPaths.length) findings.push("<span class='bad'>Suspicious admin or sensitive path probing detected</span>");
+    if (loginPaths.length >= 2) findings.push("<span class='warn'>Multiple login-related requests observed</span>");
+    if (count4xx >= 3) findings.push("<span class='warn'>High 4xx volume may indicate probing or broken requests</span>");
+    if (count5xx >= 1) findings.push("<span class='bad'>5xx errors detected; review server-side issues</span>");
+    if (!findings.length) findings.push("<span class='good'>No strong suspicious indicators detected in this small sample</span>");
+
+    const summaryBody = `
+      Total parsed lines: <code>${parsed.length}</code>
+      4xx responses: <code>${count4xx}</code>
+      5xx responses: <code>${count5xx}</code>
+      Unique IPs: <code>${Object.keys(ipCounts).length}</code>
+    `;
+
+    const repeatedBody = repeatedIps.length
+      ? `<ul>${repeatedIps.map(([ip, count]) => `<li><code>${ip}</code> → ${count} requests</li>`).join("")}</ul>`
+      : "<span class='muted'>No repeated IPs detected.</span>";
+
+    const suspiciousBody = suspiciousPaths.length
+      ? `<ul>${suspiciousPaths.slice(0, 10).map(x => `<li><code>${x}</code></li>`).join("")}</ul>`
+      : "<span class='muted'>No obvious suspicious paths detected.</span>";
+
+    const findingsBody = `<ul>${findings.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+    const recommendations = [];
+    if (repeatedIps.length) recommendations.push("Review repeated IPs for brute-force or enumeration behavior.");
+    if (suspiciousPaths.length) recommendations.push("Investigate admin-path probes and consider WAF or rate limits.");
+    if (count4xx >= 3) recommendations.push("Check whether 4xx patterns suggest scanning or path discovery attempts.");
+    if (count5xx >= 1) recommendations.push("Inspect application and server logs for root causes of 5xx errors.");
+    if (!recommendations.length) recommendations.push("No urgent follow-up stood out from this sample.");
+
+    const recommendationBody = `<ul>${recommendations.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+    resultsGrid.innerHTML =
+      buildCard("Summary", summaryBody) +
+      buildCard("Key Findings", findingsBody) +
+      buildCard("Repeated IP Activity", repeatedBody) +
+      buildCard("Suspicious Paths", suspiciousBody) +
+      buildCard("Recommendations", recommendationBody);
+
+    statusEl.innerText = "Log analysis complete.";
+  }
+
+  function loadExample() {
+    document.getElementById("logInput").value = `192.168.1.10 GET /admin 401
+192.168.1.10 GET /login 200
+185.220.101.32 GET /wp-admin 404
+203.0.113.50 POST /api/login 403
+185.220.101.32 GET /.env 404
+192.168.1.10 GET /dashboard 200`;
+    analyzeLogs();
+  }
+
+  function clearLogs() {
+    document.getElementById("logInput").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("resultsGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-body muted">Log analysis results will appear here.</div>
+      </div>
+    `;
+  }
+</script>
+
+</body>
+</html>
