@@ -1,184 +1,310 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Case Converter - CyberTechToolkit</title>
+  <title>Case Converter | CyberTechToolkit</title>
+  <meta name="description" content="Convert text into uppercase, lowercase, camelCase, PascalCase, snake_case, and kebab-case.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 40px 20px;
+      margin: 0;
+      text-align: center;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1000px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    button {
+      margin-top: 14px;
+      padding: 10px 16px;
+      background: #00ffd5;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #08111f;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .status {
+      color: #9ca3af;
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 140px;
+    }
+
+    .card-title {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      min-height: 24px;
+      margin-bottom: 12px;
+    }
+
+    .copy-btn {
+      margin-top: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .note {
+      color: #94a3b8;
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
+<div class="back">
+  <a href="/">← Back</a>
+</div>
+
+<h1>Case Converter</h1>
+
+<div class="box">
+
+  <div class="label">Input Text</div>
+  <textarea id="inputText" placeholder="Enter text here..."></textarea>
+
+  <div class="controls">
+    <button onclick="convertCases()">Convert</button>
+    <button onclick="loadExample()">Load Example</button>
+    <button onclick="clearAll()">Clear</button>
   </div>
 
-  <h1>Case Converter</h1>
+  <div class="status" id="status">Enter text to convert it into multiple case styles.</div>
 
-  <div class="box">
-    <div class="label">Input</div>
-    <textarea id="textInput" placeholder="Enter text here"></textarea>
-
-    <div style="text-align:center;">
-      <button onclick="convertCase('upper')">UPPERCASE</button>
-      <button onclick="convertCase('lower')">lowercase</button>
-      <button onclick="convertCase('title')">Title Case</button>
-      <button onclick="convertCase('camel')">camelCase</button>
-      <button onclick="convertCase('snake')">snake_case</button>
-      <button onclick="convertCase('kebab')">kebab-case</button>
-      <button onclick="copyOutput()">Copy Output</button>
-    </div>
-
-    <div class="status" id="status"></div>
-
-    <div class="output">
-      <div class="label">Output</div>
-      <pre id="textOutput">Converted text will appear here</pre>
+  <div class="results-grid" id="resultsGrid">
+    <div class="card">
+      <div class="card-title">Results</div>
+      <div class="card-value">Converted text will appear here.</div>
     </div>
   </div>
 
-  <script>
-    function wordsFromText(text) {
-      return text
-        .trim()
-        .replace(/[_-]+/g, " ")
-        .replace(/([a-z])([A-Z])/g, "$1 $2")
-        .split(/\s+/)
-        .filter(Boolean);
+  <div class="note">
+    This tool converts input into common text case formats used in development, scripting, naming conventions, and documentation.
+  </div>
+
+</div>
+
+<script>
+  function toWords(text) {
+    return text
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/[_\-]+/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
+
+  function toCamelCase(words) {
+    return words
+      .map((word, index) =>
+        index === 0
+          ? word.toLowerCase()
+          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .join("");
+  }
+
+  function toPascalCase(words) {
+    return words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join("");
+  }
+
+  function toSnakeCase(words) {
+    return words.map(word => word.toLowerCase()).join("_");
+  }
+
+  function toKebabCase(words) {
+    return words.map(word => word.toLowerCase()).join("-");
+  }
+
+  function buildCard(title, value, id) {
+    return `
+      <div class="card">
+        <div class="card-title">${title}</div>
+        <div class="card-value" id="${id}">${value}</div>
+        <button class="copy-btn" onclick="copyValue('${id}')">Copy</button>
+      </div>
+    `;
+  }
+
+  function convertCases() {
+    const input = document.getElementById("inputText").value;
+    const resultsGrid = document.getElementById("resultsGrid");
+    const status = document.getElementById("status");
+
+    if (!input.trim()) {
+      status.innerText = "Please enter text first.";
+      resultsGrid.innerHTML = `
+        <div class="card">
+          <div class="card-title">Results</div>
+          <div class="card-value">Converted text will appear here.</div>
+        </div>
+      `;
+      return;
     }
 
-    function toTitleCase(words) {
-      return words
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(" ");
+    const words = toWords(input);
+
+    const uppercase = input.toUpperCase();
+    const lowercase = input.toLowerCase();
+    const camelCase = toCamelCase(words);
+    const pascalCase = toPascalCase(words);
+    const snakeCase = toSnakeCase(words);
+    const kebabCase = toKebabCase(words);
+
+    resultsGrid.innerHTML =
+      buildCard("UPPERCASE", uppercase, "uppercaseValue") +
+      buildCard("lowercase", lowercase, "lowercaseValue") +
+      buildCard("camelCase", camelCase, "camelValue") +
+      buildCard("PascalCase", pascalCase, "pascalValue") +
+      buildCard("snake_case", snakeCase, "snakeValue") +
+      buildCard("kebab-case", kebabCase, "kebabValue");
+
+    status.innerText = "Text converted successfully.";
+  }
+
+  function loadExample() {
+    document.getElementById("inputText").value = "Cyber Tech Toolkit Example";
+    document.getElementById("status").innerText = "Example loaded.";
+    convertCases();
+  }
+
+  async function copyValue(id) {
+    const value = document.getElementById(id).innerText;
+    const status = document.getElementById("status");
+
+    if (!value) {
+      status.innerText = "Nothing to copy.";
+      return;
     }
 
-    function convertCase(type) {
-      const input = document.getElementById("textInput").value;
-      const output = document.getElementById("textOutput");
-      const status = document.getElementById("status");
-
-      if (!input.trim()) {
-        output.innerText = "Converted text will appear here";
-        status.innerText = "Please enter text first.";
-        return;
-      }
-
-      const words = wordsFromText(input);
-      let result = "";
-
-      switch (type) {
-        case "upper":
-          result = input.toUpperCase();
-          break;
-        case "lower":
-          result = input.toLowerCase();
-          break;
-        case "title":
-          result = toTitleCase(words);
-          break;
-        case "camel":
-          result = words
-            .map((word, index) =>
-              index === 0
-                ? word.toLowerCase()
-                : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            )
-            .join("");
-          break;
-        case "snake":
-          result = words.map(word => word.toLowerCase()).join("_");
-          break;
-        case "kebab":
-          result = words.map(word => word.toLowerCase()).join("-");
-          break;
-      }
-
-      output.innerText = result;
-      status.innerText = "Conversion complete.";
+    try {
+      await navigator.clipboard.writeText(value);
+      status.innerText = "Copied to clipboard.";
+    } catch {
+      status.innerText = "Could not copy value.";
     }
+  }
 
-    async function copyOutput() {
-      const output = document.getElementById("textOutput").innerText;
-      const status = document.getElementById("status");
-
-      if (!output || output === "Converted text will appear here") {
-        status.innerText = "Nothing to copy yet.";
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(output);
-        status.innerText = "Output copied to clipboard.";
-      } catch {
-        status.innerText = "Could not copy output.";
-      }
-    }
-  </script>
+  function clearAll() {
+    document.getElementById("inputText").value = "";
+    document.getElementById("status").innerText = "Cleared.";
+    document.getElementById("resultsGrid").innerHTML = `
+      <div class="card">
+        <div class="card-title">Results</div>
+        <div class="card-value">Converted text will appear here.</div>
+      </div>
+    `;
+  }
+</script>
 
 </body>
 </html>
