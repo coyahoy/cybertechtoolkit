@@ -2,80 +2,202 @@
 <html>
 <head>
   <title>Encoding vs Encryption vs Hashing | CyberTechToolkit</title>
-  <meta name="description" content="Learn the difference between encoding, encryption, and hashing with a hands-on interactive tool.">
+  <meta name="description" content="Compare encoding, encryption, and hashing side by side with an interactive browser-based learning tool.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-color:#e5eefc;
-margin:0;
-padding:40px;
-text-align:center;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      text-align: center;
+      padding: 40px 20px;
+      margin: 0;
+    }
 
-h1{
-color:#00ffd5;
-margin-top:20px;
-}
+    h1 {
+      color: #00ffd5;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
 
-.box{
-background:rgba(12,20,35,0.9);
-border:1px solid rgba(53,74,102,0.7);
-padding:25px;
-border-radius:14px;
-width:1000px;
-max-width:96%;
-margin:auto;
-text-align:left;
-}
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
 
-textarea,input,select{
-width:100%;
-border-radius:8px;
-border:none;
-padding:12px;
-font-size:14px;
-box-sizing:border-box;
-}
+    .back a {
+      color: #00ffd5;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-textarea{
-font-family:monospace;
-resize:vertical;
-}
+    .box {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      padding: 25px;
+      border-radius: 16px;
+      width: 1100px;
+      max-width: 96%;
+      margin: auto;
+      text-align: left;
+      box-sizing: border-box;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
+    }
 
-button{
-margin-top:12px;
-padding:10px 16px;
-background:#00ffd5;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
 
-button:hover{
-background:#00e5c0;
-}
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 12px;
+      box-sizing: border-box;
+      font-size: 15px;
+      font-family: monospace;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-.back{
-position:absolute;
-left:20px;
-top:20px;
-}
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
 
-.back a{
-color:#00ffd5;
-text-decoration:none;
-font-weight:bold;
-}
+    button {
+      padding: 10px 16px;
+      border: none;
+      background: #00ffd5;
+      color: #08111f;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 14px;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background: #00e5c0;
+    }
+
+    .status {
+      margin-top: 16px;
+      color: #9ca3af;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .results {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      border-radius: 12px;
+      min-height: 220px;
+    }
+
+    .card-title {
+      color: #00ffd5;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .card-subtitle {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 12px;
+    }
+
+    .card-value {
+      color: #e5e7eb;
+      word-break: break-word;
+      font-family: Consolas, Monaco, monospace;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .good {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .bad {
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    .comparison {
+      margin-top: 24px;
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #1f2937;
+      padding: 10px;
+      text-align: left;
+      color: #e5e7eb;
+    }
+
+    th {
+      color: #00ffd5;
+    }
+
+    .note {
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+
+      table, th, td {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="back">
-    <a href="/">← Back to CyberTechToolkit</a>
+    <a href="/">← Back</a>
   </div>
 
   <h1>Encoding vs Encryption vs Hashing</h1>
@@ -93,7 +215,7 @@ font-weight:bold;
       <button onclick="clearAll()">Clear</button>
     </div>
 
-    <div class="status" id="status"></div>
+    <div class="status" id="status">Enter text to compare encoding, encryption, and hashing side by side.</div>
 
     <div class="results" id="results">
       <div class="card">
@@ -118,7 +240,7 @@ font-weight:bold;
         <tr>
           <td>Encryption</td>
           <td class="good">Yes, with the key</td>
-          <td>Protect confidentiality of data</td>
+          <td>Protect the confidentiality of data</td>
         </tr>
         <tr>
           <td>Hashing</td>
@@ -129,7 +251,7 @@ font-weight:bold;
     </div>
 
     <div class="note">
-      This tool is educational. The encryption example here is a simple reversible demo to help explain the concept. Real-world secure encryption should use proper cryptographic libraries and algorithms such as AES.
+      This tool is educational. The encryption example here is a simple reversible demo to explain the concept. Real-world secure encryption should use established cryptographic algorithms and libraries.
     </div>
   </div>
 
@@ -207,7 +329,7 @@ font-weight:bold;
           <div class="card-title">Encoding</div>
           <div class="card-subtitle">Base64 Encoded</div>
           <div class="card-value">${base64Encoded}</div>
-          <div class="card-subtitle" style="margin-top:12px;">Decoded Again</div>
+          <div class="card-subtitle">Decoded Again</div>
           <div class="card-value">${base64Decoded}</div>
         </div>
 
@@ -215,7 +337,7 @@ font-weight:bold;
           <div class="card-title">Encryption</div>
           <div class="card-subtitle">Encrypted with Demo Key</div>
           <div class="card-value">${encrypted}</div>
-          <div class="card-subtitle" style="margin-top:12px;">Decrypted with Same Key</div>
+          <div class="card-subtitle">Decrypted with Same Key</div>
           <div class="card-value">${decrypted}</div>
         </div>
 
@@ -223,7 +345,7 @@ font-weight:bold;
           <div class="card-title">Hashing</div>
           <div class="card-subtitle">SHA-256 Hash</div>
           <div class="card-value">${hashValue}</div>
-          <div class="card-subtitle" style="margin-top:12px;">Can It Be Reversed?</div>
+          <div class="card-subtitle">Can It Be Reversed?</div>
           <div class="card-value bad">No — hashing is one-way</div>
         </div>
       `;
@@ -234,14 +356,14 @@ font-weight:bold;
     function loadExample() {
       document.getElementById("inputText").value = "CyberTechToolkit";
       document.getElementById("keyText").value = "cyberkey";
-      document.getElementById("status").innerText = "";
+      document.getElementById("status").innerText = "Example loaded.";
       runComparison();
     }
 
     function clearAll() {
       document.getElementById("inputText").value = "";
       document.getElementById("keyText").value = "";
-      document.getElementById("status").innerText = "";
+      document.getElementById("status").innerText = "Cleared.";
       document.getElementById("results").innerHTML = `
         <div class="card">
           <div class="card-title">Results</div>
