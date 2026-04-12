@@ -1,843 +1,1642 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>SOC Analyst Simulator | CyberTechToolkit</title>
-  <meta name="description" content="Train like a real SOC analyst by triaging alerts, investigating indicators, and making response decisions.">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Train like a real SOC analyst with evidence-driven investigation, triage workflows, and structured incident reporting." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body{
-      font-family:Arial,sans-serif;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
       background:
         radial-gradient(circle at top, rgba(0,255,213,0.08), transparent 30%),
-        linear-gradient(180deg,#060d18 0%,#08111f 35%,#0b1220 100%);
-      color:#e5eefc;
-      margin:0;
-      padding:40px 20px;
-      text-align:center;
+        linear-gradient(180deg, #060d18 0%, #08111f 35%, #0b1220 100%);
+      color: #e5eefc;
+      padding: 26px 18px 40px;
     }
 
-    h1{
-      color:#00ffd5;
-      margin:20px 0;
-      font-size:34px;
+    a {
+      color: #00ffd5;
+      text-decoration: none;
     }
 
-    .back{
-      position:absolute;
-      left:20px;
-      top:20px;
+    .back {
+      margin-bottom: 16px;
+      font-weight: bold;
     }
 
-    .back a{
-      color:#00ffd5;
-      text-decoration:none;
-      font-weight:bold;
+    .page {
+      max-width: 1450px;
+      margin: 0 auto;
     }
 
-    .box{
-      background:rgba(12,20,35,0.9);
-      border:1px solid rgba(53,74,102,0.7);
-      padding:25px;
-      border-radius:16px;
-      width:1200px;
-      max-width:96%;
-      margin:auto;
-      text-align:left;
-      box-sizing:border-box;
-      box-shadow:0 14px 30px rgba(0,0,0,0.24);
+    .hero {
+      background: rgba(12,20,35,0.88);
+      border: 1px solid rgba(53,74,102,0.7);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.24);
     }
 
-    .top-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-      gap:14px;
-      margin-bottom:20px;
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
     }
 
-    .stat-card{
-      background:#0f172a;
-      border:1px solid #1f2937;
-      border-radius:12px;
-      padding:14px;
-      text-align:center;
+    h1 {
+      margin: 0 0 10px;
+      color: #00ffd5;
+      font-size: 34px;
     }
 
-    .stat-title{
-      color:#9ca3af;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-bottom:8px;
+    .hero p {
+      margin: 0;
+      color: #b9cbe0;
+      line-height: 1.7;
+      max-width: 900px;
     }
 
-    .stat-value{
-      color:#00ffd5;
-      font-size:24px;
-      font-family:Consolas,Monaco,monospace;
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
     }
 
-    .layout{
-      display:grid;
-      grid-template-columns:1.3fr 1fr;
-      gap:18px;
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,255,213,0.08);
+      border: 1px solid rgba(0,255,213,0.2);
+      color: #c6fff5;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
     }
 
-    .panel{
-      background:#0f172a;
-      border:1px solid #1f2937;
-      border-radius:14px;
-      padding:16px;
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
-    .panel-title{
-      color:#00ffd5;
-      font-weight:bold;
-      font-size:18px;
-      margin-bottom:12px;
+    .panel {
+      background: rgba(12,20,35,0.9);
+      border: 1px solid rgba(53,74,102,0.7);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
     }
 
-    .label{
-      color:#9ca3af;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-bottom:6px;
+    .panel-title {
+      color: #00ffd5;
+      font-size: 19px;
+      font-weight: bold;
+      margin-bottom: 14px;
     }
 
-    .alert-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:14px;
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
     }
 
-    .alert-title{
-      font-size:22px;
-      font-weight:bold;
-      color:#e5eefc;
+    .field label {
+      display: block;
+      color: #9fb2c9;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
 
-    .severity{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:bold;
-      letter-spacing:1px;
-      text-transform:uppercase;
+    select, textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      background: #08111f;
+      color: #e5eefc;
+      border: 1px solid #2b3b52;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
     }
 
-    .sev-low{ background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.35); }
-    .sev-medium{ background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.35); }
-    .sev-high{ background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.35); }
-    .sev-critical{ background:rgba(168,85,247,0.16); color:#c084fc; border:1px solid rgba(168,85,247,0.35); }
-
-    .summary{
-      color:#c9d7e8;
-      line-height:1.7;
-      margin-bottom:16px;
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.6;
     }
 
-    .iocs, .clues{
-      background:#08111f;
-      border:1px solid #1f2937;
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:14px;
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
+      border-color: rgba(0,255,213,0.55);
+      box-shadow: 0 0 0 1px rgba(0,255,213,0.08);
     }
 
-    .ioc-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:12px;
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
     }
 
-    .ioc-item{
-      background:#0b1524;
-      border:1px solid #1d2a3d;
-      border-radius:10px;
-      padding:10px;
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.18s ease;
     }
 
-    .ioc-name{
-      color:#9ca3af;
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:1px;
-      margin-bottom:6px;
+    button:hover {
+      transform: translateY(-1px);
     }
 
-    .ioc-value{
-      color:#00ffd5;
-      font-family:Consolas,Monaco,monospace;
-      word-break:break-word;
-      line-height:1.6;
+    .btn-primary {
+      background: #00ffd5;
+      color: #08111f;
     }
 
-    ul{
-      margin:8px 0 0 18px;
-      padding:0;
+    .btn-primary:hover {
+      background: #00e5c0;
     }
 
-    li{
-      margin-bottom:7px;
-      line-height:1.6;
-      color:#dbe7f5;
+    .btn-secondary {
+      background: #1b2a3c;
+      color: #dbe7f5;
+      border: 1px solid #31445f;
     }
 
-    .investigation-buttons,
-    .decision-buttons,
-    .main-controls{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:14px;
+    .btn-secondary:hover {
+      background: #24364b;
     }
 
-    button{
-      padding:10px 14px;
-      background:#00ffd5;
-      border:none;
-      border-radius:8px;
-      font-weight:bold;
-      cursor:pointer;
-      color:#08111f;
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
     }
 
-    button:hover{
-      background:#00e5c0;
+    .btn-danger:hover {
+      background: #dc2626;
     }
 
-    button.alt{
-      background:#1d2a3d;
-      color:#dbe7f5;
-      border:1px solid #31445f;
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 12px;
     }
 
-    button.alt:hover{
-      background:#26364b;
+    .stat {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
     }
 
-    .decision-buttons button{
-      min-width:140px;
+    .stat-label {
+      color: #9ca3af;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
 
-    .decision-escalate{ background:#a855f7; color:white; }
-    .decision-escalate:hover{ background:#9333ea; }
-
-    .decision-block{ background:#ef4444; color:white; }
-    .decision-block:hover{ background:#dc2626; }
-
-    .decision-monitor{ background:#f59e0b; color:#08111f; }
-    .decision-monitor:hover{ background:#d97706; }
-
-    .decision-close{ background:#22c55e; color:white; }
-    .decision-close:hover{ background:#16a34a; }
-
-    .console{
-      background:#08111f;
-      border:1px solid #1f2937;
-      border-radius:12px;
-      padding:14px;
-      min-height:140px;
-      color:#dbe7f5;
-      font-family:Consolas,Monaco,monospace;
-      white-space:pre-wrap;
-      line-height:1.7;
+    .stat-value {
+      color: #00ffd5;
+      font-size: 24px;
+      font-family: Consolas, Monaco, monospace;
     }
 
-    .status{
-      color:#9ca3af;
-      margin-top:14px;
-      text-align:center;
-      font-size:14px;
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px;
+      align-items: start;
     }
 
-    .queue-item{
-      border-bottom:1px solid #1f2937;
-      padding:10px 0;
+    .case-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
-    .queue-item:last-child{
-      border-bottom:none;
+    .case-title {
+      font-size: 27px;
+      font-weight: bold;
+      color: #f4fbff;
+      margin-bottom: 8px;
     }
 
-    .queue-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:6px;
+    .case-subtitle {
+      color: #9cb3cf;
+      line-height: 1.6;
+      max-width: 860px;
     }
 
-    .queue-title{
-      color:#e5eefc;
-      font-weight:bold;
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .queue-desc{
-      color:#94a3b8;
-      font-size:14px;
-      line-height:1.5;
+    .sev-low {
+      background: rgba(34,197,94,0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34,197,94,0.35);
     }
 
-    .result-box{
-      margin-top:16px;
-      background:#08111f;
-      border:1px solid #1f2937;
-      border-radius:12px;
-      padding:14px;
+    .sev-medium {
+      background: rgba(245,158,11,0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245,158,11,0.35);
     }
 
-    .good{ color:#22c55e; }
-    .warn{ color:#f59e0b; }
-    .bad{ color:#ef4444; }
-    .muted{ color:#94a3b8; }
-
-    .hidden{
-      display:none;
+    .sev-high {
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.35);
     }
 
-    .note{
-      color:#94a3b8;
-      line-height:1.6;
-      margin-top:18px;
-      font-size:14px;
+    .sev-critical {
+      background: rgba(168,85,247,0.16);
+      color: #c084fc;
+      border: 1px solid rgba(168,85,247,0.35);
     }
 
-    @media (max-width:900px){
-      .layout{
-        grid-template-columns:1fr;
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .meta-card {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .meta-label {
+      color: #9ca3af;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .meta-value {
+      color: #e6f0ff;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      background: #101a2b;
+      color: #dbe7f5;
+      border: 1px solid #24354a;
+      padding: 10px 13px;
+    }
+
+    .tab-btn.active {
+      background: rgba(0,255,213,0.12);
+      color: #00ffd5;
+      border-color: rgba(0,255,213,0.35);
+    }
+
+    .artifact-box {
+      background: #08111f;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 250px;
+    }
+
+    .artifact-title {
+      color: #00ffd5;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .artifact-box ul {
+      margin: 0 0 0 18px;
+      padding: 0;
+    }
+
+    .artifact-box li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #dbe7f5;
+    }
+
+    .code-block {
+      background: #07101d;
+      border: 1px solid #1c2d43;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      white-space: pre-wrap;
+      color: #cfe3fb;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    .side-section {
+      margin-bottom: 16px;
+    }
+
+    .side-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .side-label {
+      color: #9fb2c9;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .helper-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-btn {
+      background: #162436;
+      color: #dbe7f5;
+      border: 1px solid #2a3e57;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    .mini-btn:hover {
+      background: #1d3047;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .score-note {
+      margin-top: 10px;
+      color: #90a7c4;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .status-box {
+      margin-top: 14px;
+      background: #08111f;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 12px;
+      color: #dbe7f5;
+      line-height: 1.6;
+    }
+
+    .queue-item {
+      border-bottom: 1px solid #1f2937;
+      padding: 10px 0;
+    }
+
+    .queue-item:last-child {
+      border-bottom: none;
+    }
+
+    .queue-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .queue-title {
+      color: #f5fbff;
+      font-weight: bold;
+    }
+
+    .queue-desc {
+      color: #97adca;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .result-panel {
+      margin-top: 16px;
+      background: #08111f;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .good {
+      color: #22c55e;
+    }
+
+    .warn {
+      color: #f59e0b;
+    }
+
+    .bad {
+      color: #ef4444;
+    }
+
+    .muted {
+      color: #94a3b8;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .review-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .review-list li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1120px) {
+      .grid-top,
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px 12px 30px;
       }
 
-      h1{
-        font-size:28px;
+      h1 {
+        font-size: 28px;
       }
 
-      .box{
-        padding:18px;
+      .decision-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .case-title {
+        font-size: 23px;
       }
     }
   </style>
 </head>
 <body>
+  <div class="page">
+    <div class="back"><a href="/">← Back</a></div>
 
-<div class="back">
-  <a href="/">← Back</a>
-</div>
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>SOC Analyst Simulator</h1>
+          <p>
+            Run evidence-driven investigations, triage alerts, document findings, and submit a structured case report.
+            This version is designed to feel closer to a real analyst workflow instead of a simple quiz.
+          </p>
 
-<h1>SOC Analyst Simulator</h1>
-
-<div class="box">
-  <div class="top-grid">
-    <div class="stat-card">
-      <div class="stat-title">Score</div>
-      <div class="stat-value" id="scoreValue">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Accuracy</div>
-      <div class="stat-value" id="accuracyValue">0%</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Alerts Resolved</div>
-      <div class="stat-value" id="resolvedValue">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Streak</div>
-      <div class="stat-value" id="streakValue">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">Time Remaining</div>
-      <div class="stat-value" id="timeValue">180</div>
-    </div>
-  </div>
-
-  <div class="main-controls">
-    <button onclick="startGame()">Start Simulation</button>
-    <button class="alt" onclick="nextAlert()">Skip Alert</button>
-    <button class="alt" onclick="resetGame()">Reset</button>
-  </div>
-
-  <div class="status" id="status">Start the simulation to begin your SOC shift.</div>
-
-  <div class="layout" style="margin-top:18px;">
-    <div class="panel">
-      <div class="panel-title">Current Alert</div>
-
-      <div id="alertArea">
-        <div class="muted">No alert loaded yet.</div>
-      </div>
-
-      <div class="investigation-buttons">
-        <button class="alt" onclick="investigate('ip')">Investigate IP</button>
-        <button class="alt" onclick="investigate('domain')">Inspect Domain</button>
-        <button class="alt" onclick="investigate('hash')">Review Hash</button>
-        <button class="alt" onclick="investigate('logs')">Review Logs</button>
-      </div>
-
-      <div class="label" style="margin-top:18px;">Investigation Console</div>
-      <div class="console" id="consoleOutput">Analyst notes and investigation output will appear here.</div>
-
-      <div class="decision-buttons">
-        <button class="decision-escalate" onclick="makeDecision('escalate')">Escalate</button>
-        <button class="decision-block" onclick="makeDecision('block')">Block</button>
-        <button class="decision-monitor" onclick="makeDecision('monitor')">Monitor</button>
-        <button class="decision-close" onclick="makeDecision('close')">Close as Benign</button>
-      </div>
-
-      <div class="result-box hidden" id="resultBox">
-        <div class="panel-title" style="font-size:16px; margin-bottom:8px;">Decision Review</div>
-        <div id="resultText"></div>
+          <div class="pill-row">
+            <div class="pill">Evidence Review</div>
+            <div class="pill">Structured Notes</div>
+            <div class="pill">Severity Triage</div>
+            <div class="pill">Containment Logic</div>
+            <div class="pill">Final Reporting</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">Alert Queue</div>
-      <div id="queueArea" class="muted">Queue will appear when the simulation starts.</div>
+    <div class="grid-top">
+      <div class="panel">
+        <div class="panel-title">Shift Configuration</div>
+        <div class="config-grid">
+          <div class="field">
+            <label for="roleSelect">Analyst Role</label>
+            <select id="roleSelect">
+              <option value="tier1">Tier 1 Analyst</option>
+              <option value="tier2">Tier 2 Analyst</option>
+              <option value="manager">SOC Manager Review</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="difficultySelect">Difficulty</label>
+            <select id="difficultySelect">
+              <option value="normal">Normal</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="shiftLengthSelect">Cases Per Shift</label>
+            <select id="shiftLengthSelect">
+              <option value="3">3 Cases</option>
+              <option value="5" selected>5 Cases</option>
+              <option value="7">7 Cases</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="scenarioSelect">Scenario Pack</label>
+            <select id="scenarioSelect">
+              <option value="mixed">Mixed Threats</option>
+              <option value="identity">Identity & Access</option>
+              <option value="endpoint">Endpoint & Malware</option>
+              <option value="phishing">Phishing & Email</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn-primary" onclick="startShift()">Start Shift</button>
+          <button class="btn-secondary" onclick="nextCase()">Next Case</button>
+          <button class="btn-secondary" onclick="resetSimulator()">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Shift Performance</div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Score</div>
+            <div class="stat-value" id="scoreValue">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="accuracyValue">0%</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Cases Closed</div>
+            <div class="stat-value" id="resolvedValue">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Artifacts Reviewed</div>
+            <div class="stat-value" id="artifactsValue">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Shift Progress</div>
+            <div class="stat-value" id="progressValue">0/0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Current Streak</div>
+            <div class="stat-value" id="streakValue">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="panel">
+        <div class="panel-title">Current Case</div>
+
+        <div id="caseArea">
+          <div class="muted">Start a shift to load the first case.</div>
+        </div>
+
+        <div class="tab-bar" id="tabBar">
+          <button class="tab-btn active" onclick="openArtifact('overview', this)">Overview</button>
+          <button class="tab-btn" onclick="openArtifact('timeline', this)">Timeline</button>
+          <button class="tab-btn" onclick="openArtifact('logs', this)">Logs</button>
+          <button class="tab-btn" onclick="openArtifact('intel', this)">Intel</button>
+          <button class="tab-btn" onclick="openArtifact('context', this)">User / Asset Context</button>
+          <button class="tab-btn" onclick="openArtifact('recommended', this)">Recommended Focus</button>
+        </div>
+
+        <div class="artifact-box" id="artifactBox">
+          <div class="muted">No artifacts loaded yet.</div>
+        </div>
+
+        <div class="result-panel hidden" id="caseReviewBox">
+          <div class="panel-title" style="font-size:16px; margin-bottom:8px;">Case Review</div>
+          <div id="caseReviewText"></div>
+        </div>
+
+        <div class="footer-note">
+          For the strongest score, review multiple artifacts, write investigation notes, classify severity correctly,
+          choose the right disposition, and recommend an appropriate response action.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Analyst Workspace</div>
+
+        <div class="side-section">
+          <div class="side-label">Queue Preview</div>
+          <div id="queueArea" class="muted">Queue will appear when the shift starts.</div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Investigation Notes</div>
+          <textarea id="analystNotes" placeholder="Write your findings, indicators, reasoning, affected assets, and next steps..."></textarea>
+
+          <div class="helper-buttons">
+            <button class="mini-btn" onclick="insertNoteTemplate('ioc')">Add IOC Note</button>
+            <button class="mini-btn" onclick="insertNoteTemplate('mitre')">Add MITRE Note</button>
+            <button class="mini-btn" onclick="insertNoteTemplate('contain')">Add Containment Note</button>
+            <button class="mini-btn" onclick="insertNoteTemplate('summary')">Add Summary Note</button>
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Case Decision</div>
+          <div class="decision-grid">
+            <div class="field">
+              <label for="analystSeverity">Analyst Severity</label>
+              <select id="analystSeverity">
+                <option value="">Select severity</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="analystDisposition">Disposition</label>
+              <select id="analystDisposition">
+                <option value="">Select disposition</option>
+                <option value="benign">Benign / Expected Activity</option>
+                <option value="suspicious">Suspicious / Needs Monitoring</option>
+                <option value="confirmed">Confirmed Malicious</option>
+                <option value="escalate">Escalate for Deeper Investigation</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="containmentAction">Primary Response Action</label>
+              <select id="containmentAction">
+                <option value="">Select action</option>
+                <option value="none">No Immediate Action</option>
+                <option value="monitor">Monitor Activity</option>
+                <option value="reset">Reset Credentials / Revoke Sessions</option>
+                <option value="isolate">Isolate Host / Block Asset</option>
+                <option value="block">Block IOC / Update Controls</option>
+                <option value="escalate">Escalate to Tier 2 / IR</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="confidenceLevel">Confidence</label>
+              <select id="confidenceLevel">
+                <option value="">Select confidence</option>
+                <option value="low">Low Confidence</option>
+                <option value="medium">Medium Confidence</option>
+                <option value="high">High Confidence</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="mitreField">MITRE ATT&CK</label>
+              <input type="text" id="mitreField" placeholder="Example: T1110, T1078, T1566" />
+            </div>
+
+            <div class="field">
+              <label for="affectedCount">Affected Assets / Accounts</label>
+              <input type="number" id="affectedCount" min="0" placeholder="Example: 1" />
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn-primary" onclick="submitCase()">Submit Case Report</button>
+            <button class="btn-secondary" onclick="clearWorkspace()">Clear Notes</button>
+            <button class="btn-danger" onclick="copyCaseReport()">Copy Last Report</button>
+          </div>
+
+          <div class="score-note" id="statusBox">
+            Start a shift, review evidence, and complete the case report.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="note">
-    This simulator is educational and designed to reflect common SOC triage decisions. Alerts include both malicious and benign scenarios, so good investigation matters.
-  </div>
-</div>
+  <script>
+    const scenarios = [
+      {
+        id: "identity-001",
+        pack: "identity",
+        title: "Impossible Travel with Suspicious Mailbox Activity",
+        severity: "high",
+        summary: "A corporate user authenticated from Atlanta and then from Warsaw within 9 minutes. Shortly after, mailbox forwarding behavior was observed.",
+        source: "Identity Provider",
+        asset: "M365 / User Account",
+        owner: "amiller",
+        caseId: "CTT-SOC-1001",
+        expected: {
+          severity: "high",
+          disposition: "confirmed",
+          action: "reset",
+          confidence: "high"
+        },
+        reasoning: "Impossible travel combined with anonymized IP use and suspicious mailbox rule creation strongly indicates probable account compromise.",
+        overview: [
+          "Alert source: Identity and mailbox telemetry correlation rule.",
+          "MFA was accepted on the second login event.",
+          "Post-authentication behavior included mailbox forwarding rule creation.",
+          "User has no approved travel documented."
+        ],
+        timeline: [
+          "08:13 UTC — Successful login from Atlanta, US.",
+          "08:22 UTC — Successful login from Warsaw, PL.",
+          "08:24 UTC — New inbox rule created to forward messages externally.",
+          "08:25 UTC — Legacy protocol access observed."
+        ],
+        logs: `Auth Log:
+user=amiller src_ip=185.220.101.32 result=success geo=Warsaw device=new-device
+user=amiller src_ip=73.214.55.11 result=success geo=Atlanta device=known-device
 
-<script>
-  const alertPool = [
-    {
-      title: "Impossible Travel Login",
-      severity: "high",
-      summary: "An employee account authenticated from Atlanta, then 9 minutes later from Warsaw.",
-      iocs: {
-        user: "amiller",
-        ip: "185.220.101.32",
-        domain: "login.company-sso.com",
-        hash: "N/A"
+Mailbox Audit:
+operation=New-InboxRule forwardTo=externalarchive@protonmail.com
+operation=Set-Mailbox protocol=legacy-auth-enabled`,
+        intel: [
+          "185.220.101.32 is associated with anonymized relay infrastructure.",
+          "New device fingerprint does not match prior user history.",
+          "Mailbox forwarding to external personal mail is high risk.",
+          "Identity-based compromise is more likely than user travel."
+        ],
+        context: [
+          "User is part of finance operations.",
+          "Typical login region is Georgia, United States.",
+          "No known VPN exception is documented for this user.",
+          "The account has access to internal billing and payroll mail."
+        ],
+        recommended: [
+          "Validate identity compromise indicators.",
+          "Revoke sessions and reset credentials.",
+          "Disable suspicious forwarding rules.",
+          "Escalate if additional lateral or data exposure signs appear."
+        ]
       },
-      clues: [
-        "MFA prompt was accepted on second login.",
-        "Source IP belongs to anonymized infrastructure.",
-        "User does not normally travel internationally.",
-        "No known maintenance window."
-      ],
-      investigations: {
-        ip: "IP reputation: TOR exit node indicator present. Hosting infrastructure detected. Abuse signals elevated.",
-        domain: "Domain appears legitimate and consistent with the company SSO provider.",
-        hash: "No file hash associated with this alert.",
-        logs: "Audit logs show successful login, mailbox rule creation, and unusual session device fingerprint."
+      {
+        id: "phish-001",
+        pack: "phishing",
+        title: "Payroll Phishing Campaign with Lookalike Domain",
+        severity: "medium",
+        summary: "Multiple users reported a payroll email requesting urgent secure document review from a lookalike domain.",
+        source: "Email Security Gateway",
+        asset: "Email Environment",
+        owner: "Multiple Users",
+        caseId: "CTT-SOC-1002",
+        expected: {
+          severity: "medium",
+          disposition: "escalate",
+          action: "block",
+          confidence: "high"
+        },
+        reasoning: "This is likely a coordinated phishing campaign affecting several users. Blocking the sender infrastructure and escalating for broader review is appropriate.",
+        overview: [
+          "Several users reported the same lure within minutes.",
+          "The sending domain is visually similar to payroll branding.",
+          "SPF failed and DKIM was absent from sample headers.",
+          "No confirmed payload execution yet."
+        ],
+        timeline: [
+          "09:05 UTC — First phish delivered to HR mailbox.",
+          "09:11 UTC — Same message distributed to finance and operations.",
+          "09:18 UTC — First user report submitted.",
+          "09:24 UTC — Gateway detection threshold exceeded."
+        ],
+        logs: `Header Summary:
+from=Payroll Secure <review@payr0ll-secure-docs.com>
+spf=fail
+dkim=none
+return-path=mailer@payr0ll-secure-docs.com
+
+Gateway:
+messages_seen=14
+unique_recipients=11
+attachment=false
+embedded_link=true`,
+        intel: [
+          "Lookalike domain registered within the last 48 hours.",
+          "Source infrastructure has prior abuse reports.",
+          "The domain is not in the organization's approved vendor list.",
+          "Mass delivery suggests campaign behavior, not isolated spam."
+        ],
+        context: [
+          "Targeted recipients include payroll-facing staff.",
+          "The link path uses secure-document themed wording.",
+          "No secure payroll portal changes were announced internally.",
+          "The organization has had prior payroll-themed phishing attempts."
+        ],
+        recommended: [
+          "Block sender, URLs, and related indicators.",
+          "Search for user clicks or credential submissions.",
+          "Notify affected recipients and help desk.",
+          "Escalate for campaign-wide scoping."
+        ]
       },
-      correct: "block",
-      reasoning: "A suspicious anonymized IP plus impossible travel and post-login activity strongly suggests compromise. Immediate containment is appropriate."
-    },
-    {
-      title: "Phishing Email Report",
-      severity: "medium",
-      summary: "A user reported an email claiming to be from payroll asking them to review a secure document.",
-      iocs: {
-        user: "reported by user",
-        ip: "203.0.113.61",
-        domain: "payr0ll-secure-docs.com",
-        hash: "N/A"
+      {
+        id: "web-001",
+        pack: "mixed",
+        title: "Internet-Facing Admin Panel Probing",
+        severity: "medium",
+        summary: "A public web application received repeated requests for /wp-admin, /.env, and /phpmyadmin from a single external source.",
+        source: "WAF / Web Logs",
+        asset: "www.company-portal.com",
+        owner: "Public Web Platform",
+        caseId: "CTT-SOC-1003",
+        expected: {
+          severity: "medium",
+          disposition: "suspicious",
+          action: "monitor",
+          confidence: "medium"
+        },
+        reasoning: "The activity is suspicious and scan-like, but there is no sign of successful compromise. Monitoring and control tuning are appropriate unless impact increases.",
+        overview: [
+          "The pattern matches opportunistic web scanning.",
+          "Requests targeted common internet-exposed admin paths.",
+          "Responses were 403 and 404 only.",
+          "No successful authentication or code execution signs were observed."
+        ],
+        timeline: [
+          "14:01 UTC — First request to /wp-admin.",
+          "14:02 UTC — Follow-up requests to /.env and /phpmyadmin.",
+          "14:03 UTC — Burst reached 17 requests in under 90 seconds.",
+          "14:05 UTC — No further related requests observed."
+        ],
+        logs: `GET /wp-admin 404 src=45.83.64.12
+GET /.env 403 src=45.83.64.12
+GET /phpmyadmin 404 src=45.83.64.12
+GET /admin 403 src=45.83.64.12
+
+No authenticated session tokens observed.`,
+        intel: [
+          "Source appears to be low-cost datacenter infrastructure.",
+          "Behavior matches broad internet scanning rather than targeted post-auth activity.",
+          "No IOC suggests a tailored adversary operation yet.",
+          "This activity is common on exposed sites."
+        ],
+        context: [
+          "The site is internet-facing and receives background noise scanning.",
+          "No admin panel should be exposed publicly.",
+          "The WAF is already blocking many path probes.",
+          "Prior scans have been seen from unrelated IPs."
+        ],
+        recommended: [
+          "Confirm there is no successful access.",
+          "Monitor for repeated or follow-on exploit attempts.",
+          "Tune alerting or add IOC blocking if noise becomes excessive.",
+          "Escalate only if indicators expand."
+        ]
       },
-      clues: [
-        "Domain uses lookalike spelling.",
-        "SPF failed in the header sample.",
-        "Multiple recipients received similar messages.",
-        "No payload execution confirmed yet."
-      ],
-      investigations: {
-        ip: "Source infrastructure appears to be low-cost hosting with prior abuse reports.",
-        domain: "Recently observed lookalike domain. Not part of company-owned assets.",
-        hash: "No file hash present.",
-        logs: "Mail gateway logged similar messages to several departments. Click rate currently unknown."
+      {
+        id: "endpoint-001",
+        pack: "endpoint",
+        title: "Known Malicious Hash with Suspicious PowerShell Child Process",
+        severity: "critical",
+        summary: "EDR flagged an executable hash on a finance workstation followed by PowerShell execution and persistence attempts.",
+        source: "EDR Platform",
+        asset: "WS-FIN-22",
+        owner: "jthomas",
+        caseId: "CTT-SOC-1004",
+        expected: {
+          severity: "critical",
+          disposition: "confirmed",
+          action: "isolate",
+          confidence: "high"
+        },
+        reasoning: "This is an active endpoint compromise scenario with known-malicious tooling and suspicious follow-on behavior. Immediate isolation is warranted.",
+        overview: [
+          "Malicious file executed from AppData on a finance endpoint.",
+          "PowerShell spawned as a child process immediately after execution.",
+          "Persistence-related behavior followed.",
+          "The asset hosts sensitive finance documents."
+        ],
+        timeline: [
+          "16:02 UTC — Unknown executable launched from user AppData.",
+          "16:02 UTC — PowerShell spawned with encoded command.",
+          "16:03 UTC — Registry Run key modification attempted.",
+          "16:04 UTC — External network connection attempt observed."
+        ],
+        logs: `Process Tree:
+invoice_viewer.exe -> powershell.exe -enc SQBFAFgA...
+powershell.exe -> reg.exe add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run
+powershell.exe -> outbound connection to 198.51.100.92:443
+
+Hash:
+7f83b1657ff1fc53b92dc18148a1d65dfa135014`,
+        intel: [
+          "Hash is tied to prior malicious tooling in threat feeds.",
+          "Execution from AppData is suspicious in this environment.",
+          "Encoded PowerShell strongly increases risk.",
+          "Persistence attempts indicate likely malicious intent."
+        ],
+        context: [
+          "User is in finance and regularly handles invoice attachments.",
+          "Endpoint was online and reachable during the event.",
+          "No approved software deployment was scheduled.",
+          "Host contains access to shared accounting resources."
+        ],
+        recommended: [
+          "Isolate the endpoint immediately.",
+          "Collect volatile evidence if possible.",
+          "Reset credentials if user compromise is suspected.",
+          "Escalate to incident response for scoping."
+        ]
       },
-      correct: "escalate",
-      reasoning: "This is a broader phishing campaign affecting multiple users. Escalation and coordinated containment are the right next steps."
-    },
-    {
-      title: "Admin Panel Probing",
-      severity: "medium",
-      summary: "Web logs show repeated requests for /wp-admin, /.env, and /phpmyadmin from one external IP.",
-      iocs: {
-        user: "N/A",
-        ip: "45.83.64.12",
-        domain: "www.company-portal.com",
-        hash: "N/A"
+      {
+        id: "identity-002",
+        pack: "identity",
+        title: "Repeated Failed VPN Logins Followed by Success",
+        severity: "high",
+        summary: "A privileged network admin account had 32 failed VPN logins followed by one successful login from a new ASN.",
+        source: "VPN Gateway",
+        asset: "vpn.company.com",
+        owner: "netadmin",
+        caseId: "CTT-SOC-1005",
+        expected: {
+          severity: "high",
+          disposition: "confirmed",
+          action: "reset",
+          confidence: "high"
+        },
+        reasoning: "A privileged account with many failures followed by one success from unfamiliar infrastructure strongly suggests likely credential abuse or account compromise.",
+        overview: [
+          "A burst of failed logins preceded a successful authentication.",
+          "The account is privileged.",
+          "The user reported being asleep during the event.",
+          "No MFA challenge appeared in the successful login path."
+        ],
+        timeline: [
+          "02:11 UTC — Failed VPN attempts begin.",
+          "02:16 UTC — Failure count reaches 32.",
+          "02:17 UTC — Successful login recorded.",
+          "02:19 UTC — Internal route enumeration begins."
+        ],
+        logs: `VPN Auth:
+user=netadmin src=198.51.100.74 result=fail count=32
+user=netadmin src=198.51.100.74 result=success
+mfa_challenge=none
+
+Session Activity:
+enumerated_routes=true
+client_fingerprint=new`,
+        intel: [
+          "Source ASN is new for this account.",
+          "Commercial hosting provider reputation is poor.",
+          "The absence of MFA is a major control concern.",
+          "Post-auth behavior is inconsistent with normal user operations."
+        ],
+        context: [
+          "This account has elevated access to network infrastructure.",
+          "Normal user activity occurs during business hours only.",
+          "The user has no approved overnight maintenance scheduled.",
+          "This account should have stronger safeguards than a standard user."
+        ],
+        recommended: [
+          "Immediately revoke sessions and reset credentials.",
+          "Validate any changes made during the session.",
+          "Review logs for privilege abuse or lateral movement.",
+          "Escalate if infrastructure impact is found."
+        ]
       },
-      clues: [
-        "17 requests in 90 seconds.",
-        "All responses were 404 or 403.",
-        "No successful login events followed.",
-        "Source has not been seen before."
-      ],
-      investigations: {
-        ip: "Datacenter IP with scanning-like behavior pattern.",
-        domain: "Public-facing website confirmed. No admin interfaces should be exposed.",
-        hash: "No file hash involved.",
-        logs: "Pattern is consistent with broad opportunistic scanning rather than targeted exploitation."
+      {
+        id: "endpoint-002",
+        pack: "endpoint",
+        title: "Unsigned Internal Utility Triggered Heuristic Detection",
+        severity: "medium",
+        summary: "A newly deployed unsigned internal utility triggered a heuristic detection on a few IT workstations.",
+        source: "EDR Platform",
+        asset: "IT Deployment Group",
+        owner: "itdeploy",
+        caseId: "CTT-SOC-1006",
+        expected: {
+          severity: "medium",
+          disposition: "suspicious",
+          action: "monitor",
+          confidence: "medium"
+        },
+        reasoning: "Operational context exists, but the file is unsigned and deserves validation. Monitoring and verification are better than immediate isolation.",
+        overview: [
+          "The file is unsigned.",
+          "A deployment ticket exists.",
+          "Only a small IT subset executed the utility.",
+          "No persistence or credential theft behavior was observed."
+        ],
+        timeline: [
+          "12:00 UTC — Deployment ticket approved.",
+          "12:14 UTC — Utility first executed by IT.",
+          "12:18 UTC — Heuristic detection generated.",
+          "12:24 UTC — No additional suspicious child processes observed."
+        ],
+        logs: `Execution Summary:
+tool=inv_audit_helper.exe
+signature=unsigned
+hosts=3
+path=\\\\fileshare.internal.local\\deploy\\tools\\inv_audit_helper.exe
+
+Behavior:
+persistence=false
+network_c2=false
+credential_access=false`,
+        intel: [
+          "No known malicious hash match in this simulation.",
+          "Unsigned internal tools are higher risk but not automatically malicious.",
+          "Limited execution scope lowers urgency.",
+          "The approved deployment ticket matters for context."
+        ],
+        context: [
+          "Executed only on IT-controlled systems.",
+          "The file came from an internal share used for deployments.",
+          "The help desk confirmed an inventory script rollout.",
+          "No broader user population executed the binary."
+        ],
+        recommended: [
+          "Validate the ticket and file origin.",
+          "Monitor for behavior expansion.",
+          "Request code signing in future releases.",
+          "Escalate only if malicious behavior appears."
+        ]
       },
-      correct: "monitor",
-      reasoning: "This appears suspicious, but there is no sign of successful compromise. Monitoring or adding blocking controls may be appropriate, but immediate escalation is not required."
-    },
-    {
-      title: "Known Malware Hash on Endpoint",
-      severity: "critical",
-      summary: "An endpoint detection alert flagged an executable hash seen in ransomware staging behavior.",
-      iocs: {
-        user: "jthomas",
-        ip: "10.20.44.19",
-        domain: "N/A",
-        hash: "7f83b1657ff1fc53b92dc18148a1d65dfa135014"
-      },
-      clues: [
-        "Execution came from AppData.",
-        "PowerShell child process spawned immediately after.",
-        "EDR behavior score is high.",
-        "The workstation hosts finance spreadsheets."
-      ],
-      investigations: {
-        ip: "Internal workstation address. Endpoint is currently online.",
-        domain: "No external domain immediately tied to the primary alert.",
-        hash: "Hash intelligence: associated with malicious tooling in prior cases.",
-        logs: "Process tree shows suspicious scripting activity and attempted persistence."
-      },
-      correct: "block",
-      reasoning: "This is an active malicious execution scenario. Immediate containment and isolation are the right response."
-    },
-    {
-      title: "Vulnerability Scanner Burst",
-      severity: "low",
-      summary: "A scanner hit multiple internal subnets during the normal weekly maintenance window.",
-      iocs: {
-        user: "svc-vulnscan",
-        ip: "10.1.5.14",
-        domain: "scanner.internal.local",
-        hash: "N/A"
-      },
-      clues: [
-        "Traffic volume is high but expected.",
-        "Source asset matches the approved scanner inventory.",
-        "Time matches documented maintenance window.",
-        "No exploit payloads detected."
-      ],
-      investigations: {
-        ip: "Internal vulnerability management appliance.",
-        domain: "Internal management host naming is consistent with approved inventory.",
-        hash: "No file involved.",
-        logs: "Scan patterns match historical baseline and approved schedules."
-      },
-      correct: "close",
-      reasoning: "This is a benign operational event that aligns with approved internal activity."
-    },
-    {
-      title: "Repeated Failed VPN Logins",
-      severity: "high",
-      summary: "A privileged account received 32 failed VPN login attempts followed by one success.",
-      iocs: {
-        user: "netadmin",
-        ip: "198.51.100.74",
-        domain: "vpn.company.com",
-        hash: "N/A"
-      },
-      clues: [
-        "Successful login originated from a new ASN.",
-        "Account is privileged.",
-        "User claims they were asleep during the event.",
-        "No MFA challenge log appears for the successful attempt."
-      ],
-      investigations: {
-        ip: "Commercial hosting provider. Abuse complaints present.",
-        domain: "VPN gateway is legitimate and internet-exposed.",
-        hash: "No file associated.",
-        logs: "Authentication pattern strongly suggests credential stuffing or password spraying."
-      },
-      correct: "block",
-      reasoning: "This should be treated as likely account compromise and contained immediately."
-    },
-    {
-      title: "Unsigned Internal Utility",
-      severity: "medium",
-      summary: "An internal utility triggered a heuristic detection after a new software deployment.",
-      iocs: {
-        user: "itdeploy",
-        ip: "10.30.12.9",
-        domain: "fileshare.internal.local",
-        hash: "9f86d081884c7d659a2feaa0c55ad015"
-      },
-      clues: [
-        "Binary is unsigned.",
-        "Deployment ticket exists.",
-        "Only three IT workstations executed the file.",
-        "No persistence, C2, or credential theft behavior observed."
-      ],
-      investigations: {
-        ip: "Internal IT deployment station.",
-        domain: "Internal file share aligns with IT software distribution path.",
-        hash: "Hash not found in known malware feeds from this simulator.",
-        logs: "Execution pattern is limited and operational context exists."
-      },
-      correct: "monitor",
-      reasoning: "This could be legitimate but deserves verification and observation rather than immediate containment."
+      {
+        id: "ops-001",
+        pack: "mixed",
+        title: "Scheduled Vulnerability Scanner Burst",
+        severity: "low",
+        summary: "A vulnerability scanner hit multiple internal subnets during a documented maintenance window.",
+        source: "IDS / Internal Scan Monitoring",
+        asset: "Internal Network",
+        owner: "svc-vulnscan",
+        caseId: "CTT-SOC-1007",
+        expected: {
+          severity: "low",
+          disposition: "benign",
+          action: "none",
+          confidence: "high"
+        },
+        reasoning: "This aligns with approved internal activity and normal scanner behavior during a documented maintenance period.",
+        overview: [
+          "Traffic volume is high but expected.",
+          "The source matches approved scanner inventory.",
+          "Maintenance timing aligns with the planned window.",
+          "No exploit payload or unusual destinations were observed."
+        ],
+        timeline: [
+          "01:00 UTC — Weekly scan window begins.",
+          "01:02 UTC — Scanner starts subnet sweep.",
+          "01:18 UTC — IDS threshold alert generated.",
+          "02:10 UTC — Scan volume returns to baseline."
+        ],
+        logs: `Source=10.1.5.14
+Account=svc-vulnscan
+Targets=10.20.0.0/16, 10.30.0.0/16
+Window=approved
+Payloads=standard scanner probes only`,
+        intel: [
+          "Source host is an approved internal scanner.",
+          "Scan signatures match historical baselines.",
+          "No suspicious outbound destinations are tied to the event.",
+          "The alert exists because volume thresholds were crossed."
+        ],
+        context: [
+          "This organization performs weekly authenticated scans.",
+          "The account is service-owned and documented.",
+          "The timing matches the change schedule.",
+          "Prior weekly windows generated similar alerts."
+        ],
+        recommended: [
+          "Validate maintenance context.",
+          "Close as expected activity.",
+          "Tune alert thresholds if needed.",
+          "No containment required."
+        ]
+      }
+    ];
+
+    let currentCase = null;
+    let currentArtifact = "overview";
+    let reviewedArtifacts = new Set();
+    let usedCaseIds = [];
+    let shiftActive = false;
+    let shiftCaseTarget = 0;
+    let resolvedCases = 0;
+    let correctCases = 0;
+    let totalScore = 0;
+    let streak = 0;
+    let totalArtifactsReviewed = 0;
+    let lastReportText = "";
+
+    function severityClass(level) {
+      if (level === "low") return "sev-low";
+      if (level === "medium") return "sev-medium";
+      if (level === "high") return "sev-high";
+      return "sev-critical";
     }
-  ];
 
-  let currentAlert = null;
-  let score = 0;
-  let correctCount = 0;
-  let resolved = 0;
-  let streak = 0;
-  let timeRemaining = 180;
-  let timer = null;
-  let gameActive = false;
-  let usedIndexes = [];
-
-  function severityClass(level) {
-    if (level === "low") return "sev-low";
-    if (level === "medium") return "sev-medium";
-    if (level === "high") return "sev-high";
-    return "sev-critical";
-  }
-
-  function shufflePoolIndex() {
-    if (usedIndexes.length === alertPool.length) {
-      usedIndexes = [];
+    function getScenarioPack() {
+      return document.getElementById("scenarioSelect").value;
     }
 
-    let idx = Math.floor(Math.random() * alertPool.length);
-    while (usedIndexes.includes(idx)) {
-      idx = Math.floor(Math.random() * alertPool.length);
-    }
-    usedIndexes.push(idx);
-    return idx;
-  }
-
-  function updateStats() {
-    document.getElementById("scoreValue").innerText = score;
-    document.getElementById("resolvedValue").innerText = resolved;
-    document.getElementById("streakValue").innerText = streak;
-    document.getElementById("timeValue").innerText = timeRemaining;
-    const accuracy = resolved ? Math.round((correctCount / resolved) * 100) : 0;
-    document.getElementById("accuracyValue").innerText = `${accuracy}%`;
-  }
-
-  function renderQueue() {
-    const queueArea = document.getElementById("queueArea");
-    const previewIndexes = [];
-
-    while (previewIndexes.length < 3) {
-      const idx = Math.floor(Math.random() * alertPool.length);
-      if (!previewIndexes.includes(idx)) previewIndexes.push(idx);
+    function getFilteredScenarioPool() {
+      const pack = getScenarioPack();
+      if (pack === "mixed") return scenarios;
+      return scenarios.filter(s => s.pack === pack);
     }
 
-    queueArea.innerHTML = previewIndexes.map(idx => {
-      const item = alertPool[idx];
-      return `
+    function getUniqueNextCase() {
+      const pool = getFilteredScenarioPool();
+      let available = pool.filter(item => !usedCaseIds.includes(item.id));
+
+      if (available.length === 0) {
+        usedCaseIds = [];
+        available = pool;
+      }
+
+      const choice = available[Math.floor(Math.random() * available.length)];
+      usedCaseIds.push(choice.id);
+      return choice;
+    }
+
+    function updateStats() {
+      document.getElementById("scoreValue").innerText = totalScore;
+      document.getElementById("resolvedValue").innerText = resolvedCases;
+      document.getElementById("artifactsValue").innerText = totalArtifactsReviewed;
+      document.getElementById("streakValue").innerText = streak;
+      document.getElementById("progressValue").innerText = `${resolvedCases}/${shiftCaseTarget}`;
+      const accuracy = resolvedCases ? Math.round((correctCases / resolvedCases) * 100) : 0;
+      document.getElementById("accuracyValue").innerText = `${accuracy}%`;
+    }
+
+    function renderQueue() {
+      const queue = document.getElementById("queueArea");
+      const pool = getFilteredScenarioPool();
+      const previews = [];
+      const maxPreview = Math.min(3, pool.length);
+
+      while (previews.length < maxPreview) {
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        if (!previews.includes(pick)) previews.push(pick);
+      }
+
+      queue.innerHTML = previews.map(item => `
         <div class="queue-item">
           <div class="queue-top">
             <div class="queue-title">${item.title}</div>
-            <span class="severity ${severityClass(item.severity)}">${item.severity}</span>
+            <span class="badge ${severityClass(item.severity)}">${item.severity}</span>
           </div>
           <div class="queue-desc">${item.summary}</div>
         </div>
-      `;
-    }).join("");
-  }
-
-  function renderAlert() {
-    const area = document.getElementById("alertArea");
-
-    if (!currentAlert) {
-      area.innerHTML = `<div class="muted">No alert loaded yet.</div>`;
-      return;
+      `).join("");
     }
 
-    area.innerHTML = `
-      <div class="alert-header">
-        <div class="alert-title">${currentAlert.title}</div>
-        <span class="severity ${severityClass(currentAlert.severity)}">${currentAlert.severity}</span>
-      </div>
+    function renderCase() {
+      const caseArea = document.getElementById("caseArea");
 
-      <div class="summary">${currentAlert.summary}</div>
+      if (!currentCase) {
+        caseArea.innerHTML = `<div class="muted">Start a shift to load the first case.</div>`;
+        return;
+      }
 
-      <div class="iocs">
-        <div class="label">Indicators</div>
-        <div class="ioc-grid">
-          <div class="ioc-item">
-            <div class="ioc-name">User / Source</div>
-            <div class="ioc-value">${currentAlert.iocs.user}</div>
+      caseArea.innerHTML = `
+        <div class="case-header">
+          <div>
+            <div class="case-title">${currentCase.title}</div>
+            <div class="case-subtitle">${currentCase.summary}</div>
           </div>
-          <div class="ioc-item">
-            <div class="ioc-name">IP</div>
-            <div class="ioc-value">${currentAlert.iocs.ip}</div>
+          <span class="badge ${severityClass(currentCase.severity)}">${currentCase.severity}</span>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-label">Case ID</div>
+            <div class="meta-value">${currentCase.caseId}</div>
           </div>
-          <div class="ioc-item">
-            <div class="ioc-name">Domain</div>
-            <div class="ioc-value">${currentAlert.iocs.domain}</div>
+          <div class="meta-card">
+            <div class="meta-label">Alert Source</div>
+            <div class="meta-value">${currentCase.source}</div>
           </div>
-          <div class="ioc-item">
-            <div class="ioc-name">Hash</div>
-            <div class="ioc-value">${currentAlert.iocs.hash}</div>
+          <div class="meta-card">
+            <div class="meta-label">Primary Asset</div>
+            <div class="meta-value">${currentCase.asset}</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Owner / User</div>
+            <div class="meta-value">${currentCase.owner}</div>
           </div>
         </div>
-      </div>
+      `;
+    }
 
-      <div class="clues">
-        <div class="label">Initial Clues</div>
-        <ul>
-          ${currentAlert.clues.map(clue => `<li>${clue}</li>`).join("")}
+    function renderArtifactContent() {
+      const box = document.getElementById("artifactBox");
+
+      if (!currentCase) {
+        box.innerHTML = `<div class="muted">No artifacts loaded yet.</div>`;
+        return;
+      }
+
+      reviewedArtifacts.add(currentArtifact);
+
+      const artifactMap = {
+        overview: `
+          <div class="artifact-title">Case Overview</div>
+          <ul>${currentCase.overview.map(item => `<li>${item}</li>`).join("")}</ul>
+        `,
+        timeline: `
+          <div class="artifact-title">Event Timeline</div>
+          <ul>${currentCase.timeline.map(item => `<li>${item}</li>`).join("")}</ul>
+        `,
+        logs: `
+          <div class="artifact-title">Raw Logs / Technical Detail</div>
+          <div class="code-block">${escapeHtml(currentCase.logs)}</div>
+        `,
+        intel: `
+          <div class="artifact-title">Threat / Risk Intelligence</div>
+          <ul>${currentCase.intel.map(item => `<li>${item}</li>`).join("")}</ul>
+        `,
+        context: `
+          <div class="artifact-title">User / Asset Context</div>
+          <ul>${currentCase.context.map(item => `<li>${item}</li>`).join("")}</ul>
+        `,
+        recommended: `
+          <div class="artifact-title">Recommended Investigation Focus</div>
+          <ul>${currentCase.recommended.map(item => `<li>${item}</li>`).join("")}</ul>
+        `
+      };
+
+      box.innerHTML = artifactMap[currentArtifact] || `<div class="muted">Artifact unavailable.</div>`;
+    }
+
+    function openArtifact(tabName, buttonEl) {
+      currentArtifact = tabName;
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      buttonEl.classList.add("active");
+      renderArtifactContent();
+      updateStatus(`Reviewed artifact: ${labelizeTab(tabName)}.`);
+    }
+
+    function labelizeTab(tab) {
+      const map = {
+        overview: "Overview",
+        timeline: "Timeline",
+        logs: "Logs",
+        intel: "Intel",
+        context: "User / Asset Context",
+        recommended: "Recommended Focus"
+      };
+      return map[tab] || tab;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function startShift() {
+      shiftCaseTarget = parseInt(document.getElementById("shiftLengthSelect").value, 10);
+      shiftActive = true;
+      currentCase = null;
+      currentArtifact = "overview";
+      reviewedArtifacts = new Set();
+      usedCaseIds = [];
+      resolvedCases = 0;
+      correctCases = 0;
+      totalScore = 0;
+      streak = 0;
+      totalArtifactsReviewed = 0;
+      lastReportText = "";
+      clearWorkspace();
+      document.getElementById("caseReviewBox").classList.add("hidden");
+      updateStats();
+      renderQueue();
+      nextCase();
+      updateStatus("Shift started. Review evidence and submit your first case report.");
+    }
+
+    function nextCase() {
+      if (!shiftActive) {
+        updateStatus("Start a shift first.");
+        return;
+      }
+
+      if (resolvedCases >= shiftCaseTarget) {
+        finishShift();
+        return;
+      }
+
+      currentCase = getUniqueNextCase();
+      currentArtifact = "overview";
+      reviewedArtifacts = new Set();
+      clearWorkspace(false);
+      document.getElementById("caseReviewBox").classList.add("hidden");
+      renderCase();
+      setFirstTabActive();
+      renderArtifactContent();
+      renderQueue();
+      updateStatus("New case assigned. Review artifacts before deciding.");
+    }
+
+    function setFirstTabActive() {
+      const buttons = document.querySelectorAll(".tab-btn");
+      buttons.forEach(btn => btn.classList.remove("active"));
+      if (buttons[0]) buttons[0].classList.add("active");
+    }
+
+    function clearWorkspace(clearStatus = true) {
+      document.getElementById("analystNotes").value = "";
+      document.getElementById("analystSeverity").value = "";
+      document.getElementById("analystDisposition").value = "";
+      document.getElementById("containmentAction").value = "";
+      document.getElementById("confidenceLevel").value = "";
+      document.getElementById("mitreField").value = "";
+      document.getElementById("affectedCount").value = "";
+      if (clearStatus) {
+        updateStatus("Workspace cleared.");
+      }
+    }
+
+    function insertNoteTemplate(type) {
+      const notes = document.getElementById("analystNotes");
+      const templates = {
+        ioc: "\nIOC Summary:\n- IP(s): \n- Domain(s): \n- Hash(es): \n- User(s): \n",
+        mitre: "\nMITRE ATT&CK:\n- Technique(s): \n- Rationale: \n",
+        contain: "\nContainment Recommendation:\n- Immediate action: \n- Justification: \n- Follow-up validation: \n",
+        summary: "\nCase Summary:\n- What happened: \n- Why it matters: \n- Recommended next step: \n"
+      };
+      notes.value += templates[type] || "";
+      notes.focus();
+    }
+
+    function scoreCase(caseData, analystInput) {
+      let points = 0;
+      const review = [];
+
+      const artifactCount = reviewedArtifacts.size;
+      totalArtifactsReviewed += artifactCount;
+
+      if (artifactCount >= 4) {
+        points += 12;
+        review.push("Good evidence review depth.");
+      } else if (artifactCount >= 2) {
+        points += 6;
+        review.push("Partial evidence review completed.");
+      } else {
+        review.push("Too few artifacts reviewed.");
+      }
+
+      if (analystInput.notes.length >= 120) {
+        points += 10;
+        review.push("Notes were detailed enough for analyst handoff.");
+      } else if (analystInput.notes.length >= 40) {
+        points += 4;
+        review.push("Notes captured some findings but could be stronger.");
+      } else {
+        review.push("Notes were too brief for strong documentation.");
+      }
+
+      if (analystInput.severity === caseData.expected.severity) {
+        points += 12;
+        review.push("Severity classification matched expected triage.");
+      } else {
+        review.push(`Severity was off. Expected ${caseData.expected.severity.toUpperCase()}.`);
+      }
+
+      if (analystInput.disposition === caseData.expected.disposition) {
+        points += 16;
+        review.push("Disposition matched the scenario outcome.");
+      } else {
+        review.push(`Disposition was off. Expected ${labelizeDisposition(caseData.expected.disposition)}.`);
+      }
+
+      if (analystInput.action === caseData.expected.action) {
+        points += 16;
+        review.push("Primary response action was appropriate.");
+      } else {
+        review.push(`Response action was off. Expected ${labelizeAction(caseData.expected.action)}.`);
+      }
+
+      if (analystInput.confidence === caseData.expected.confidence) {
+        points += 8;
+        review.push("Confidence level aligned well with available evidence.");
+      } else {
+        review.push("Confidence selection could be calibrated better.");
+      }
+
+      if (analystInput.mitre.trim() !== "") {
+        points += 4;
+        review.push("MITRE ATT&CK mapping was provided.");
+      } else {
+        review.push("MITRE ATT&CK mapping was left blank.");
+      }
+
+      const passed = (
+        analystInput.severity === caseData.expected.severity &&
+        analystInput.disposition === caseData.expected.disposition &&
+        analystInput.action === caseData.expected.action
+      );
+
+      return {
+        points,
+        passed,
+        review
+      };
+    }
+
+    function labelizeDisposition(value) {
+      const map = {
+        benign: "Benign / Expected Activity",
+        suspicious: "Suspicious / Needs Monitoring",
+        confirmed: "Confirmed Malicious",
+        escalate: "Escalate for Deeper Investigation"
+      };
+      return map[value] || value;
+    }
+
+    function labelizeAction(value) {
+      const map = {
+        none: "No Immediate Action",
+        monitor: "Monitor Activity",
+        reset: "Reset Credentials / Revoke Sessions",
+        isolate: "Isolate Host / Block Asset",
+        block: "Block IOC / Update Controls",
+        escalate: "Escalate to Tier 2 / IR"
+      };
+      return map[value] || value;
+    }
+
+    function submitCase() {
+      if (!shiftActive || !currentCase) {
+        updateStatus("Start a shift and load a case first.");
+        return;
+      }
+
+      const analystInput = {
+        severity: document.getElementById("analystSeverity").value,
+        disposition: document.getElementById("analystDisposition").value,
+        action: document.getElementById("containmentAction").value,
+        confidence: document.getElementById("confidenceLevel").value,
+        mitre: document.getElementById("mitreField").value,
+        affected: document.getElementById("affectedCount").value,
+        notes: document.getElementById("analystNotes").value.trim()
+      };
+
+      if (!analystInput.severity || !analystInput.disposition || !analystInput.action || !analystInput.confidence) {
+        updateStatus("Complete severity, disposition, action, and confidence before submitting.");
+        return;
+      }
+
+      const result = scoreCase(currentCase, analystInput);
+
+      resolvedCases++;
+      totalScore += result.points;
+
+      if (result.passed) {
+        correctCases++;
+        streak++;
+      } else {
+        streak = 0;
+      }
+
+      const reviewBox = document.getElementById("caseReviewBox");
+      const reviewText = document.getElementById("caseReviewText");
+
+      reviewText.innerHTML = `
+        <div class="${result.passed ? "good" : "warn"}"><strong>${result.passed ? "Strong case handling." : "Case submitted with review findings."}</strong></div>
+        <div style="margin-top:8px;">Points earned: <strong>${result.points}</strong></div>
+        <div style="margin-top:8px;">Expected outcome rationale: ${currentCase.reasoning}</div>
+        <div style="margin-top:12px; font-weight:bold; color:#cfe3fb;">Review Notes</div>
+        <ul class="review-list">
+          ${result.review.map(item => `<li>${item}</li>`).join("")}
         </ul>
-      </div>
-    `;
-  }
+      `;
 
-  function startTimer() {
-    clearInterval(timer);
-    timer = setInterval(() => {
-      if (!gameActive) return;
-      timeRemaining--;
+      reviewBox.classList.remove("hidden");
       updateStats();
 
-      if (timeRemaining <= 0) {
-        endGame();
+      lastReportText = buildReportText(currentCase, analystInput, result);
+      updateStatus(`Case submitted. ${resolvedCases >= shiftCaseTarget ? "Shift target reached." : "You can move to the next case."}`);
+
+      if (resolvedCases >= shiftCaseTarget) {
+        finishShift();
       }
-    }, 1000);
-  }
-
-  function startGame() {
-    score = 0;
-    correctCount = 0;
-    resolved = 0;
-    streak = 0;
-    timeRemaining = 180;
-    gameActive = true;
-    usedIndexes = [];
-    document.getElementById("consoleOutput").innerText = "SOC shift started. Investigate the alert and make the best response decision.";
-    document.getElementById("resultBox").classList.add("hidden");
-    document.getElementById("status").innerText = "Simulation running.";
-    updateStats();
-    nextAlert();
-    renderQueue();
-    startTimer();
-  }
-
-  function nextAlert() {
-    if (!gameActive) {
-      document.getElementById("status").innerText = "Start the simulation first.";
-      return;
     }
 
-    const idx = shufflePoolIndex();
-    currentAlert = alertPool[idx];
-    document.getElementById("consoleOutput").innerText = "No investigation performed yet.";
-    document.getElementById("resultBox").classList.add("hidden");
-    renderAlert();
-    renderQueue();
-    document.getElementById("status").innerText = "New alert assigned.";
-  }
+    function buildReportText(caseData, analystInput, result) {
+      return `CyberTechToolkit SOC Analyst Simulator Report
 
-  function investigate(type) {
-    if (!gameActive || !currentAlert) return;
+Case ID: ${caseData.caseId}
+Case Title: ${caseData.title}
+Alert Source: ${caseData.source}
+Primary Asset: ${caseData.asset}
+Owner/User: ${caseData.owner}
 
-    const output = currentAlert.investigations[type];
-    const labels = {
-      ip: "[IP INTEL]",
-      domain: "[DOMAIN REVIEW]",
-      hash: "[HASH REVIEW]",
-      logs: "[LOG REVIEW]"
-    };
+Assigned Severity: ${analystInput.severity}
+Disposition: ${labelizeDisposition(analystInput.disposition)}
+Primary Response Action: ${labelizeAction(analystInput.action)}
+Confidence: ${analystInput.confidence}
+MITRE ATT&CK: ${analystInput.mitre || "Not provided"}
+Affected Assets/Accounts: ${analystInput.affected || "Not provided"}
 
-    const consoleEl = document.getElementById("consoleOutput");
-    consoleEl.innerText += `\n\n${labels[type]}\n${output}`;
-    document.getElementById("status").innerText = "Investigation data added to console.";
-  }
+Artifacts Reviewed: ${Array.from(reviewedArtifacts).map(labelizeTab).join(", ") || "None"}
 
-  function makeDecision(decision) {
-    if (!gameActive || !currentAlert) return;
+Analyst Notes:
+${analystInput.notes || "No analyst notes provided."}
 
-    resolved++;
+Expected Reasoning:
+${caseData.reasoning}
 
-    const resultBox = document.getElementById("resultBox");
-    const resultText = document.getElementById("resultText");
-    const isCorrect = decision === currentAlert.correct;
+Scoring Outcome:
+Points Earned: ${result.points}
+Case Passed: ${result.passed ? "Yes" : "No"}
 
-    if (isCorrect) {
-      correctCount++;
-      streak++;
-      const points = 10 + (streak * 2);
-      score += points;
-      resultText.innerHTML = `
-        <div class="good"><strong>Correct decision.</strong></div>
-        <div style="margin-top:8px;">+${points} points</div>
-        <div style="margin-top:8px;">${currentAlert.reasoning}</div>
-      `;
-    } else {
-      streak = 0;
-      score = Math.max(0, score - 6);
-      resultText.innerHTML = `
-        <div class="bad"><strong>Suboptimal decision.</strong></div>
-        <div style="margin-top:8px;">Correct response: <strong>${currentAlert.correct.toUpperCase()}</strong></div>
-        <div style="margin-top:8px;">${currentAlert.reasoning}</div>
-      `;
+Review Summary:
+- ${result.review.join("\n- ")}
+`;
     }
 
-    resultBox.classList.remove("hidden");
+    function copyCaseReport() {
+      if (!lastReportText) {
+        updateStatus("No completed report is available to copy yet.");
+        return;
+      }
+
+      navigator.clipboard.writeText(lastReportText)
+        .then(() => updateStatus("Last case report copied to clipboard."))
+        .catch(() => updateStatus("Could not copy automatically. Your browser may have blocked clipboard access."));
+    }
+
+    function finishShift() {
+      shiftActive = false;
+      currentCase = null;
+      renderCase();
+      renderArtifactContent();
+
+      const accuracy = resolvedCases ? Math.round((correctCases / resolvedCases) * 100) : 0;
+      const performanceText =
+        accuracy >= 85 ? "Strong shift performance." :
+        accuracy >= 60 ? "Moderate shift performance with room to improve." :
+        "Shift performance needs improvement.";
+
+      document.getElementById("caseReviewBox").classList.remove("hidden");
+      document.getElementById("caseReviewText").innerHTML = `
+        <div class="${accuracy >= 85 ? "good" : accuracy >= 60 ? "warn" : "bad"}"><strong>Shift complete.</strong></div>
+        <div style="margin-top:8px;">${performanceText}</div>
+        <ul class="review-list" style="margin-top:12px;">
+          <li>Final score: <strong>${totalScore}</strong></li>
+          <li>Accuracy: <strong>${accuracy}%</strong></li>
+          <li>Cases closed: <strong>${resolvedCases}</strong></li>
+          <li>Artifacts reviewed: <strong>${totalArtifactsReviewed}</strong></li>
+          <li>Longest positive streak depends on good triage discipline and documentation.</li>
+        </ul>
+      `;
+
+      updateStatus("Shift complete. Review results or start a new shift.");
+    }
+
+    function updateStatus(message) {
+      document.getElementById("statusBox").innerText = message;
+    }
+
     updateStats();
-    document.getElementById("status").innerText = "Decision recorded.";
-
-    setTimeout(() => {
-      if (gameActive) nextAlert();
-    }, 2400);
-  }
-
-  function endGame() {
-    gameActive = false;
-    clearInterval(timer);
-    currentAlert = null;
-    renderAlert();
-
-    const accuracy = resolved ? Math.round((correctCount / resolved) * 100) : 0;
-    document.getElementById("consoleOutput").innerText =
-      `Shift complete.
-
-Resolved alerts: ${resolved}
-Correct decisions: ${correctCount}
-Accuracy: ${accuracy}%
-Final score: ${score}
-
-Tip:
-Real SOC work depends on evidence-based investigation, not guessing.`;
-
-    document.getElementById("resultBox").classList.remove("hidden");
-    document.getElementById("resultText").innerHTML = `
-      <div class="good"><strong>Shift ended.</strong></div>
-      <div style="margin-top:8px;">Final score: <strong>${score}</strong></div>
-      <div style="margin-top:8px;">Accuracy: <strong>${accuracy}%</strong></div>
-    `;
-    document.getElementById("status").innerText = "Simulation complete.";
-  }
-
-  function resetGame() {
-    gameActive = false;
-    clearInterval(timer);
-    currentAlert = null;
-    score = 0;
-    correctCount = 0;
-    resolved = 0;
-    streak = 0;
-    timeRemaining = 180;
-    usedIndexes = [];
-    updateStats();
-    renderAlert();
-    document.getElementById("queueArea").innerHTML = "Queue will appear when the simulation starts.";
-    document.getElementById("consoleOutput").innerText = "Analyst notes and investigation output will appear here.";
-    document.getElementById("resultBox").classList.add("hidden");
-    document.getElementById("status").innerText = "Simulation reset.";
-  }
-
-  updateStats();
-</script>
-
+  </script>
 </body>
 </html>
