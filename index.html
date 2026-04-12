@@ -138,6 +138,48 @@
       line-height: 1.7;
     }
 
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .hero-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      transition: 0.2s ease;
+      border: 1px solid rgba(0,255,213,0.22);
+    }
+
+    .hero-btn-primary {
+      background: rgba(0,255,213,0.14);
+      color: #00ffd5;
+    }
+
+    .hero-btn-primary:hover {
+      background: rgba(0,255,213,0.22);
+      transform: translateY(-2px);
+    }
+
+    .hero-btn-secondary {
+      background: rgba(9, 17, 30, 0.92);
+      color: #d9e6f7;
+      border-color: rgba(58, 81, 111, 0.65);
+    }
+
+    .hero-btn-secondary:hover {
+      color: #00ffd5;
+      border-color: rgba(0,255,213,0.42);
+      transform: translateY(-2px);
+    }
+
     .summary-strip {
       display: flex;
       flex-wrap: wrap;
@@ -167,6 +209,38 @@
       border-radius: 14px;
       color: #bfd0e4;
       line-height: 1.7;
+    }
+
+    .tool-search-wrap {
+      margin: 0 0 22px;
+    }
+
+    #toolSearch {
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(47, 71, 102, 0.72);
+      background: rgba(12, 20, 35, 0.9);
+      color: #e5eefc;
+      font-size: 16px;
+      outline: none;
+      transition: 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
+    #toolSearch:focus {
+      border-color: rgba(0,255,213,0.55);
+      box-shadow: 0 0 0 1px rgba(0,255,213,0.08), 0 10px 28px rgba(0,0,0,0.24);
+    }
+
+    #toolSearch::placeholder {
+      color: #7f96b3;
+    }
+
+    .search-status {
+      margin-top: 10px;
+      color: #8ea4c1;
+      font-size: 14px;
     }
 
     .section-title {
@@ -203,7 +277,14 @@
       gap: 18px;
     }
 
+    .tool-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
     .tool {
+      position: relative;
       background:
         linear-gradient(180deg, rgba(17, 27, 43, 0.98), rgba(10, 17, 30, 0.98));
       border: 1px solid rgba(44, 66, 92, 0.75);
@@ -212,24 +293,25 @@
       transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
       min-height: 150px;
       box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      height: 100%;
     }
 
-    .tool:hover {
+    .tool-link:hover .tool {
       transform: translateY(-4px);
       border-color: rgba(0,255,213,0.55);
       box-shadow: 0 0 0 1px rgba(0,255,213,0.08), 0 14px 30px rgba(0,0,0,0.24);
     }
 
-    .tool a {
-      text-decoration: none;
+    .tool-title {
       color: #f4fbff;
       font-size: 18px;
       font-weight: 700;
       display: block;
       margin-bottom: 10px;
+      padding-right: 84px;
     }
 
-    .tool a:hover {
+    .tool-link:hover .tool-title {
       color: #00ffd5;
     }
 
@@ -237,6 +319,26 @@
       color: #9db3cf;
       font-size: 14px;
       line-height: 1.6;
+    }
+
+    .tool-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: inline-block;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-radius: 999px;
+      color: #00ffd5;
+      background: rgba(0,255,213,0.08);
+      border: 1px solid rgba(0,255,213,0.22);
+    }
+
+    .tool.hidden {
+      display: none;
     }
 
     .support-box {
@@ -282,6 +384,15 @@
       .hero p {
         font-size: 16px;
       }
+
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .hero-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -295,6 +406,7 @@
       </div>
 
       <div class="top-links">
+        <a href="#featured-tools">Featured</a>
         <a href="#networking">Networking</a>
         <a href="#security">Security</a>
         <a href="#developer">Developer</a>
@@ -309,8 +421,13 @@
         CyberTechToolkit is a browser-based platform for analysts, admins, students, and technical users who need practical tools for inspection, troubleshooting, analysis, and security learning.
       </p>
 
+      <div class="hero-actions">
+        <a href="#featured-tools" class="hero-btn hero-btn-primary">Explore Featured Tools</a>
+        <a href="cybersecurity-tools.html" class="hero-btn hero-btn-secondary">View Full Tools Index</a>
+      </div>
+
       <div class="summary-strip">
-        <div class="summary-pill"><strong>20+</strong> live tools</div>
+        <div class="summary-pill"><strong>28</strong> live tools</div>
         <div class="summary-pill"><strong>Security</strong> analysis utilities</div>
         <div class="summary-pill"><strong>Networking</strong> and IT troubleshooting tools</div>
         <div class="summary-pill"><strong>Learning</strong> modules for cyber concepts</div>
@@ -321,161 +438,262 @@
       </div>
     </div>
 
+    <div class="tool-search-wrap">
+      <input type="text" id="toolSearch" placeholder="Search tools like DNS, password, JSON, logs, headers, SOC, JWT..." />
+      <div class="search-status" id="searchStatus">Showing all 28 tools.</div>
+    </div>
+
+    <h2 id="featured-tools" class="section-title">Featured Tools</h2>
+    <div class="section-subtext">Highlighted tools that are especially useful for security analysis, troubleshooting, and hands-on learning.</div>
+    <div class="tools">
+      <a class="tool-link" href="security-headers-analyzer.html">
+        <div class="tool" data-category="featured security">
+          <span class="tool-badge">Featured</span>
+          <div class="tool-title">Security Headers Analyzer</div>
+          <div class="tool-desc">Analyze HTTP response headers for missing or weak security protections.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="jwt-decoder.html">
+        <div class="tool" data-category="featured security developer">
+          <span class="tool-badge">Popular</span>
+          <div class="tool-title">JWT Inspector</div>
+          <div class="tool-desc">Decode and inspect JWT header and payload claims such as exp, iat, nbf, and alg.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="dns-lookup.html">
+        <div class="tool" data-category="featured networking">
+          <span class="tool-badge">Popular</span>
+          <div class="tool-title">DNS Lookup</div>
+          <div class="tool-desc">Retrieve A, AAAA, MX, NS, and TXT records for domain analysis.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="soc-analyst-simulator.html">
+        <div class="tool" data-category="featured learning security">
+          <span class="tool-badge">Featured</span>
+          <div class="tool-title">SOC Analyst Simulator</div>
+          <div class="tool-desc">Triage alerts, investigate indicators, and make analyst response decisions in an advanced SOC simulation.</div>
+        </div>
+      </a>
+    </div>
+
     <h2 id="networking" class="section-title">Networking Tools</h2>
     <div class="section-subtext">Utilities for connectivity, addressing, domain lookups, and network troubleshooting workflows.</div>
     <div class="tools">
-      <div class="tool">
-        <a href="ip.html">What Is My IP</a>
-        <div class="tool-desc">Check your public IPv4, IPv6, ISP, and detected location details.</div>
-      </div>
+      <a class="tool-link" href="ip.html">
+        <div class="tool" data-category="networking">
+          <div class="tool-title">What Is My IP</div>
+          <div class="tool-desc">Check your public IPv4, IPv6, ISP, and detected location details.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="dns-lookup.html">DNS Lookup</a>
-        <div class="tool-desc">Retrieve A, AAAA, MX, NS, and TXT records for domain analysis.</div>
-      </div>
+      <a class="tool-link" href="dns-lookup.html">
+        <div class="tool" data-category="networking featured">
+          <span class="tool-badge">Popular</span>
+          <div class="tool-title">DNS Lookup</div>
+          <div class="tool-desc">Retrieve A, AAAA, MX, NS, and TXT records for domain analysis.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="subnet-calculator.html">Subnet Calculator</a>
-        <div class="tool-desc">Calculate subnet masks, ranges, broadcast addresses, and host counts.</div>
-      </div>
+      <a class="tool-link" href="subnet-calculator.html">
+        <div class="tool" data-category="networking">
+          <div class="tool-title">Subnet Calculator</div>
+          <div class="tool-desc">Calculate subnet masks, ranges, broadcast addresses, and host counts.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="port-checker.html">Port Checker</a>
-        <div class="tool-desc">Check whether a remote port appears reachable from a browser-based test.</div>
-      </div>
+      <a class="tool-link" href="port-checker.html">
+        <div class="tool" data-category="networking">
+          <div class="tool-title">Port Checker</div>
+          <div class="tool-desc">Check whether a remote port appears reachable from a browser-based test.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="log-field-extractor.html">Log Field Extractor</a>
-        <div class="tool-desc">Parse common access log lines into normalized structured fields for analysis.</div>
-      </div>
+      <a class="tool-link" href="log-field-extractor.html">
+        <div class="tool" data-category="networking security">
+          <div class="tool-title">Log Field Extractor</div>
+          <div class="tool-desc">Parse common access log lines into normalized structured fields for analysis.</div>
+        </div>
+      </a>
     </div>
 
     <h2 id="security" class="section-title">Security Tools</h2>
     <div class="section-subtext">Security-focused utilities for token inspection, header review, hash analysis, and incident workflows.</div>
     <div class="tools">
-      <div class="tool">
-  <a href="ip-reputation-checker.html">IP Reputation Checker</a>
-  <p class="tool-desc">Check IP intelligence indicators like TOR, VPN, proxy, hosting, ASN, and abuse signals.</p>
-</div>
+      <a class="tool-link" href="ip-reputation-checker.html">
+        <div class="tool" data-category="security networking">
+          <span class="tool-badge">Featured</span>
+          <div class="tool-title">IP Reputation Checker</div>
+          <div class="tool-desc">Check IP intelligence indicators like TOR, VPN, proxy, hosting, ASN, and abuse signals.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-  <a href="live-threat-map.html">Live Threat Map</a>
-  <p class="tool-desc">Visualize simulated global cyber threats with an animated live event map.</p>
-</div>
-      
-      <div class="tool">
-  <a href="log-analyzer.html">Log Analyzer</a>
-  <p class="tool-desc">Analyze simplified log lines for suspicious paths, repeated IPs, and error patterns.</p>
-</div>
-      
-      <div class="tool">
-<a href="attack-surface-analyzer.html">Attack Surface Analyzer</a>
-<p class="tool-desc">Understand what attackers look for when analyzing a domain.</p>
-</div>
-      
-     <div class="tool">
-<a href="firewall-rule-builder.html">Firewall Rule Builder</a>
-<p class="tool-desc">Create and analyze firewall rules for network security planning.</p>
-</div>
-      
-      <div class="tool">
-        <a href="password-generator.html">Password Generator</a>
-        <div class="tool-desc">Generate strong random passwords with adjustable complexity options.</div>
-      </div>
+      <a class="tool-link" href="live-threat-map.html">
+        <div class="tool" data-category="security learning">
+          <div class="tool-title">Live Threat Map</div>
+          <div class="tool-desc">Visualize simulated global cyber threats with an animated live event map.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="hash-generator.html">Hash Generator</a>
-        <div class="tool-desc">Generate SHA-based hashes for quick integrity and data fingerprinting tasks.</div>
-      </div>
+      <a class="tool-link" href="log-analyzer.html">
+        <div class="tool" data-category="security logs">
+          <div class="tool-title">Log Analyzer</div>
+          <div class="tool-desc">Analyze simplified log lines for suspicious paths, repeated IPs, and error patterns.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="hash-identifier.html">Hash Identifier</a>
-        <div class="tool-desc">Identify likely hash formats such as MD5, SHA-family, bcrypt, and more.</div>
-      </div>
+      <a class="tool-link" href="attack-surface-analyzer.html">
+        <div class="tool" data-category="security">
+          <div class="tool-title">Attack Surface Analyzer</div>
+          <div class="tool-desc">Understand what attackers look for when analyzing a domain.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="security-headers-analyzer.html">Security Headers Analyzer</a>
-        <div class="tool-desc">Analyze HTTP response headers for missing or weak security protections.</div>
-      </div>
+      <a class="tool-link" href="firewall-rule-builder.html">
+        <div class="tool" data-category="security networking learning">
+          <div class="tool-title">Firewall Rule Builder</div>
+          <div class="tool-desc">Create and analyze firewall rules for network security planning.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="email-header-analyzer.html">Email Header Analyzer</a>
-        <div class="tool-desc">Inspect email headers for SPF, DKIM, DMARC, sender path, and routing clues.</div>
-      </div>
+      <a class="tool-link" href="password-generator.html">
+        <div class="tool" data-category="security">
+          <div class="tool-title">Password Generator</div>
+          <div class="tool-desc">Generate strong random passwords with adjustable complexity options.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="csp-analyzer.html">CSP Analyzer</a>
-        <div class="tool-desc">Review Content Security Policy values for risky directives and weak settings.</div>
-      </div>
+      <a class="tool-link" href="hash-generator.html">
+        <div class="tool" data-category="security developer">
+          <div class="tool-title">Hash Generator</div>
+          <div class="tool-desc">Generate SHA-based hashes for quick integrity and data fingerprinting tasks.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="jwt-decoder.html">JWT Inspector</a>
-        <div class="tool-desc">Decode and inspect JWT header and payload claims such as exp, iat, nbf, and alg.</div>
-      </div>
+      <a class="tool-link" href="hash-identifier.html">
+        <div class="tool" data-category="security">
+          <div class="tool-title">Hash Identifier</div>
+          <div class="tool-desc">Identify likely hash formats such as MD5, SHA-family, bcrypt, and more.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="incident-response-note-builder.html">Incident Response Note Builder</a>
-        <div class="tool-desc">Create structured incident response notes for investigations and documentation workflows.</div>
-      </div>
+      <a class="tool-link" href="security-headers-analyzer.html">
+        <div class="tool" data-category="security featured headers">
+          <span class="tool-badge">Featured</span>
+          <div class="tool-title">Security Headers Analyzer</div>
+          <div class="tool-desc">Analyze HTTP response headers for missing or weak security protections.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="email-header-analyzer.html">
+        <div class="tool" data-category="security email headers">
+          <div class="tool-title">Email Header Analyzer</div>
+          <div class="tool-desc">Inspect email headers for SPF, DKIM, DMARC, sender path, and routing clues.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="csp-analyzer.html">
+        <div class="tool" data-category="security headers">
+          <div class="tool-title">CSP Analyzer</div>
+          <div class="tool-desc">Review Content Security Policy values for risky directives and weak settings.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="jwt-decoder.html">
+        <div class="tool" data-category="security developer featured">
+          <span class="tool-badge">Popular</span>
+          <div class="tool-title">JWT Inspector</div>
+          <div class="tool-desc">Decode and inspect JWT header and payload claims such as exp, iat, nbf, and alg.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="incident-response-note-builder.html">
+        <div class="tool" data-category="security learning">
+          <div class="tool-title">Incident Response Note Builder</div>
+          <div class="tool-desc">Create structured incident response notes for investigations and documentation workflows.</div>
+        </div>
+      </a>
     </div>
 
     <h2 id="developer" class="section-title">Developer & Data Tools</h2>
     <div class="section-subtext">Encoding, parsing, formatting, and transformation tools for developers and technical users.</div>
     <div class="tools">
-      <div class="tool">
-        <a href="base64.html">Base64 Encoder / Decoder</a>
-        <div class="tool-desc">Encode and decode Base64 data quickly in the browser.</div>
-      </div>
+      <a class="tool-link" href="base64.html">
+        <div class="tool" data-category="developer encoding">
+          <div class="tool-title">Base64 Encoder / Decoder</div>
+          <div class="tool-desc">Encode and decode Base64 data quickly in the browser.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="json-formatter.html">JSON Formatter</a>
-        <div class="tool-desc">Format, validate, and minify JSON for cleaner debugging and analysis.</div>
-      </div>
+      <a class="tool-link" href="json-formatter.html">
+        <div class="tool" data-category="developer data">
+          <div class="tool-title">JSON Formatter</div>
+          <div class="tool-desc">Format, validate, and minify JSON for cleaner debugging and analysis.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="url-encoder.html">URL Encoder / Decoder</a>
-        <div class="tool-desc">Encode and decode URL text and query string values safely.</div>
-      </div>
+      <a class="tool-link" href="url-encoder.html">
+        <div class="tool" data-category="developer encoding">
+          <div class="tool-title">URL Encoder / Decoder</div>
+          <div class="tool-desc">Encode and decode URL text and query string values safely.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="case-converter.html">Case Converter</a>
-        <div class="tool-desc">Convert text into uppercase, camelCase, snake_case, and other formats.</div>
-      </div>
+      <a class="tool-link" href="case-converter.html">
+        <div class="tool" data-category="developer text">
+          <div class="tool-title">Case Converter</div>
+          <div class="tool-desc">Convert text into uppercase, camelCase, snake_case, and other formats.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="encoding-playground.html">Encoding Playground</a>
-        <div class="tool-desc">Explore Base64, Hex, Binary, URL encoding, ASCII, and byte-level character views.</div>
-      </div>
+      <a class="tool-link" href="encoding-playground.html">
+        <div class="tool" data-category="developer encoding learning">
+          <div class="tool-title">Encoding Playground</div>
+          <div class="tool-desc">Explore Base64, Hex, Binary, URL encoding, ASCII, and byte-level character views.</div>
+        </div>
+      </a>
     </div>
 
     <h2 id="learning" class="section-title">Cybersecurity Learning Tools</h2>
     <div class="section-subtext">Interactive explainers and visualizers for understanding core security concepts.</div>
     <div class="tools">
-      <div class="tool">
-  <a href="soc-analyst-simulator.html">SOC Analyst Simulator</a>
-  <p class="tool-desc">Triage alerts, investigate indicators, and make analyst response decisions in an advanced SOC simulation.</p>
-</div>
-      
-      <div class="tool">
-        <a href="password-entropy.html">Password Entropy Calculator</a>
-        <div class="tool-desc">Learn how password length and character variety affect entropy and resistance.</div>
-      </div>
+      <a class="tool-link" href="soc-analyst-simulator.html">
+        <div class="tool" data-category="learning security featured">
+          <span class="tool-badge">Featured</span>
+          <div class="tool-title">SOC Analyst Simulator</div>
+          <div class="tool-desc">Triage alerts, investigate indicators, and make analyst response decisions in an advanced SOC simulation.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="hash-avalanche.html">Hash Avalanche Visualizer</a>
-        <div class="tool-desc">See how tiny input changes create dramatically different SHA-256 outputs.</div>
-      </div>
+      <a class="tool-link" href="password-entropy.html">
+        <div class="tool" data-category="learning security">
+          <div class="tool-title">Password Entropy Calculator</div>
+          <div class="tool-desc">Learn how password length and character variety affect entropy and resistance.</div>
+        </div>
+      </a>
 
-      <div class="tool">
-        <a href="encoding-vs-encryption-vs-hashing.html">Encoding vs Encryption vs Hashing</a>
-        <div class="tool-desc">Compare reversible encoding, key-based encryption, and one-way hashing side by side.</div>
-      </div>
-      
-      <div class="tool">
-<a href="cybersecurity-tools.html">Tools Index</a>
-<p class="tool-desc">View a complete list of all CyberTechToolkit tools.</p>
-</div>
-    
+      <a class="tool-link" href="hash-avalanche.html">
+        <div class="tool" data-category="learning security">
+          <div class="tool-title">Hash Avalanche Visualizer</div>
+          <div class="tool-desc">See how tiny input changes create dramatically different SHA-256 outputs.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="encoding-vs-encryption-vs-hashing.html">
+        <div class="tool" data-category="learning security encoding">
+          <div class="tool-title">Encoding vs Encryption vs Hashing</div>
+          <div class="tool-desc">Compare reversible encoding, key-based encryption, and one-way hashing side by side.</div>
+        </div>
+      </a>
+
+      <a class="tool-link" href="cybersecurity-tools.html">
+        <div class="tool" data-category="learning index">
+          <div class="tool-title">Tools Index</div>
+          <div class="tool-desc">View a complete list of all CyberTechToolkit tools.</div>
+        </div>
+      </a>
     </div>
 
     <div class="support-box">
@@ -501,5 +719,40 @@
     </footer>
 
   </div>
+
+  <script>
+    const searchInput = document.getElementById("toolSearch");
+    const searchStatus = document.getElementById("searchStatus");
+    const allTools = document.querySelectorAll(".tool");
+    const totalTools = allTools.length;
+
+    searchInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      allTools.forEach(tool => {
+        const searchableText = (
+          tool.textContent +
+          " " +
+          (tool.getAttribute("data-category") || "")
+        ).toLowerCase();
+
+        if (searchableText.includes(query)) {
+          tool.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          tool.classList.add("hidden");
+        }
+      });
+
+      if (query === "") {
+        searchStatus.textContent = `Showing all ${totalTools} tools.`;
+      } else if (visibleCount === 0) {
+        searchStatus.textContent = `No tools found for "${query}".`;
+      } else {
+        searchStatus.textContent = `Showing ${visibleCount} matching tool${visibleCount === 1 ? "" : "s"} for "${query}".`;
+      }
+    });
+  </script>
 </body>
 </html>
