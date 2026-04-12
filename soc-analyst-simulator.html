@@ -502,6 +502,66 @@
       line-height: 1.7;
     }
 
+    .report-item {
+      background: #0f172a;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .report-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .report-title {
+      font-weight: bold;
+      color: #e5eefc;
+      line-height: 1.5;
+    }
+
+    .report-meta {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .report-summary {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .report-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .report-actions button {
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+
+    .saved-report-box {
+      background: #07101d;
+      border: 1px solid #1c2d43;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: Consolas, Monaco, monospace;
+      white-space: pre-wrap;
+      color: #cfe3fb;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
     @media (max-width: 1120px) {
       .grid-top,
       .main-layout {
@@ -669,6 +729,14 @@
         <div class="side-section">
           <div class="side-label">Queue Preview</div>
           <div id="queueArea" class="muted">Queue will appear when the shift starts.</div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Report History</div>
+          <div id="reportHistory" class="muted">No reports yet.</div>
+          <div style="margin-top:10px;">
+            <button class="mini-btn" onclick="clearReports()">Clear Reports</button>
+          </div>
         </div>
 
         <div class="side-section">
@@ -1162,6 +1230,7 @@ Payloads=standard scanner probes only`,
     let streak = 0;
     let totalArtifactsReviewed = 0;
     let lastReportText = "";
+    let reportHistory = JSON.parse(localStorage.getItem("socReports") || "[]");
 
     function severityClass(level) {
       if (level === "low") return "sev-low";
@@ -1176,7 +1245,9 @@ Payloads=standard scanner probes only`,
 
     function getFilteredScenarioPool() {
       const pack = getScenarioPack();
-      if (pack === "mixed") return scenarios;
+      if (pack === "mixed") {
+        return scenarios;
+      }
       return scenarios.filter(s => s.pack === pack);
     }
 
@@ -1212,7 +1283,9 @@ Payloads=standard scanner probes only`,
 
       while (previews.length < maxPreview) {
         const pick = pool[Math.floor(Math.random() * pool.length)];
-        if (!previews.includes(pick)) previews.push(pick);
+        if (!previews.includes(pick)) {
+          previews.push(pick);
+        }
       }
 
       queue.innerHTML = previews.map(item => `
@@ -1344,7 +1417,7 @@ Payloads=standard scanner probes only`,
       streak = 0;
       totalArtifactsReviewed = 0;
       lastReportText = "";
-      clearWorkspace();
+      clearWorkspace(false);
       document.getElementById("caseReviewBox").classList.add("hidden");
       updateStats();
       renderQueue();
@@ -1378,7 +1451,9 @@ Payloads=standard scanner probes only`,
     function setFirstTabActive() {
       const buttons = document.querySelectorAll(".tab-btn");
       buttons.forEach(btn => btn.classList.remove("active"));
-      if (buttons[0]) buttons[0].classList.add("active");
+      if (buttons[0]) {
+        buttons[0].classList.add("active");
+      }
     }
 
     function clearWorkspace(clearStatus = true) {
@@ -1503,6 +1578,115 @@ Payloads=standard scanner probes only`,
       return map[value] || value;
     }
 
+    function buildReportText(caseData, analystInput, result) {
+      return `CyberTechToolkit SOC Analyst Simulator Report
+
+Case ID: ${caseData.caseId}
+Case Title: ${caseData.title}
+Alert Source: ${caseData.source}
+Primary Asset: ${caseData.asset}
+Owner/User: ${caseData.owner}
+
+Assigned Severity: ${analystInput.severity}
+Disposition: ${labelizeDisposition(analystInput.disposition)}
+Primary Response Action: ${labelizeAction(analystInput.action)}
+Confidence: ${analystInput.confidence}
+MITRE ATT&CK: ${analystInput.mitre || "Not provided"}
+Affected Assets/Accounts: ${analystInput.affected || "Not provided"}
+
+Artifacts Reviewed: ${Array.from(reviewedArtifacts).map(labelizeTab).join(", ") || "None"}
+
+Analyst Notes:
+${analystInput.notes || "No analyst notes provided."}
+
+Expected Reasoning:
+${caseData.reasoning}
+
+Scoring Outcome:
+Points Earned: ${result.points}
+Case Passed: ${result.passed ? "Yes" : "No"}
+
+Review Summary:
+- ${result.review.join("\n- ")}
+`;
+    }
+
+    function saveReport(caseData, analystInput, result) {
+      const report = {
+        id: Date.now(),
+        title: caseData.title,
+        caseId: caseData.caseId,
+        score: result.points,
+        passed: result.passed,
+        date: new Date().toLocaleString(),
+        summary: analystInput.notes.slice(0, 120) || "No notes provided",
+        fullReport: lastReportText
+      };
+
+      reportHistory.unshift(report);
+      localStorage.setItem("socReports", JSON.stringify(reportHistory));
+    }
+
+    function renderReportHistory() {
+      const container = document.getElementById("reportHistory");
+
+      if (!container) {
+        return;
+      }
+
+      if (!reportHistory.length) {
+        container.innerHTML = `<div class="muted">No reports yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = reportHistory.map(r => `
+        <div class="report-item">
+          <div class="report-top">
+            <div class="report-title">${r.title}</div>
+            <div class="${r.passed ? "good" : "warn"}">${r.score} pts</div>
+          </div>
+          <div class="report-meta">${r.caseId} • ${r.date}</div>
+          <div class="report-summary">${escapeHtml(r.summary)}...</div>
+          <div class="report-actions">
+            <button class="mini-btn" onclick="viewReport(${r.id})">View</button>
+            <button class="mini-btn" onclick="copyReport(${r.id})">Copy</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function viewReport(id) {
+      const report = reportHistory.find(r => r.id === id);
+      if (!report) {
+        return;
+      }
+
+      document.getElementById("caseReviewBox").classList.remove("hidden");
+      document.getElementById("caseReviewText").innerHTML = `
+        <div class="panel-title" style="font-size:16px; margin-bottom:8px;">Saved Report</div>
+        <div class="saved-report-box">${escapeHtml(report.fullReport)}</div>
+      `;
+      updateStatus("Saved report opened.");
+    }
+
+    function copyReport(id) {
+      const report = reportHistory.find(r => r.id === id);
+      if (!report) {
+        return;
+      }
+
+      navigator.clipboard.writeText(report.fullReport)
+        .then(() => updateStatus("Saved report copied to clipboard."))
+        .catch(() => updateStatus("Could not copy automatically. Clipboard access may be blocked."));
+    }
+
+    function clearReports() {
+      reportHistory = [];
+      localStorage.removeItem("socReports");
+      renderReportHistory();
+      updateStatus("All saved reports cleared.");
+    }
+
     function submitCase() {
       if (!shiftActive || !currentCase) {
         updateStatus("Start a shift and load a case first.");
@@ -1553,44 +1737,14 @@ Payloads=standard scanner probes only`,
       updateStats();
 
       lastReportText = buildReportText(currentCase, analystInput, result);
+      saveReport(currentCase, analystInput, result);
+      renderReportHistory();
+
       updateStatus(`Case submitted. ${resolvedCases >= shiftCaseTarget ? "Shift target reached." : "You can move to the next case."}`);
 
       if (resolvedCases >= shiftCaseTarget) {
         finishShift();
       }
-    }
-
-    function buildReportText(caseData, analystInput, result) {
-      return `CyberTechToolkit SOC Analyst Simulator Report
-
-Case ID: ${caseData.caseId}
-Case Title: ${caseData.title}
-Alert Source: ${caseData.source}
-Primary Asset: ${caseData.asset}
-Owner/User: ${caseData.owner}
-
-Assigned Severity: ${analystInput.severity}
-Disposition: ${labelizeDisposition(analystInput.disposition)}
-Primary Response Action: ${labelizeAction(analystInput.action)}
-Confidence: ${analystInput.confidence}
-MITRE ATT&CK: ${analystInput.mitre || "Not provided"}
-Affected Assets/Accounts: ${analystInput.affected || "Not provided"}
-
-Artifacts Reviewed: ${Array.from(reviewedArtifacts).map(labelizeTab).join(", ") || "None"}
-
-Analyst Notes:
-${analystInput.notes || "No analyst notes provided."}
-
-Expected Reasoning:
-${caseData.reasoning}
-
-Scoring Outcome:
-Points Earned: ${result.points}
-Case Passed: ${result.passed ? "Yes" : "No"}
-
-Review Summary:
-- ${result.review.join("\n- ")}
-`;
     }
 
     function copyCaseReport() {
@@ -1601,7 +1755,7 @@ Review Summary:
 
       navigator.clipboard.writeText(lastReportText)
         .then(() => updateStatus("Last case report copied to clipboard."))
-        .catch(() => updateStatus("Could not copy automatically. Your browser may have blocked clipboard access."));
+        .catch(() => updateStatus("Could not copy automatically. Clipboard access may be blocked."));
     }
 
     function finishShift() {
@@ -1632,11 +1786,34 @@ Review Summary:
       updateStatus("Shift complete. Review results or start a new shift.");
     }
 
+    function resetSimulator() {
+      shiftActive = false;
+      currentCase = null;
+      currentArtifact = "overview";
+      reviewedArtifacts = new Set();
+      usedCaseIds = [];
+      shiftCaseTarget = 0;
+      resolvedCases = 0;
+      correctCases = 0;
+      totalScore = 0;
+      streak = 0;
+      totalArtifactsReviewed = 0;
+      lastReportText = "";
+      renderCase();
+      renderArtifactContent();
+      clearWorkspace(false);
+      updateStats();
+      renderQueue();
+      document.getElementById("caseReviewBox").classList.add("hidden");
+      updateStatus("Simulator reset.");
+    }
+
     function updateStatus(message) {
       document.getElementById("statusBox").innerText = message;
     }
 
     updateStats();
+    renderReportHistory();
   </script>
 </body>
 </html>
