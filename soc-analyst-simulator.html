@@ -5,6 +5,8 @@
   <title>SOC Analyst Simulator | CyberTechToolkit</title>
   <meta name="description" content="Train like a real SOC analyst with evidence-driven investigation, triage workflows, and structured incident reporting." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -418,16 +420,6 @@
       line-height: 1.6;
     }
 
-    .status-box {
-      margin-top: 14px;
-      background: #08111f;
-      border: 1px solid #1f2937;
-      border-radius: 12px;
-      padding: 12px;
-      color: #dbe7f5;
-      line-height: 1.6;
-    }
-
     .queue-item {
       border-bottom: 1px solid #1f2937;
       padding: 10px 0;
@@ -813,6 +805,7 @@
           <div class="controls">
             <button class="btn-primary" onclick="submitCase()">Submit Case Report</button>
             <button class="btn-secondary" onclick="clearWorkspace()">Clear Notes</button>
+            <button class="btn-secondary" onclick="downloadReport()">Download PDF Report</button>
             <button class="btn-danger" onclick="copyCaseReport()">Copy Last Report</button>
           </div>
 
@@ -1245,9 +1238,7 @@ Payloads=standard scanner probes only`,
 
     function getFilteredScenarioPool() {
       const pack = getScenarioPack();
-      if (pack === "mixed") {
-        return scenarios;
-      }
+      if (pack === "mixed") return scenarios;
       return scenarios.filter(s => s.pack === pack);
     }
 
@@ -1283,9 +1274,7 @@ Payloads=standard scanner probes only`,
 
       while (previews.length < maxPreview) {
         const pick = pool[Math.floor(Math.random() * pool.length)];
-        if (!previews.includes(pick)) {
-          previews.push(pick);
-        }
+        if (!previews.includes(pick)) previews.push(pick);
       }
 
       queue.innerHTML = previews.map(item => `
@@ -1451,9 +1440,7 @@ Payloads=standard scanner probes only`,
     function setFirstTabActive() {
       const buttons = document.querySelectorAll(".tab-btn");
       buttons.forEach(btn => btn.classList.remove("active"));
-      if (buttons[0]) {
-        buttons[0].classList.add("active");
-      }
+      if (buttons[0]) buttons[0].classList.add("active");
     }
 
     function clearWorkspace(clearStatus = true) {
@@ -1464,9 +1451,7 @@ Payloads=standard scanner probes only`,
       document.getElementById("confidenceLevel").value = "";
       document.getElementById("mitreField").value = "";
       document.getElementById("affectedCount").value = "";
-      if (clearStatus) {
-        updateStatus("Workspace cleared.");
-      }
+      if (clearStatus) updateStatus("Workspace cleared.");
     }
 
     function insertNoteTemplate(type) {
@@ -1630,9 +1615,7 @@ Review Summary:
     function renderReportHistory() {
       const container = document.getElementById("reportHistory");
 
-      if (!container) {
-        return;
-      }
+      if (!container) return;
 
       if (!reportHistory.length) {
         container.innerHTML = `<div class="muted">No reports yet.</div>`;
@@ -1657,9 +1640,7 @@ Review Summary:
 
     function viewReport(id) {
       const report = reportHistory.find(r => r.id === id);
-      if (!report) {
-        return;
-      }
+      if (!report) return;
 
       document.getElementById("caseReviewBox").classList.remove("hidden");
       document.getElementById("caseReviewText").innerHTML = `
@@ -1671,9 +1652,7 @@ Review Summary:
 
     function copyReport(id) {
       const report = reportHistory.find(r => r.id === id);
-      if (!report) {
-        return;
-      }
+      if (!report) return;
 
       navigator.clipboard.writeText(report.fullReport)
         .then(() => updateStatus("Saved report copied to clipboard."))
@@ -1756,6 +1735,41 @@ Review Summary:
       navigator.clipboard.writeText(lastReportText)
         .then(() => updateStatus("Last case report copied to clipboard."))
         .catch(() => updateStatus("Could not copy automatically. Clipboard access may be blocked."));
+    }
+
+    function downloadReport() {
+      if (!lastReportText) {
+        updateStatus("No report available to download yet.");
+        return;
+      }
+
+      const safeReportText = escapeHtml(lastReportText).replace(/\n/g, "<br>");
+
+      const element = document.createElement("div");
+      element.innerHTML = `
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #111827;">
+          <div style="margin-bottom: 18px; border-bottom: 2px solid #0f172a; padding-bottom: 10px;">
+            <h2 style="margin: 0 0 6px; color: #0f172a;">CyberTechToolkit SOC Report</h2>
+            <div style="font-size: 13px; color: #4b5563;">Generated from the SOC Analyst Simulator</div>
+          </div>
+
+          <div style="font-size: 14px; line-height: 1.7;">
+            ${safeReportText}
+          </div>
+        </div>
+      `;
+
+      html2pdf()
+        .set({
+          margin: 10,
+          filename: "CyberTechToolkit_SOC_Report.pdf",
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .from(element)
+        .save();
+
+      updateStatus("PDF report downloaded.");
     }
 
     function finishShift() {
